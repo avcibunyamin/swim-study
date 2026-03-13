@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.animate-slide-up {
+  animation: slide-up 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #14b8a6;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0d9488;
+}
+
+/* Input focus styles */
+input:focus, textarea:focus {
+  outline: none;
+}
+
+/* Button press effect */
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Prevent zoom on mobile input focus */
+@media screen and (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+/* Custom slider component - touch enabled */
+.custom-slider {
+  touch-action: pan-x;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #14b8a6;
+}
+
+/* Animation for achievements */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Notification slide-in animation */
+@keyframes fade-in-down {
+  0% { opacity: 0; transform: translateY(-12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in-down 0.3s ease-out;
+}

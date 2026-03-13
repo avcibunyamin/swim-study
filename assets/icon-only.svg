@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#0c1220"/>
+    </linearGradient>
+    <linearGradient id="wave" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#14b8a6"/>
+      <stop offset="50%" style="stop-color:#06b6d4"/>
+      <stop offset="100%" style="stop-color:#14b8a6"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="12" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" rx="220" fill="url(#bg)"/>
+  <circle cx="512" cy="440" r="280" fill="#14b8a6" opacity="0.06"/>
+  <path d="M150 560 Q300 380 460 560 Q620 740 780 560" stroke="url(#wave)" stroke-width="32" fill="none" stroke-linecap="round" opacity="0.25" filter="url(#softglow)"/>
+  <path d="M180 480 Q340 300 500 480 Q660 660 820 480" stroke="url(#wave)" stroke-width="38" fill="none" stroke-linecap="round" opacity="0.5" filter="url(#softglow)"/>
+  <path d="M140 420 Q320 220 500 420 Q680 620 860 420" stroke="url(#wave)" stroke-width="48" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+  <text x="512" y="800" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="180" fill="url(#wave)" filter="url(#softglow)">SWIM</text>
+</svg>

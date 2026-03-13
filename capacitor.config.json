@@ -1,0 +1,19 @@
+{
+  "appId": "com.swimstudy.app",
+  "appName": "SWIM",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "https"
+  },
+  "plugins": {
+    "StatusBar": {
+      "style": "Dark",
+      "backgroundColor": "#0f172a"
+    },
+    "Keyboard": {
+      "resize": "body",
+      "resizeOnFullScreen": true
+    }
+  }
+}

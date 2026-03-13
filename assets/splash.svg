@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2732 2732">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="50%" style="stop-color:#0e1525"/>
+      <stop offset="100%" style="stop-color:#0c4a6e"/>
+    </linearGradient>
+    <linearGradient id="wave" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#14b8a6"/>
+      <stop offset="50%" style="stop-color:#06b6d4"/>
+      <stop offset="100%" style="stop-color:#14b8a6"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="20" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="14" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="2732" height="2732" fill="url(#bg)"/>
+  <circle cx="1366" cy="1200" r="500" fill="#14b8a6" opacity="0.04"/>
+  <path d="M700 1350 Q980 1050 1250 1350 Q1520 1650 1800 1350" stroke="url(#wave)" stroke-width="50" fill="none" stroke-linecap="round" opacity="0.2" filter="url(#softglow)"/>
+  <path d="M750 1220 Q1030 920 1300 1220 Q1570 1520 1850 1220" stroke="url(#wave)" stroke-width="60" fill="none" stroke-linecap="round" opacity="0.45" filter="url(#softglow)"/>
+  <path d="M650 1100 Q970 780 1280 1100 Q1590 1420 1900 1100" stroke="url(#wave)" stroke-width="72" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+  <text x="1366" y="1650" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="280" fill="url(#wave)" filter="url(#softglow)">SWIM</text>
+  <text x="1366" y="1780" text-anchor="middle" font-family="Arial, sans-serif" font-weight="400" font-size="80" fill="#94a3b8" opacity="0.7">Study With Me</text>
+</svg>

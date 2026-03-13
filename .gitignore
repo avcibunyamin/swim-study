@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+
+# Capacitor build artifacts (API key'ler gömülü olabilir)
+android/app/build/
+android/app/src/main/assets/public/
+ios/App/App/public/
+
+# Environment variables (ÖNEMLİ! Asla commit etme!)
+.env
+.env.local
+.env.production
+
+# Service account keys (varsa)
+*-service-account*.json
+*-credentials*.json
+service-account*.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Firebase
+.firebase/
+
+# Windows reserved device name (npm artifact)
+NUL
