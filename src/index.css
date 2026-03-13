@@ -10,6 +10,14 @@
   animation: slide-up 0.25s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+.animate-slide-in-right {
+  animation: slide-in-right 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -84,6 +92,11 @@ input[type="checkbox"] {
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
+
+/* iOS Safe Area — Capacitor */
+.pt-safe   { padding-top: constant(safe-area-inset-top, 0px); padding-top: env(safe-area-inset-top, 0px); }
+.pb-safe   { padding-bottom: constant(safe-area-inset-bottom, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.pb-nav-safe { padding-bottom: calc(constant(safe-area-inset-bottom, 0px) + 0.5rem); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem); }
 
 /* Notification slide-in animation */
 @keyframes fade-in-down {

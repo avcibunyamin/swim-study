@@ -7,15 +7,11 @@ import { getOfflineData, clearOfflineData } from '../utils/offlineStorage';
 
 export default function usePresence({
   user, isOnline, setIsOnline,
-  sessionWorked, setSessionWorked, setIsRunning,
   setTotalStudySecs, setStudyHistory, setNotification,
   setFriends, setFriendRequests, setSentRequests,
-  saveStudyTime, pausedSessionWorkedRef
 }) {
   const heartbeatRef = useRef(null);
   const channelRef = useRef(null);
-  const sessionWorkedRef = useRef(sessionWorked);
-  useEffect(() => { sessionWorkedRef.current = sessionWorked; }, [sessionWorked]);
 
   // Online/offline takibi
   useEffect(() => {
@@ -111,21 +107,26 @@ export default function usePresence({
     if (!Capacitor.isNativePlatform() || !user) return;
     let listenerHandle;
     CapApp.addListener('appStateChange', async ({ isActive }) => {
-      if (isActive && isOnline) {
-        await supabase.from('users').update({ is_online: true, last_seen: serverISOString() }).eq('id', user.id).then(undefined, () => {});
-      } else if (!isActive) {
-        await supabase.from('users').update({ is_online: false, last_seen: serverISOString() }).eq('id', user.id).then(undefined, () => {});
-        const sw = sessionWorkedRef.current;
-        if (sw > 0) {
-          await saveStudyTime?.(sw);
-          pausedSessionWorkedRef.current = sw;
-          setSessionWorked(0);
-          setIsRunning(false);
-        }
+      if (isActive) {
+        // Ön plana gelince Supabase'e ping at — başarılıysa online, banner kalkar
+        const { error } = await supabase
+          .from('users')
+          .update({ is_online: true, last_seen: serverISOString() })
+          .eq('id', user.id);
+        if (!error) setIsOnline(true);
+        // NOT: Timer'a dokunmuyoruz — usePomodoro kendi interval'ı ile
+        // elapsed süreyi otomatik hesaplayıp timeLeft'i düzeltiyor
+      } else {
+        // Arka plana gidince sadece presence güncelle, timer'ı durdurma
+        await supabase
+          .from('users')
+          .update({ is_online: false, last_seen: serverISOString() })
+          .eq('id', user.id)
+          .then(undefined, () => {});
       }
     }).then(h => { listenerHandle = h; });
     return () => { listenerHandle?.remove(); };
-  }, [user, isOnline, saveStudyTime, pausedSessionWorkedRef, setSessionWorked, setIsRunning]);
+  }, [user, setIsOnline]);
 
   // Arkadaş ve friend request realtime dinleyici
   useEffect(() => {

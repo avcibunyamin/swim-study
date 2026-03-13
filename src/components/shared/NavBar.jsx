@@ -13,7 +13,7 @@ export default function NavBar({ navConfig, theme, page, setPage, isRunning, isO
     { id: 'profile', Icon: User, l: t('nav.profile') }
   ];
   return (
-    <nav className={`${navConfig.navCls} ${theme.nav} p-2 z-40`} style={!navConfig.vertical ? { paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' } : undefined}>
+    <nav className={`${navConfig.navCls} ${theme.nav} p-2 z-40 ${!navConfig.vertical ? 'pb-nav-safe' : ''}`}>
       {isRunning && !isOnBreak && page !== 'pomodoro' && (
         <div className={`${navConfig.timerCls} bg-gradient-to-r from-teal-600 to-cyan-600 rounded-full px-4 py-1 flex items-center gap-2 animate-pulse shadow-lg`}>
           <div className="w-2 h-2 bg-white rounded-full animate-ping" />

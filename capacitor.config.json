@@ -6,10 +6,14 @@
     "androidScheme": "https",
     "iosScheme": "https"
   },
+  "ios": {
+    "backgroundColor": "#000000"
+  },
   "plugins": {
     "StatusBar": {
       "style": "Dark",
-      "backgroundColor": "#0f172a"
+      "backgroundColor": "#000000",
+      "overlaysWebView": true
     },
     "Keyboard": {
       "resize": "body",

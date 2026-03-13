@@ -36,8 +36,10 @@ const isNative = Capacitor.isNativePlatform();
 
 // Native platform başlangıç ayarları
 if (isNative) {
+  // Web view'ü status bar'ın ARKASINA genişlet — Dynamic Island üst alanı siyah olur
+  try { StatusBar.setOverlaysWebView({ overlay: true }); } catch (e) { console.debug('StatusBar overlay error:', e); }
   try { StatusBar.setStyle({ style: Style.Dark }); } catch (e) { console.debug('StatusBar style error:', e); }
-  try { StatusBar.setBackgroundColor({ color: '#0f172a' }); } catch (e) { console.debug('StatusBar bg error:', e); }
+  try { StatusBar.setBackgroundColor({ color: '#000000' }); } catch (e) { console.debug('StatusBar bg error:', e); }
   try { LocalNotifications.requestPermissions(); } catch (e) { console.debug('Notification permission error:', e); }
 }
 
@@ -108,11 +110,8 @@ export default function SwimApp() {
   // Presence hook (online/offline, heartbeat, görünürlük)
   usePresence({
     user, isOnline, setIsOnline,
-    sessionWorked,
-    setSessionWorked, setIsRunning,
     setTotalStudySecs, setStudyHistory, setNotification,
     setFriends, setFriendRequests, setSentRequests,
-    saveStudyTime, pausedSessionWorkedRef
   });
 
   // Friends hook
@@ -150,7 +149,7 @@ export default function SwimApp() {
   // Nav konfigürasyonu
   const isVerticalNav = !isNative && (navPosition === 'left' || navPosition === 'right');
   const navConfig = useMemo(() => {
-    if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-32 p-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
+    if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-32 px-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
     const c = {
       bottom: { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-24 p-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false },
       top: { navCls: 'fixed top-0 inset-x-0 border-b', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pt-20 px-4 pb-4', timerCls: 'absolute -bottom-8 left-1/2 -translate-x-1/2', vertical: false },
@@ -188,6 +187,13 @@ export default function SwimApp() {
     document.addEventListener('focusin', handler);
     return () => document.removeEventListener('focusin', handler);
   }, []);
+
+  // Body arka planını tema ile eşitle — Dynamic Island arkasını doğru renge boyar
+  useEffect(() => {
+    const color = themeObj.bodyBg || '#000000';
+    document.body.style.backgroundColor = color;
+    document.documentElement.style.backgroundColor = color;
+  }, [themeObj]);
 
   // Alıntı & sağlık ipucu döngüsü
   useEffect(() => { const i = setInterval(() => setQuoteIdx(q => (q + 1) % 4), 5000); return () => clearInterval(i); }, []);
@@ -252,7 +258,7 @@ export default function SwimApp() {
   }
 
   return (
-    <div className={`${themeObj.bg} min-h-screen`} style={isNative ? { paddingTop: 'env(safe-area-inset-top, 0px)' } : undefined} onClick={unlockAudio}>
+    <div className={`${themeObj.bg} min-h-screen ${isNative ? 'pt-safe' : ''}`} onClick={unlockAudio}>
       <Toast toast={toast} onClose={() => setToast(null)} />
       {page === 'home' && (
         <HomePage
