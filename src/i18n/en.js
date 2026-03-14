@@ -62,7 +62,7 @@ export default {
   'stats.monthLabels': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 
   // --- Calendar ---
-  'cal.days': ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+  'cal.days': ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
   'cal.months': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 
   // --- Plan ---

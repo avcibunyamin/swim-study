@@ -33,7 +33,7 @@ export default function ProfilePage({ theme, pagePadding, navPosition, changeNav
       <div className="flex flex-col items-center mb-6">
         <span className="text-6xl mb-2">{userData?.avatar || '🐟'}</span>
         <h2 className="text-xl font-bold">@{userData?.username}</h2>
-        {userData?.fullName && <p className={`${theme.text} text-sm`}>{userData.fullName}</p>}
+        {userData?.full_name && <p className={`${theme.text} text-sm`}>{userData.full_name}</p>}
         <p className={`${theme.textMuted} text-sm`}>{userData?.email}</p>
         <div className={`mt-2 px-3 py-1 rounded-full bg-gradient-to-r ${currentAchievement.color}`}>
           <span className="text-white text-sm font-bold">{currentAchievement.icon} {currentAchievement.title}</span>

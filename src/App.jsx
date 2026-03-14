@@ -165,6 +165,8 @@ export default function SwimApp() {
   const changeNavPosition = useCallback((pos) => { if (!isNative) setNavPosition(pos); }, []);
 
   // Toast helper
+  const handleCloseToast = useCallback(() => setToast(null), []);
+
   const showToast = useCallback((type, message, title) => {
     setToast({ type, message, title });
   }, []);
@@ -259,7 +261,7 @@ export default function SwimApp() {
 
   return (
     <div className={`${themeObj.bg} min-h-screen ${isNative ? 'pt-safe' : ''}`} onClick={unlockAudio}>
-      <Toast toast={toast} onClose={() => setToast(null)} />
+      <Toast toast={toast} onClose={handleCloseToast} />
       {page === 'home' && (
         <HomePage
           theme={themeObj} pagePadding={navConfig.pagePad}
@@ -330,7 +332,7 @@ themeKey={themeKey} changeTheme={(th) => changeTheme(th, isOnline)}
           showDeleteConfirm={showDeleteConfirm} setShowDeleteConfirm={setShowDeleteConfirm}
           handleLogout={handleLogout}
           handleDeleteAccount={() => handleDeleteAccount({
-            deletePassword, friendsList: friends, isOnline,
+            deletePassword, isOnline,
             onError: (msg) => showToast('error', msg),
             onSuccess: (msg) => showToast('success', msg)
           })}

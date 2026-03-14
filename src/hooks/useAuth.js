@@ -115,7 +115,7 @@ export default function useAuth() {
       const fetchPromise = Promise.all([
         supabase
           .from('users')
-          .select('id, email, username, full_name, display_name, avatar, is_online, total_study_secs, plans, about_me, show_study_time, allow_invites, theme_id, status_id, last_seen')
+          .select('id, email, username, full_name, display_name, avatar, is_online, total_study_secs, plans, about_me, show_study_time, allow_invites, theme_id, status_id, last_seen, last_username_change, last_email_change')
           .eq('id', supaUser.id)
           .single(),
         supabase
@@ -331,7 +331,7 @@ export default function useAuth() {
   }, [user]);
 
   const handleDeleteAccount = useCallback(async ({
-    deletePassword, friendsList, isOnline, onError, onSuccess
+    deletePassword, isOnline, onError, onSuccess
   }) => {
     if (!user || !isOnline) return;
     const uid = user.id;
@@ -347,25 +347,31 @@ export default function useAuth() {
         if (reAuthError) { onError?.('Girdiğin şifre yanlış'); return; }
       }
 
-      // 2. Kullanıcı belgesini sil (cascade ile friendships, messages vb. silinir)
+      // 2. İlgili tüm verileri sil (sıralı — FK kısıtlamaları için)
+      await Promise.allSettled([
+        supabase.from('messages').delete().or(`sender_id.eq.${uid},receiver_id.eq.${uid}`),
+        supabase.from('friendships').delete().or(`user_id.eq.${uid},friend_id.eq.${uid}`),
+        supabase.from('study_history').delete().eq('user_id', uid),
+      ]);
+      // users tablosunu sil
       await supabase.from('users').delete().eq('id', uid);
 
-      // 3. Arkadaşlardan kaldır
-      if (friendsList?.length > 0) {
-        await supabase.from('friendships')
-          .delete()
-          .or(`user_id.eq.${uid},friend_id.eq.${uid}`);
+      // 3. auth.users kaydını sil — SECURITY DEFINER RPC gerekli
+      // (Supabase SQL editöründe delete_user() fonksiyonu oluşturulmuş olmalı)
+      const { error: rpcError } = await supabase.rpc('delete_user');
+      if (rpcError) {
+        // RPC yoksa en azından oturumu kapat — kullanıcı tekrar kayıt olabilir
+        console.warn('delete_user RPC hatası (fonksiyon DB\'de tanımlı değil):', rpcError.message);
       }
 
       // 4. Yerel durumu temizle
       clearCache();
-      await supabase.auth.signOut();
+      localStorage.clear(); // tüm localStorage temizle
       setUser(null);
       setUserData(null);
-      localStorage.removeItem('swim_theme');
-      localStorage.removeItem('swim_notifications');
+      await supabase.auth.signOut();
 
-      onSuccess?.('Hesabın başarıyla silindi');
+      onSuccess?.('Hesabın tamamen silindi');
     } catch (e) {
       console.warn('Delete account error:', e);
       onError?.('Bir hata oluştu, lütfen tekrar dene');

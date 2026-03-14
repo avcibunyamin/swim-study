@@ -24,9 +24,12 @@ export default function Toast({ toast, onClose }) {
         return next;
       });
     }, 30);
+    // onClose'u dep listesinden çıkardık — her render'da yeni referans gelince
+    // timer yeniden başlamasın. onClose stabil bir setter çağrısı olduğu için sorun yok.
     const timer = setTimeout(onClose, duration);
     return () => { clearInterval(interval); clearTimeout(timer); };
-  }, [toast, duration, onClose]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toast, duration]);
 
   if (!toast) return null;
 

@@ -3,7 +3,7 @@ import { supabase } from '../supabase';
 import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
 import { serverISOString } from '../utils/serverTime';
-import { getOfflineData, clearOfflineData } from '../utils/offlineStorage';
+import { getOfflineData, clearOfflineData, saveOfflineData } from '../utils/offlineStorage';
 
 export default function usePresence({
   user, isOnline, setIsOnline,
@@ -26,12 +26,16 @@ export default function usePresence({
         // Offline çalışma süresi varsa sync et
         const pending = getOfflineData(user.id);
         if (pending > 0) {
-          const today = new Date().toISOString().split('T')[0];
-          const [{ data: todayEntry }, { data: userData }] = await Promise.all([
-            supabase.from('study_history').select('secs').eq('user_id', user.id).eq('date', today).maybeSingle(),
-            supabase.from('users').select('total_study_secs').eq('id', user.id).single(),
-          ]);
-          if (userData) {
+          // Önce sil — çift sync'i önler
+          clearOfflineData(user.id);
+          try {
+            const today = new Date().toISOString().split('T')[0];
+            const [{ data: todayEntry }, { data: userData }] = await Promise.all([
+              supabase.from('study_history').select('secs').eq('user_id', user.id).eq('date', today).maybeSingle(),
+              supabase.from('users').select('total_study_secs').eq('id', user.id).single(),
+            ]);
+            if (!userData) { saveOfflineData(user.id, pending); return; }
+
             const newDaySecs = (todayEntry?.secs || 0) + pending;
             const newTotal   = (userData.total_study_secs || 0) + pending;
             await Promise.all([
@@ -41,16 +45,16 @@ export default function usePresence({
               ),
               supabase.from('users').update({ total_study_secs: newTotal }).eq('id', user.id),
             ]);
-            // Lokal history'yi DB'deki güncel değerle hizala (sayfa yenilenmiş olabilir)
             setStudyHistory(prev => {
               const arr = prev.filter(h => h.date !== today);
               return [...arr, { date: today, secs: newDaySecs }]
                 .sort((a, b) => b.date.localeCompare(a.date));
             });
-            // NOT: setTotalStudySecs burada çağrılmıyor — timer bitince zaten güncellendi.
-            // Çağrılırsa double-count olur.
+            // NOT: setTotalStudySecs çağrılmıyor — saveStudyTime zaten UI'ı güncelledi.
+          } catch (e) {
+            console.warn('goOnline sync error:', e.message);
+            saveOfflineData(user.id, pending); // hata olursa geri yaz
           }
-          clearOfflineData(user.id);
         }
       }
     };

@@ -9,11 +9,12 @@ const PlanPage = memo(({ theme, pagePadding, calDate, setCalDate, plans, savePla
   const year = calDate.getFullYear();
   const month = calDate.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDay = new Date(year, month, 1).getDay();
+  // Pazartesi = 0 olacak şekilde offset: (getDay()+6)%7  → Pz=6, Pt=0, Sa=1 ...
+  const firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
   const days = [...Array(firstDay).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
   const ds = d => `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
   const todayStr = new Date().toISOString().split('T')[0];
-  const calDays = ta('cal.days') || ['Pz', 'Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct'];
+  const calDays = ta('cal.days') || ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'];
   const calMonths = ta('cal.months') || ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
 
   return (

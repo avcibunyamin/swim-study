@@ -72,7 +72,7 @@ export default function AuthScreen() {
           email: cleanEmail,
           password,
           options: {
-            emailRedirectTo: `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/callback`,
+            emailRedirectTo: window.location.origin,
             data: {
               username: cleanUsername,
               full_name: cleanFullName,
@@ -112,7 +112,7 @@ export default function AuthScreen() {
       else if (e.message?.includes('already registered') || e.message?.includes('already been registered')) setAuthError(t('auth.emailInUse'));
       else if (e.message?.includes('Password should be')) setAuthError(t('auth.weakPassword'));
       else if (e.message?.includes('Invalid email')) setAuthError('Geçersiz email adresi');
-      else if (e.message?.includes('rate limit') || e.message?.includes('too many')) setAuthError('Çok fazla deneme, biraz bekle');
+      else if (e.message?.includes('rate limit') || e.message?.includes('too many') || e.message?.includes('For security purposes')) setAuthError('E-posta gönderme limiti doldu. Birkaç dakika bekleyip tekrar dene veya spam klasörünü kontrol et.');
       else if (e.message?.includes('network') || e.message?.includes('fetch')) setAuthError('İnternet bağlantısı yok');
       else setAuthError(t('auth.registerFailed') + ' (' + e.message + ')');
     } finally {

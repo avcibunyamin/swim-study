@@ -9,7 +9,14 @@ export default function PlanModal({ theme, selDate, plans, savePlans, onClose })
   const [showTime, setShowTime] = useState(false);
   const [planTime, setPlanTime] = useState('');
   const inputRef = useRef(null);
+  const timeInputRef = useRef(null);
   useEffect(() => { inputRef.current?.focus(); }, []);
+
+  const openTimePicker = () => {
+    const el = timeInputRef.current;
+    if (!el) return;
+    try { el.showPicker(); } catch { el.click(); }
+  };
 
   const add = () => {
     if (!title.trim()) return;
@@ -82,15 +89,20 @@ export default function PlanModal({ theme, selDate, plans, savePlans, onClose })
           </div>
           {showTime && (
             <div className="relative mt-2">
-              <Clock
-                size={15}
-                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white pointer-events-none z-10"
-              />
+              <button
+                type="button"
+                onClick={openTimePicker}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white z-10 leading-none"
+              >
+                <Clock size={15} />
+              </button>
               <input
+                ref={timeInputRef}
                 type="time"
                 value={planTime}
                 onChange={e => setPlanTime(e.target.value)}
-                className={`w-full ${theme.input} rounded-lg pl-8 pr-2.5 py-2.5 text-sm outline-none border ${theme.text} [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
+                onClick={openTimePicker}
+                className={`w-full ${theme.input} rounded-lg pl-8 pr-2.5 py-2.5 text-sm outline-none border ${theme.text} cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
               />
             </div>
           )}

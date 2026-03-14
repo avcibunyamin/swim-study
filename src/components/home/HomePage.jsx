@@ -12,7 +12,15 @@ const HomePage = memo(({
   statsPeriod, setStatsPeriod, statsOffset, setStatsOffset,
   stats, plans, savePlans, isOnline,
 }) => {
-  const { t, ta } = useLanguage();
+  const { t, ta, lang } = useLanguage();
+
+  const fmtPlanDate = (dateStr) => {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const date = new Date(y, m - 1, d);
+    return new Intl.DateTimeFormat(lang === 'tr' ? 'tr-TR' : 'en-US', {
+      day: 'numeric', month: 'long', weekday: 'long',
+    }).format(date);
+  };
   const [homeTab, setHomeTab] = useState('plans');
   const maxSecs = Math.max(...(stats.chartData || []).map(d => d.secs), 1);
   const today   = new Date().toISOString().split('T')[0];
@@ -167,7 +175,7 @@ const HomePage = memo(({
                   <div className="flex-1 min-w-0">
                     <p className={`font-medium text-sm ${p.completed ? 'line-through opacity-60' : ''}`}>{p.title}</p>
                     <p className={`text-xs flex items-center gap-1 ${p.date === today ? 'text-emerald-400' : theme.textMuted}`}>
-                      {p.date === today ? t('home.today') : p.date}
+                      {p.date === today ? t('home.today') : fmtPlanDate(p.date)}
                       {p.time && (
                         <span className="text-cyan-400 flex items-center gap-0.5">
                           <Clock size={9} />{p.time}

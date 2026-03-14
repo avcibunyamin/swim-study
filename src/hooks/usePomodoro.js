@@ -3,7 +3,7 @@ import { supabase } from '../supabase';
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { playBell } from '../utils/audio';
-import { saveOfflineData } from '../utils/offlineStorage';
+import { saveOfflineData, getOfflineData, clearOfflineData } from '../utils/offlineStorage';
 import { serverNow, serverISOString } from '../utils/serverTime';
 
 const isNative = Capacitor.isNativePlatform();
@@ -34,55 +34,68 @@ export default function usePomodoro({
   useEffect(() => { timeLeftRef.current = timeLeft; }, [timeLeft]);
   useEffect(() => { freeTimeRef.current = freeTime; }, [freeTime]);
 
-  // Çalışma süresini study_history tablosuna ve users.total_study_secs'e kaydet
-  const saveStudyTime = useCallback(async (secs) => {
-    if (!user || secs < 1 || !isOnline) return;
+  // isOnline'ı ref ile tut — timer interval'ın bağımlılığına girmesin
+  // (internet gelip gidince timer yeniden başlamasın)
+  const isOnlineRef = useRef(isOnline);
+  useEffect(() => { isOnlineRef.current = isOnline; }, [isOnline]);
+
+  // Pending local veriyi DB'ye sync et (clearOfflineData ÖNCE çağrılır — race condition önleme)
+  const syncToDB = useCallback(async () => {
+    if (!user) return;
+    const pending = getOfflineData(user.id);
+    if (pending < 1) return;
+
+    // Önce sil — çift sync'i önler. Hata olursa aşağıda geri yazarız.
+    clearOfflineData(user.id);
+
     try {
       const today = serverISOString().split('T')[0];
-
-      // Paralel: bugünkü satır + toplam süre
-      const [{ data: todayEntry }, { data: userData }] = await Promise.all([
-        supabase
-          .from('study_history')
-          .select('secs')
-          .eq('user_id', user.id)
-          .eq('date', today)
-          .maybeSingle(),
-        supabase
-          .from('users')
-          .select('total_study_secs')
-          .eq('id', user.id)
-          .single(),
+      const [{ data: todayEntry }, { data: dbUser }] = await Promise.all([
+        supabase.from('study_history').select('secs').eq('user_id', user.id).eq('date', today).maybeSingle(),
+        supabase.from('users').select('total_study_secs').eq('id', user.id).single(),
       ]);
+      if (!dbUser) { saveOfflineData(user.id, pending); return; } // DB erişilemez, geri yaz
 
-      if (!userData) return;
-
-      const newDaySecs = (todayEntry?.secs || 0) + secs;
-      const newTotal   = (userData.total_study_secs || 0) + secs;
-
-      // Paralel: upsert history + update toplam
-      const [{ error: histErr }] = await Promise.all([
-        supabase
-          .from('study_history')
-          .upsert({ user_id: user.id, date: today, secs: newDaySecs },
-                  { onConflict: 'user_id,date' }),
-        supabase
-          .from('users')
-          .update({ total_study_secs: newTotal })
-          .eq('id', user.id),
+      const newDaySecs = (todayEntry?.secs || 0) + pending;
+      const newTotal   = (dbUser.total_study_secs || 0) + pending;
+      await Promise.all([
+        supabase.from('study_history').upsert(
+          { user_id: user.id, date: today, secs: newDaySecs },
+          { onConflict: 'user_id,date' }
+        ),
+        supabase.from('users').update({ total_study_secs: newTotal }).eq('id', user.id),
       ]);
-
-      if (!histErr) {
-        setStudyHistory(prev => {
-          const arr = prev.filter(h => h.date !== today);
-          return [...arr, { date: today, secs: newDaySecs }]
-            .sort((a, b) => b.date.localeCompare(a.date));
-        });
-      }
+      setStudyHistory(prev => {
+        const arr = prev.filter(h => h.date !== today);
+        return [...arr, { date: today, secs: newDaySecs }].sort((a, b) => b.date.localeCompare(a.date));
+      });
     } catch (e) {
-      console.warn('Save error:', e.code || e.message);
+      console.warn('syncToDB error:', e.message);
+      saveOfflineData(user.id, pending); // hata olursa geri yaz
     }
-  }, [user, isOnline, setStudyHistory]);
+  }, [user, setStudyHistory]);
+
+  // Çalışma süresini kaydet: ÖNCE local'e yaz, UI'ı güncelle, sonra DB'ye sync et
+  const saveStudyTime = useCallback(async (secs) => {
+    if (!user || secs < 1) return;
+
+    // 1. Local'e yaz (her zaman)
+    saveOfflineData(user.id, secs);
+
+    // 2. UI'ı hemen güncelle
+    const today = serverISOString().split('T')[0];
+    setStudyHistory(prev => {
+      const arr = prev.filter(h => h.date !== today);
+      const existing = prev.find(h => h.date === today);
+      return [...arr, { date: today, secs: (existing?.secs || 0) + secs }]
+        .sort((a, b) => b.date.localeCompare(a.date));
+    });
+
+    // 3. İnternet varsa hemen DB'ye sync et (yoksa goOnline tetikleyecek)
+    if (isOnlineRef.current) {
+      await syncToDB();
+    }
+  }, [user, setStudyHistory, syncToDB]);
 
   // Timer mantığı (solo)
   useEffect(() => {
@@ -127,18 +140,8 @@ export default function usePomodoro({
           if (!isOnBreak) {
             const finalSessionWorked = initialSessionWorked + initialTimeLeft;
             if (finalSessionWorked > 0) {
-              if (isOnline) {
-                await saveStudyTime(finalSessionWorked);
-              } else {
-                saveOfflineData(user?.id, finalSessionWorked);
-                const today = serverISOString().split('T')[0];
-                setStudyHistory(prev => {
-                  const arr = prev.filter(h => h.date !== today);
-                  const existing = prev.find(h => h.date === today);
-                  return [...arr, { date: today, secs: (existing?.secs || 0) + finalSessionWorked }]
-                    .sort((a, b) => b.date.localeCompare(a.date));
-                });
-              }
+              // saveStudyTime: önce local'e yazar, internet varsa DB'ye sync eder
+              await saveStudyTime(finalSessionWorked);
               setTotalStudySecs(prev => prev + finalSessionWorked);
             }
             setIsOnBreak(true);
@@ -156,7 +159,10 @@ export default function usePomodoro({
     }, 1000);
 
     return () => clearInterval(i);
-  }, [isRunning, isOnBreak, isFreeMode, workMins, breakMins, notifications, isOnline, user?.id]);
+  // isOnline bağımlılıktan çıkarıldı — ref ile okunuyor.
+  // internet gelip gidince timer yeniden başlamasın.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRunning, isOnBreak, isFreeMode, workMins, breakMins, notifications, user?.id]);
 
   // Native timer servisi
   useEffect(() => {
@@ -296,18 +302,6 @@ export default function usePomodoro({
     // Anlık değeri hemen yakala — await sonrasında state değişmiş olabilir
     const workedSecs = sessionWorked;
 
-    // Offline için ortak history güncelleme yardımcısı
-    const saveOfflineWithHistory = (secs) => {
-      saveOfflineData(user?.id, secs);
-      const today = serverISOString().split('T')[0];
-      setStudyHistory(prev => {
-        const arr = prev.filter(h => h.date !== today);
-        const existing = prev.find(h => h.date === today);
-        return [...arr, { date: today, secs: (existing?.secs || 0) + secs }]
-          .sort((a, b) => b.date.localeCompare(a.date));
-      });
-    };
-
     if (actionType === 'break') {
       // Break'e geç: sayacı sıfırla, break modunu aç
       timerStartedAtRef.current = null;
@@ -315,10 +309,9 @@ export default function usePomodoro({
       setSessionWorked(0);
       setTimeLeft(breakMins * 60);
       setIsOnBreak(true);
-      // DB'ye yaz (state sıfırlandıktan sonra)
+      // saveStudyTime: önce local, internet varsa DB'ye sync
       if (workedSecs > 0) {
-        if (isOnline) await saveStudyTime(workedSecs);
-        else saveOfflineWithHistory(workedSecs);
+        await saveStudyTime(workedSecs);
         setTotalStudySecs(prev => prev + workedSecs);
       }
     } else {
@@ -330,14 +323,12 @@ export default function usePomodoro({
       setSessionWorked(0);
       pausedSessionWorkedRef.current = 0;
       timerStartedAtRef.current = null;
-      // DB'ye yaz (timer durdu, state sıfırlandı, tek kez)
       if (workedSecs > 0) {
-        if (isOnline) await saveStudyTime(workedSecs);
-        else saveOfflineWithHistory(workedSecs);
+        await saveStudyTime(workedSecs);
         setTotalStudySecs(prev => prev + workedSecs);
       }
     }
-  }, [isOnline, sessionWorked, breakMins, workMins, isFreeMode, user?.id, saveStudyTime, setTotalStudySecs]);
+  }, [sessionWorked, breakMins, workMins, isFreeMode, user?.id, saveStudyTime, setTotalStudySecs]);
 
   const handleSliderChange = useCallback((type, value) => {
     if (isRunning) return;
