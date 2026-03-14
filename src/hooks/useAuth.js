@@ -50,7 +50,9 @@ export default function useAuth() {
   const [status, setStatus] = useState('available');
   const [aboutMe, setAboutMe] = useState('');
   const [showStudyTime, setShowStudyTime] = useState(true);
-  const [allowInvites, setAllowInvites] = useState(true);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [longestStreak, setLongestStreak] = useState(0);
+
   const [theme, setTheme] = useState('dark');
   const [notifications, setNotifications] = useState(true);
 
@@ -74,7 +76,8 @@ export default function useAuth() {
     setStatus(STATUS_KEYS[data.status_id] || 'available');
     setAboutMe(data.about_me || '');
     setShowStudyTime(data.show_study_time !== false);
-    setAllowInvites(data.allow_invites !== false);
+    setCurrentStreak(data.current_streak || 0);
+    setLongestStreak(data.longest_streak || 0);
   }, []);
 
   // Oturumu kapat: önce UI state'i temizle, ağ çağrısı beklemeden
@@ -115,7 +118,7 @@ export default function useAuth() {
       const fetchPromise = Promise.all([
         supabase
           .from('users')
-          .select('id, email, username, full_name, display_name, avatar, is_online, total_study_secs, plans, about_me, show_study_time, allow_invites, theme_id, status_id, last_seen, last_username_change, last_email_change')
+          .select('id, email, username, full_name, display_name, avatar, is_online, total_study_secs, plans, about_me, show_study_time, theme_id, status_id, last_seen, last_username_change, last_email_change, current_streak, longest_streak, last_study_date')
           .eq('id', supaUser.id)
           .single(),
         supabase
@@ -154,7 +157,6 @@ export default function useAuth() {
             plans: [],
             about_me: '',
             show_study_time: true,
-            allow_invites: true,
           })
           .select()
           .single();
@@ -192,9 +194,6 @@ export default function useAuth() {
       supabase.from('users').update({
         is_online: true,
         last_seen: new Date().toISOString(),
-        current_room: null,
-        room_member_count: null,
-        room_is_running: null,
         is_working: false
       }).eq('id', supaUser.id).then(({ error: e }) => {
         if (e) console.warn('Online status update failed:', e.message);
@@ -406,7 +405,8 @@ export default function useAuth() {
     friends, setFriends, friendRequests, setFriendRequests,
     sentRequests, setSentRequests,
     status, setStatus, aboutMe, setAboutMe,
-    showStudyTime, setShowStudyTime, allowInvites, setAllowInvites,
+    showStudyTime, setShowStudyTime,
+    currentStreak, longestStreak,
     theme, setTheme, notifications, setNotifications,
     handleLogout, handleDeleteAccount, changeTheme, retryLoad
   };

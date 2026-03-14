@@ -99,7 +99,6 @@ export default function AuthScreen() {
           plans: [],
           about_me: '',
           show_study_time: true,
-          allow_invites: true,
         }, { onConflict: 'id' }).then(undefined, () => {});
       }
 

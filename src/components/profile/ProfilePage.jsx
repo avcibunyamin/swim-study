@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Trophy, Info, WifiOff } from 'lucide-react';
+import { Settings, Trophy, Info, WifiOff, Flame } from 'lucide-react';
 import { supabase } from '../../supabase';
 import { useLanguage } from '../../i18n';
 import { fmtSecs } from '../../utils/formatters';
@@ -11,7 +11,7 @@ import SettingsModal from './SettingsModal';
 import EditProfileModal from './EditProfileModal';
 import ChangePasswordModal from './ChangePasswordModal';
 
-export default function ProfilePage({ theme, pagePadding, navPosition, changeNavPosition, user, userData, setUserData, totalStudySecs, currentAchievement, aboutMe, setAboutMe, showStudyTime, setShowStudyTime, themeKey, changeTheme, notifications, setNotifications, showSettings, setShowSettings, showEditProfile, setShowEditProfile, showDeleteConfirm, setShowDeleteConfirm, handleLogout, handleDeleteAccount, isOnline, deletePassword, setDeletePassword }) {
+export default function ProfilePage({ theme, pagePadding, navPosition, changeNavPosition, user, userData, setUserData, totalStudySecs, currentAchievement, currentStreak, longestStreak, aboutMe, setAboutMe, showStudyTime, setShowStudyTime, themeKey, changeTheme, notifications, setNotifications, showSettings, setShowSettings, showEditProfile, setShowEditProfile, showDeleteConfirm, setShowDeleteConfirm, handleLogout, handleDeleteAccount, isOnline, deletePassword, setDeletePassword }) {
   const { t, ta } = useLanguage();
   const [localAbout, setLocalAbout] = useState(aboutMe);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -39,6 +39,25 @@ export default function ProfilePage({ theme, pagePadding, navPosition, changeNav
           <span className="text-white text-sm font-bold">{currentAchievement.icon} {currentAchievement.title}</span>
         </div>
         <p className={`text-sm ${theme.textMuted} mt-1`}>{fmtSecs(totalStudySecs, t)}</p>
+      </div>
+
+      {/* Seri kartı */}
+      <div className={`${theme.card} rounded-xl p-4 mb-4 border`}>
+        <h3 className="font-bold text-orange-400 mb-3 flex items-center gap-2"><Flame size={18} />{t('streak.title')}</h3>
+        {currentStreak === 0 && longestStreak === 0 ? (
+          <p className={`text-sm ${theme.textMuted} text-center py-1`}>{t('streak.none')}</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            <div className={`${theme.input} rounded-xl p-3 text-center border`}>
+              <p className="text-3xl font-black text-orange-400">{currentStreak}</p>
+              <p className={`text-[10px] ${theme.textMuted} mt-0.5`}>{t('streak.current')} ({t('streak.days')})</p>
+            </div>
+            <div className={`${theme.input} rounded-xl p-3 text-center border`}>
+              <p className="text-3xl font-black text-yellow-400">{longestStreak}</p>
+              <p className={`text-[10px] ${theme.textMuted} mt-0.5`}>{t('streak.longest')} ({t('streak.days')})</p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className={`${theme.card} rounded-xl p-4 mb-4 border`}>

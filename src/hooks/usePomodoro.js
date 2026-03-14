@@ -39,7 +39,8 @@ export default function usePomodoro({
   const isOnlineRef = useRef(isOnline);
   useEffect(() => { isOnlineRef.current = isOnline; }, [isOnline]);
 
-  // Pending local veriyi DB'ye sync et (clearOfflineData ÖNCE çağrılır — race condition önleme)
+  // Pending local veriyi DB'ye sync et — tek atomik RPC çağrısı
+  // log_study_session: total_study_secs + study_history + streak logic (FOR UPDATE)
   const syncToDB = useCallback(async () => {
     if (!user) return;
     const pending = getOfflineData(user.id);
@@ -50,25 +51,14 @@ export default function usePomodoro({
 
     try {
       const today = serverISOString().split('T')[0];
-      const [{ data: todayEntry }, { data: dbUser }] = await Promise.all([
-        supabase.from('study_history').select('secs').eq('user_id', user.id).eq('date', today).maybeSingle(),
-        supabase.from('users').select('total_study_secs').eq('id', user.id).single(),
-      ]);
-      if (!dbUser) { saveOfflineData(user.id, pending); return; } // DB erişilemez, geri yaz
-
-      const newDaySecs = (todayEntry?.secs || 0) + pending;
-      const newTotal   = (dbUser.total_study_secs || 0) + pending;
-      await Promise.all([
-        supabase.from('study_history').upsert(
-          { user_id: user.id, date: today, secs: newDaySecs },
-          { onConflict: 'user_id,date' }
-        ),
-        supabase.from('users').update({ total_study_secs: newTotal }).eq('id', user.id),
-      ]);
-      setStudyHistory(prev => {
-        const arr = prev.filter(h => h.date !== today);
-        return [...arr, { date: today, secs: newDaySecs }].sort((a, b) => b.date.localeCompare(a.date));
+      const { error } = await supabase.rpc('log_study_session', {
+        p_user_id: user.id,
+        p_secs:    pending,
+        p_date:    today,
       });
+      if (error) throw error;
+      // State güncellemesi buraya taşınmadı — saveStudyTime zaten güncelliyor.
+      // syncToDB sadece DB'ye yazar, çift güncellemeyi önler.
     } catch (e) {
       console.warn('syncToDB error:', e.message);
       saveOfflineData(user.id, pending); // hata olursa geri yaz

@@ -124,16 +124,41 @@ export default function FriendsPage({
                 <span className="text-2xl">{u.avatar || '👤'}</span>
                 <div>
                   <span className="font-medium">@{u.username}</span>
-                  {u.fullName && <p className={`text-xs ${theme.textMuted}`}>{u.fullName}</p>}
-                  {u.showStudyTime && <p className={`text-xs ${theme.textMuted}`}>{fmtShort(u.totalStudySecs || 0, t)}</p>}
+                  {(u.display_name || u.full_name) && (
+                    <p className={`text-xs ${theme.textMuted}`}>{u.display_name || u.full_name}</p>
+                  )}
+                  {u.show_study_time && (
+                    <p className={`text-xs ${theme.textMuted}`}>{fmtShort(u.total_study_secs || 0, t)}</p>
+                  )}
+                  {u.current_streak > 0 && (
+                    <p className="text-xs text-orange-400">🔥 {u.current_streak} {t('streak.days')}</p>
+                  )}
                 </div>
               </div>
-              {friends.includes(u.id) ? (
+              {u.friendship_status === 'friend' ? (
                 <span className={`text-xs text-green-400 px-2 py-1 ${theme.input} rounded-lg border`}>{t('friends.alreadyFriend')}</span>
-              ) : sentRequests.includes(u.id) ? (
+              ) : u.friendship_status === 'request_sent' ? (
                 <span className={`text-xs ${theme.textMuted} px-2 py-1 ${theme.input} rounded-lg border`}>{t('friends.requestSent')}</span>
+              ) : u.friendship_status === 'request_received' ? (
+                // Karşı taraf bize istek atmış — direkt kabul butonu göster
+                <button
+                  onClick={() => {
+                    acceptFriendRequest({ from_user_id: u.id, from_username: u.username, from_full_name: u.full_name, from_avatar: u.avatar });
+                    setSearchResults(prev => prev.map(r => r.id === u.id ? { ...r, friendship_status: 'friend' } : r));
+                  }}
+                  className="p-2 bg-green-600 rounded-lg text-white"
+                >
+                  <UserCheck size={16} />
+                </button>
               ) : (
-                <button onClick={() => sendFriendRequest(u)} className="p-2 bg-teal-600 rounded-lg text-white">
+                <button
+                  onClick={() => {
+                    sendFriendRequest(u);
+                    // Optimistic: ağ beklenmeden UI'ı anında güncelle
+                    setSearchResults(prev => prev.map(r => r.id === u.id ? { ...r, friendship_status: 'request_sent' } : r));
+                  }}
+                  className="p-2 bg-teal-600 rounded-lg text-white"
+                >
                   <UserPlus size={16} />
                 </button>
               )}
@@ -311,7 +336,7 @@ export default function FriendsPage({
       })()}
 
       {showChat && (
-        <ChatModal theme={theme} user={user} friend={showChat} isOnline={isOnline} onClose={() => setShowChat(null)} />
+        <ChatModal theme={theme} user={user} friend={showChat} isOnline={isOnline} onClose={() => setShowChat(null)} setUnreadMessages={setUnreadMessages} />
       )}
     </div>
   );

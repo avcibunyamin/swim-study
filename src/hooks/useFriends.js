@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '../supabase';
-import { normalize, fuzzyMatch } from '../utils/sanitize';
+import { normalize } from '../utils/sanitize';
 import { STATUS_KEYS } from '../constants/themes';
 
 // status_id (smallint) → status string dönüştür
@@ -51,7 +51,7 @@ export default function useFriends({
 
     supabase
       .from('users')
-      .select('id, username, display_name, full_name, avatar, is_online, last_seen, status_id, is_working, is_on_break, is_paused, is_break_paused, work_duration, work_started_at, work_paused_at, break_duration, break_started_at, break_paused_at, is_free_mode, show_study_time, total_study_secs, allow_invites, current_room, room_member_count, room_is_running')
+      .select('id, username, display_name, full_name, avatar, is_online, last_seen, status_id, is_working, is_on_break, is_paused, is_break_paused, work_duration, work_started_at, work_paused_at, break_duration, break_started_at, break_paused_at, is_free_mode, show_study_time, total_study_secs')
       .in('id', friends)
       .then(({ data }) => {
         if (data) {
@@ -137,33 +137,21 @@ export default function useFriends({
     return () => supabase.removeChannel(channel);
   }, [friendsKey, user?.id]);
 
-  // Kullanıcı arama — fuzzy match ile
+  // Kullanıcı arama — search_users RPC (server-side, güvenli)
+  // - hidden kullanıcılar (status_id=3) DB'de eleniyor
+  // - friendship_status alanı ile N+1 kontrolü ortadan kalktı
   const searchUsers = useCallback(async txt => {
     if (!txt.trim() || !isOnline) return [];
     const searchQuery = normalize(txt);
     if (searchQuery.length < 2) return [];
     try {
-      const prefix = searchQuery.slice(0, 10);
-      const endStr = prefix.slice(0, -1) + String.fromCharCode(prefix.charCodeAt(prefix.length - 1) + 1);
-      const { data } = await supabase
-        .from('users')
-        .select('id, username, display_name, full_name, avatar, is_online, status_id, total_study_secs, show_study_time')
-        .gte('username', prefix)
-        .lt('username', endStr)
-        .limit(20);
-      if (!data) return [];
-      return data
-        .filter(u => u.id !== user.id)
-        .map(u => ({
-          ...u,
-          score: Math.min(
-            fuzzyMatch(searchQuery, u.username || ''),
-            fuzzyMatch(searchQuery, u.display_name || u.full_name || '')
-          )
-        }))
-        .filter(u => u.score < 5)
-        .sort((a, b) => a.score - b.score)
-        .slice(0, 10);
+      const { data, error } = await supabase.rpc('search_users', {
+        p_query:     searchQuery,
+        p_caller_id: user.id,
+        p_limit:     10,
+      });
+      if (error) throw error;
+      return data || [];
     } catch (e) {
       console.debug('Search error:', e);
       return [];
@@ -243,7 +231,6 @@ export default function useFriends({
           work_started_at: null, work_paused_at: null,
           break_started_at: null, break_paused_at: null,
           show_study_time: false, total_study_secs: 0,
-          allow_invites: true, current_room: null, room_member_count: 0, room_is_running: false,
         });
         return [...prev, optimistic];
       });

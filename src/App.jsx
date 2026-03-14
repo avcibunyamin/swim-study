@@ -82,7 +82,8 @@ export default function SwimApp() {
     friends, setFriends, friendRequests, setFriendRequests,
     sentRequests, setSentRequests,
     status, setStatus, aboutMe, setAboutMe,
-    showStudyTime, setShowStudyTime, allowInvites, setAllowInvites,
+    showStudyTime, setShowStudyTime,
+    currentStreak, longestStreak,
     theme: themeKey, setTheme: setThemeKey, notifications, setNotifications,
     handleLogout: authLogout, handleDeleteAccount, changeTheme, retryLoad
   } = authHook;
@@ -323,6 +324,7 @@ export default function SwimApp() {
           navPosition={navPosition} changeNavPosition={changeNavPosition}
           user={user} userData={userData} setUserData={setUserData}
           totalStudySecs={totalStudySecs} currentAchievement={currentAchievement}
+          currentStreak={currentStreak} longestStreak={longestStreak}
           aboutMe={aboutMe} setAboutMe={setAboutMe}
           showStudyTime={showStudyTime} setShowStudyTime={setShowStudyTime}
 themeKey={themeKey} changeTheme={(th) => changeTheme(th, isOnline)}
