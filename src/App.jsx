@@ -5,6 +5,7 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { App as CapApp } from '@capacitor/app';
 import { Keyboard } from '@capacitor/keyboard';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { supabase } from './supabase';
 import { useLanguage } from './i18n';
 
 // Constants
@@ -206,6 +207,22 @@ export default function SwimApp() {
   // Alıntı & sağlık ipucu döngüsü
   useEffect(() => { const i = setInterval(() => setQuoteIdx(q => (q + 1) % 4), 5000); return () => clearInterval(i); }, []);
   useEffect(() => { const i = setInterval(() => setHealthTipIdx(h => (h + 1) % 10), 30000); return () => clearInterval(i); }, []);
+
+  // Google OAuth deep link callback (com.swimstudy.app://login-callback#access_token=...)
+  useEffect(() => {
+    if (!isNative) return;
+    const handler = CapApp.addListener('appUrlOpen', async ({ url }) => {
+      if (!url.startsWith('com.swimstudy.app://')) return;
+      const hashOrQuery = url.includes('#') ? url.split('#')[1] : url.split('?')[1] || '';
+      const params = new URLSearchParams(hashOrQuery);
+      const access_token = params.get('access_token');
+      const refresh_token = params.get('refresh_token');
+      if (access_token && refresh_token) {
+        await supabase.auth.setSession({ access_token, refresh_token });
+      }
+    });
+    return () => { handler.then(h => h.remove()); };
+  }, []);
 
   // Android geri tuşu yöneticisi
   useEffect(() => {

@@ -53,5 +53,14 @@
 	<array>
 		<string>audio</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.swimstudy.app</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

@@ -177,10 +177,13 @@ export default function AuthScreen() {
     if (!canDoAction('login', 3000)) { setAuthError(t('auth.tooFast')); return; }
     setIsSubmitting(true);
     try {
+      const redirectTo = Capacitor.isNativePlatform()
+        ? 'com.swimstudy.app://login-callback'
+        : window.location.origin;
       const { error } = await withTimeout(
         supabase.auth.signInWithOAuth({
           provider: 'google',
-          options: { redirectTo: window.location.origin }
+          options: { redirectTo, skipBrowserRedirect: false }
         }),
         30000
       );
