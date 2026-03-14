@@ -36,10 +36,8 @@ const isNative = Capacitor.isNativePlatform();
 
 // Native platform başlangıç ayarları
 if (isNative) {
-  // Web view'ü status bar'ın ARKASINA genişlet — Dynamic Island üst alanı siyah olur
-  try { StatusBar.setOverlaysWebView({ overlay: true }); } catch (e) { console.debug('StatusBar overlay error:', e); }
-  try { StatusBar.setStyle({ style: Style.Dark }); } catch (e) { console.debug('StatusBar style error:', e); }
-  try { StatusBar.setBackgroundColor({ color: '#000000' }); } catch (e) { console.debug('StatusBar bg error:', e); }
+  // overlay: false — WebView status bar'ın ALTINDAN başlar (Instagram gibi)
+  try { StatusBar.setOverlaysWebView({ overlay: false }); } catch (e) { console.debug('StatusBar overlay error:', e); }
   try { LocalNotifications.requestPermissions(); } catch (e) { console.debug('Notification permission error:', e); }
 }
 
@@ -150,7 +148,7 @@ export default function SwimApp() {
   // Nav konfigürasyonu
   const isVerticalNav = !isNative && (navPosition === 'left' || navPosition === 'right');
   const navConfig = useMemo(() => {
-    if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pt-safe pb-32 px-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
+    if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-32 px-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
     const c = {
       bottom: { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-24 p-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false },
       top: { navCls: 'fixed top-0 inset-x-0 border-b', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pt-20 px-4 pb-4', timerCls: 'absolute -bottom-8 left-1/2 -translate-x-1/2', vertical: false },
@@ -191,11 +189,16 @@ export default function SwimApp() {
     return () => document.removeEventListener('focusin', handler);
   }, []);
 
-  // Body arka planını tema ile eşitle — Dynamic Island arkasını doğru renge boyar
+  // Body arka planını tema ile eşitle
   useEffect(() => {
     const color = themeObj.bodyBg || '#000000';
     document.body.style.backgroundColor = color;
     document.documentElement.style.backgroundColor = color;
+    // Native status bar rengini ve ikon stilini temaya göre güncelle
+    if (isNative) {
+      try { StatusBar.setBackgroundColor({ color }); } catch (e) {}
+      try { StatusBar.setStyle({ style: themeKey === 'light' ? Style.Dark : Style.Light }); } catch (e) {}
+    }
   }, [themeObj]);
 
   // Alıntı & sağlık ipucu döngüsü
