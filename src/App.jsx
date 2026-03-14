@@ -3,6 +3,7 @@ import { Home, Calendar, Timer, Users, User, Loader2 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { App as CapApp } from '@capacitor/app';
+import { Keyboard } from '@capacitor/keyboard';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { useLanguage } from './i18n';
 
@@ -178,16 +179,19 @@ export default function SwimApp() {
     return () => clearTimeout(timer);
   }, [notification]);
 
-  // Klavye açılınca input'u yukarı kaydır (iOS/Android)
+  // Klavye açılınca aktif input'u görünür alana kaydır (iOS/Android)
   useEffect(() => {
     if (!isNative) return;
-    const handler = (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-        setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
-      }
-    };
-    document.addEventListener('focusin', handler);
-    return () => document.removeEventListener('focusin', handler);
+    let sub;
+    (async () => {
+      sub = await Keyboard.addListener('keyboardDidShow', () => {
+        const el = document.activeElement;
+        if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    })();
+    return () => { sub?.remove(); };
   }, []);
 
   // Body arka planını tema ile eşitle

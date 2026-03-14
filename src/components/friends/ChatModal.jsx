@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import { X, Send, ChevronDown, ArrowLeft, Check, CheckCheck } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
+import { Keyboard } from '@capacitor/keyboard';
 import { supabase } from '../../supabase';
 import { useLanguage } from '../../i18n';
 import { sanitizeInput } from '../../utils/sanitize';
@@ -28,16 +30,35 @@ export default function ChatModal({ theme, user, friend, isOnline, onClose, setU
 
   // Klavye açılınca modalı yukarı it
   useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-    const update = () => {
-      const hidden = window.innerHeight - vv.height - vv.offsetTop;
-      setKbOffset(Math.max(0, hidden));
-      setTimeout(scrollToBottom, 50);
-    };
-    vv.addEventListener('resize', update);
-    vv.addEventListener('scroll', update);
-    return () => { vv.removeEventListener('resize', update); vv.removeEventListener('scroll', update); };
+    if (Capacitor.isNativePlatform()) {
+      // Native: Capacitor Keyboard eventi gerçek yüksekliği verir
+      let showSub, hideSub;
+      (async () => {
+        showSub = await Keyboard.addListener('keyboardWillShow', (info) => {
+          setKbOffset(info.keyboardHeight);
+          setTimeout(scrollToBottom, 80);
+        });
+        hideSub = await Keyboard.addListener('keyboardWillHide', () => {
+          setKbOffset(0);
+        });
+      })();
+      return () => {
+        showSub?.remove();
+        hideSub?.remove();
+      };
+    } else {
+      // Web: visualViewport yeterli
+      const vv = window.visualViewport;
+      if (!vv) return;
+      const update = () => {
+        const hidden = window.innerHeight - vv.height - vv.offsetTop;
+        setKbOffset(Math.max(0, hidden));
+        setTimeout(scrollToBottom, 50);
+      };
+      vv.addEventListener('resize', update);
+      vv.addEventListener('scroll', update);
+      return () => { vv.removeEventListener('resize', update); vv.removeEventListener('scroll', update); };
+    }
   }, [scrollToBottom]);
 
   // ── Mesajları yükle + Realtime kanalları ───────────────────────────────────
