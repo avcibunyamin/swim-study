@@ -148,7 +148,7 @@ export default function SwimApp() {
   // Nav konfigürasyonu
   const isVerticalNav = !isNative && (navPosition === 'left' || navPosition === 'right');
   const navConfig = useMemo(() => {
-    if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-32 px-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
+    if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pt-3 pb-32 px-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
     const c = {
       bottom: { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-24 p-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false },
       top: { navCls: 'fixed top-0 inset-x-0 border-b', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pt-20 px-4 pb-4', timerCls: 'absolute -bottom-8 left-1/2 -translate-x-1/2', vertical: false },
