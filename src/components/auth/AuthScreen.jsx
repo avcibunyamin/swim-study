@@ -193,7 +193,7 @@ export default function AuthScreen() {
 
   if (showForgotPassword) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen overflow-y-auto bg-gradient-to-br from-gray-950 via-gray-900 to-slate-900 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8"><Logo size="lg" centered /></div>
           <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
@@ -212,7 +212,7 @@ export default function AuthScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen overflow-y-auto bg-gradient-to-br from-gray-950 via-gray-900 to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8"><Logo size="lg" centered /><p className="text-teal-300 text-sm mt-2">{t('auth.subtitle')}</p></div>
         {!isOnline && <div className="bg-yellow-600 rounded-xl p-3 mb-4 text-white text-sm text-center flex items-center justify-center gap-2"><WifiOff size={18} />{t('auth.offline')}</div>}
