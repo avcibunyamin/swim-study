@@ -184,7 +184,7 @@ export default {
   'settings.theme_light': 'Light',
   'settings.theme_ocean': 'Ocean',
   'settings.theme_dark': 'Dark',
-  'settings.showStudyTime': 'Show My Study Time',
+  'settings.showStudyTime': 'Let friends see my active study',
   'settings.allowMessagesWhileBusy': 'Receive Messages While Busy',
 
   'settings.notifications': 'Notifications',

@@ -147,7 +147,7 @@ export default {
   'streak.none':    'Henüz seri yok — bugün başla! 🔥',
 
   // --- Profile ---
-  'profile.titles': 'Ünvanlar',
+  'profile.titles': 'Unvanlar',
   'profile.about': 'Hakkında',
   'profile.aboutPlaceholder': 'Kendinden bahset...',
   'profile.avatar': 'Avatar',
@@ -183,7 +183,7 @@ export default {
   'settings.theme_light': 'Aydınlık',
   'settings.theme_ocean': 'Okyanus',
   'settings.theme_dark': 'Gece',
-  'settings.showStudyTime': 'Çalışmamı Göster',
+  'settings.showStudyTime': 'Aktif çalışmamı arkadaşlar görsün',
   'settings.allowMessagesWhileBusy': 'Meşgulken Mesaj Al',
 
   'settings.notifications': 'Bildirimler',
