@@ -179,25 +179,16 @@ export default function SwimApp() {
     return () => clearTimeout(timer);
   }, [notification]);
 
-  // Klavye açılınca aktif input'u klavyenin üstüne kaydır (iOS/Android)
+  // Klavye açılınca aktif input'u görünür alana getir (iOS/Android)
   useEffect(() => {
     if (!isNative) return;
-    let showSub, hideSub;
+    let sub;
     (async () => {
-      showSub = await Keyboard.addListener('keyboardDidShow', (info) => {
-        const el = document.activeElement;
-        if (!el || (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA')) return;
-        const rect = el.getBoundingClientRect();
-        const visibleBottom = window.innerHeight - info.keyboardHeight - 16;
-        if (rect.bottom > visibleBottom) {
-          window.scrollBy({ top: rect.bottom - visibleBottom, behavior: 'smooth' });
-        }
-      });
-      hideSub = await Keyboard.addListener('keyboardWillHide', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      sub = await Keyboard.addListener('keyboardDidShow', () => {
+        document.activeElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
     })();
-    return () => { showSub?.remove(); hideSub?.remove(); };
+    return () => { sub?.remove(); };
   }, []);
 
   // Body arka planını tema ile eşitle

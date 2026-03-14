@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Loader2, CheckCircle, XCircle, AlertTriangle, WifiOff } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
+import { Keyboard } from '@capacitor/keyboard';
 import { supabase } from '../../supabase';
 import { useLanguage } from '../../i18n';
 import { sanitizeInput } from '../../utils/sanitize';
@@ -15,6 +17,7 @@ const withTimeout = (promise, ms = 15000) =>
 
 export default function AuthScreen() {
   const { t } = useLanguage();
+  const wrapperRef = useRef(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [authMode, setAuthMode] = useState('login');
   const [authError, setAuthError] = useState('');
@@ -33,6 +36,28 @@ export default function AuthScreen() {
     window.addEventListener('online', goOnline);
     window.addEventListener('offline', goOffline);
     return () => { window.removeEventListener('online', goOnline); window.removeEventListener('offline', goOffline); };
+  }, []);
+
+  // Klavye açılınca formu yukarı kaydır (iOS native)
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    let showSub, didShowSub, hideSub;
+    (async () => {
+      showSub = await Keyboard.addListener('keyboardWillShow', (info) => {
+        if (wrapperRef.current) {
+          wrapperRef.current.style.paddingBottom = `${info.keyboardHeight}px`;
+        }
+      });
+      didShowSub = await Keyboard.addListener('keyboardDidShow', () => {
+        document.activeElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      hideSub = await Keyboard.addListener('keyboardWillHide', () => {
+        if (wrapperRef.current) {
+          wrapperRef.current.style.paddingBottom = '';
+        }
+      });
+    })();
+    return () => { showSub?.remove(); didShowSub?.remove(); hideSub?.remove(); };
   }, []);
 
   // Kullanıcı adı müsaitlik kontrolü
@@ -193,7 +218,7 @@ export default function AuthScreen() {
 
   if (showForgotPassword) {
     return (
-      <div className="min-h-screen overflow-y-auto bg-gradient-to-br from-gray-950 via-gray-900 to-slate-900 flex items-center justify-center p-4">
+      <div ref={wrapperRef} className="min-h-screen overflow-y-auto bg-gradient-to-br from-gray-950 via-gray-900 to-slate-900 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8"><Logo size="lg" centered /></div>
           <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
@@ -212,7 +237,7 @@ export default function AuthScreen() {
   }
 
   return (
-    <div className="min-h-screen overflow-y-auto bg-gradient-to-br from-gray-950 via-gray-900 to-slate-900 flex items-center justify-center p-4">
+    <div ref={wrapperRef} className="min-h-screen overflow-y-auto bg-gradient-to-br from-gray-950 via-gray-900 to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8"><Logo size="lg" centered /><p className="text-teal-300 text-sm mt-2">{t('auth.subtitle')}</p></div>
         {!isOnline && <div className="bg-yellow-600 rounded-xl p-3 mb-4 text-white text-sm text-center flex items-center justify-center gap-2"><WifiOff size={18} />{t('auth.offline')}</div>}
