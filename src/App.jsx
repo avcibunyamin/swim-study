@@ -83,7 +83,8 @@ export default function SwimApp() {
     showStudyTime, setShowStudyTime,
     currentStreak, longestStreak,
     theme: themeKey, setTheme: setThemeKey, notifications, setNotifications,
-    handleLogout: authLogout, handleDeleteAccount, changeTheme, retryLoad
+    handleLogout: authLogout, handleDeleteAccount, changeTheme, retryLoad,
+    sessionInvalidated,
   } = authHook;
 
   const themeObj = themes[themeKey] || themes.dark;
@@ -260,7 +261,16 @@ export default function SwimApp() {
 
   // Auth ekranı
   if (!user) {
-    return <AuthScreen />;
+    return (
+      <>
+        {sessionInvalidated && (
+          <div className="fixed top-0 inset-x-0 z-50 bg-amber-600 text-white text-sm text-center py-3 px-4 font-medium">
+            Hesabın başka bir cihazda açıldığı için oturum kapatıldı.
+          </div>
+        )}
+        <AuthScreen />
+      </>
+    );
   }
 
   return (

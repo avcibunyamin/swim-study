@@ -290,19 +290,16 @@ export default function FriendsPage({
         </div>
       )}
 
-      {/* Arkadaş Kaldırma — Bottom Sheet */}
+      {/* Arkadaş Kaldırma — Centered Modal */}
       {showRemoveFriend && (() => {
         const rf = friendsData.find(f => f.id === showRemoveFriend);
         return (
-          <div className="fixed inset-0 z-50 flex flex-col justify-end" onClick={() => setShowRemoveFriend(null)}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowRemoveFriend(null)}>
             <div className="absolute inset-0 bg-black/60" />
             <div
-              className={`relative ${theme.modal} rounded-t-2xl p-5 border-t border-x border-slate-600 animate-slide-up`}
+              className={`relative ${theme.modal} rounded-2xl p-5 border border-slate-600 animate-fade-in mx-4 max-w-sm w-full`}
               onClick={e => e.stopPropagation()}
             >
-              {/* Tutamaç çizgisi */}
-              <div className="w-10 h-1 bg-slate-600 rounded-full mx-auto mb-4" />
-
               {/* Arkadaş bilgisi */}
               {rf && (
                 <div className="flex items-center gap-3 mb-5">

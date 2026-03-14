@@ -7,6 +7,7 @@ import { getOfflineData } from '../utils/offlineStorage';
 // Uygulama her açılışta network beklemeden anında veriye ulaşır,
 // arka planda Supabase'den taze veri çekip günceller.
 const CACHE_KEY = 'swim_uc';
+const SESSION_TOKEN_KEY = 'swim_session_token';
 
 function readCache(uid) {
   try {
@@ -52,6 +53,7 @@ export default function useAuth() {
   const [showStudyTime, setShowStudyTime] = useState(true);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
+  const [sessionInvalidated, setSessionInvalidated] = useState(false);
 
   const [theme, setTheme] = useState('dark');
   const [notifications, setNotifications] = useState(true);
@@ -86,10 +88,25 @@ export default function useAuth() {
     dataLoadedRef.current = false;
     loadFailedRef.current = false;
     clearCache();
+    localStorage.removeItem(SESSION_TOKEN_KEY);
     setUser(null);
     setUserData(null);
     setAuthLoading(false);
     supabase.auth.signOut().catch(() => {}); // arka planda, await etme
+  }, []);
+
+  // Başka cihazdan giriş yapılınca zorla çıkış
+  const signOutForced = useCallback(() => {
+    setSessionInvalidated(true);
+    loadingUserIdRef.current = null;
+    dataLoadedRef.current = false;
+    loadFailedRef.current = false;
+    clearCache();
+    localStorage.removeItem(SESSION_TOKEN_KEY);
+    setUser(null);
+    setUserData(null);
+    setAuthLoading(false);
+    supabase.auth.signOut().catch(() => {});
   }, []);
 
   // background=true → authLoading'e dokunma, hata olursa çıkış yapma
@@ -118,7 +135,7 @@ export default function useAuth() {
       const fetchPromise = Promise.all([
         supabase
           .from('users')
-          .select('id, email, username, full_name, display_name, avatar, is_online, total_study_secs, plans, about_me, show_study_time, theme_id, status_id, last_seen, last_username_change, last_email_change, current_streak, longest_streak, last_study_date')
+          .select('id, email, username, full_name, display_name, avatar, is_online, total_study_secs, plans, about_me, show_study_time, theme_id, status_id, last_seen, last_username_change, last_email_change, current_streak, longest_streak, last_study_date, session_token')
           .eq('id', supaUser.id)
           .single(),
         supabase
@@ -140,6 +157,8 @@ export default function useAuth() {
         const meta = supaUser.user_metadata || {};
         const savedTheme = localStorage.getItem('swim_theme') || 'ocean';
         const fallbackUsername = (supaUser.email || '').split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20) || 'user';
+        const newUserToken = crypto.randomUUID();
+        localStorage.setItem(SESSION_TOKEN_KEY, newUserToken);
         const { data: newUser, error: insertError } = await supabase
           .from('users')
           .insert({
@@ -157,6 +176,7 @@ export default function useAuth() {
             plans: [],
             about_me: '',
             show_study_time: true,
+            session_token: newUserToken,
           })
           .select()
           .single();
@@ -179,6 +199,16 @@ export default function useAuth() {
       }
 
       const history = historyRes.data || [];
+
+      // Session token kontrolü — başka cihazdan giriş yapıldıysa çıkış yap
+      if (!background) {
+        const localToken = localStorage.getItem(SESSION_TOKEN_KEY);
+        if (localToken && data.session_token && localToken !== data.session_token) {
+          loadingUserIdRef.current = null;
+          signOutForced();
+          return;
+        }
+      }
 
       loadingUserIdRef.current = null;
       dataLoadedRef.current = true;
@@ -290,6 +320,12 @@ export default function useAuth() {
         }
         setNeedsVerification(false);
         setUser(session.user);
+        // Giriş yapıldıysa yeni session token üret (sadece yerel token yoksa = gerçek yeni giriş)
+        if (!localStorage.getItem(SESSION_TOKEN_KEY)) {
+          const freshToken = crypto.randomUUID();
+          localStorage.setItem(SESSION_TOKEN_KEY, freshToken);
+          supabase.from('users').update({ session_token: freshToken }).eq('id', session.user.id).catch(() => {});
+        }
         // Veri zaten yüklendiyse VEYA yükleme başarısız olduysa tekrar deneme
         // (token refresh döngüsünü önler)
         if (!dataLoadedRef.current && !loadFailedRef.current) {
@@ -318,6 +354,27 @@ export default function useAuth() {
       subscription.unsubscribe();
     };
   }, [loadUserData, signOutAndClear, applyUserData]);
+
+  // Realtime: başka cihazdan giriş yapılınca session_token değişimini yakala
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`user_session_${user.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'users',
+        filter: `id=eq.${user.id}`
+      }, (payload) => {
+        const remoteToken = payload.new?.session_token;
+        const localToken = localStorage.getItem(SESSION_TOKEN_KEY);
+        if (remoteToken && localToken && remoteToken !== localToken) {
+          signOutForced();
+        }
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogout = useCallback(async (isOnline) => {
     if (user && isOnline) {
@@ -408,6 +465,7 @@ export default function useAuth() {
     showStudyTime, setShowStudyTime,
     currentStreak, longestStreak,
     theme, setTheme, notifications, setNotifications,
-    handleLogout, handleDeleteAccount, changeTheme, retryLoad
+    handleLogout, handleDeleteAccount, changeTheme, retryLoad,
+    sessionInvalidated,
   };
 }
