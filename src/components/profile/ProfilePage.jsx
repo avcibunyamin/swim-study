@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Trophy, Info, WifiOff, Flame } from 'lucide-react';
+import { Settings, Trophy, WifiOff, Flame } from 'lucide-react';
 import { supabase } from '../../supabase';
 import { useLanguage } from '../../i18n';
 import { fmtSecs } from '../../utils/formatters';
@@ -11,19 +11,11 @@ import SettingsModal from './SettingsModal';
 import EditProfileModal from './EditProfileModal';
 import ChangePasswordModal from './ChangePasswordModal';
 
-export default function ProfilePage({ theme, pagePadding, navPosition, changeNavPosition, user, userData, setUserData, totalStudySecs, currentAchievement, currentStreak, longestStreak, aboutMe, setAboutMe, showStudyTime, setShowStudyTime, themeKey, changeTheme, notifications, setNotifications, showSettings, setShowSettings, showEditProfile, setShowEditProfile, showDeleteConfirm, setShowDeleteConfirm, handleLogout, handleDeleteAccount, isOnline, deletePassword, setDeletePassword }) {
+export default function ProfilePage({ theme, pagePadding, navPosition, changeNavPosition, user, userData, setUserData, totalStudySecs, currentAchievement, currentStreak, longestStreak, showStudyTime, setShowStudyTime, themeKey, changeTheme, notifications, setNotifications, showSettings, setShowSettings, showEditProfile, setShowEditProfile, showDeleteConfirm, setShowDeleteConfirm, handleLogout, handleDeleteAccount, isOnline, deletePassword, setDeletePassword }) {
   const { t, ta } = useLanguage();
-  const [localAbout, setLocalAbout] = useState(aboutMe);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const isPasswordUser = user.app_metadata?.provider === 'email';
   const achievementTitles = ta('achievementTitles') || [];
-
-  const handleAboutBlur = async () => {
-    if (localAbout !== aboutMe) {
-      setAboutMe(localAbout);
-      if (isOnline) try { await supabase.from('users').update({ about_me: sanitizeInput(localAbout, 200) }).eq('id', user.id); } catch (e) { console.warn('About update failed:', e.message); }
-    }
-  };
 
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.text} ${pagePadding} relative`}>
@@ -77,11 +69,6 @@ export default function ProfilePage({ theme, pagePadding, navPosition, changeNav
         </div>
       </div>
 
-      <div className={`${theme.card} rounded-xl p-4 mb-4 border`}>
-        <h3 className="font-bold text-teal-400 mb-2"><Info size={16} className="inline mr-1" />{t('profile.about')}</h3>
-        <textarea value={localAbout} onChange={e => setLocalAbout(e.target.value)} onBlur={handleAboutBlur} maxLength={200} placeholder={t('profile.aboutPlaceholder')} className={`w-full ${theme.input} rounded-lg p-3 text-sm resize-none h-20 outline-none border ${theme.text}`} />
-        <p className={`text-xs ${theme.textMuted} text-right`}>{localAbout.length}/200</p>
-      </div>
 
       <div className={`${theme.card} rounded-xl p-4 border`}>
         <h3 className="font-bold text-teal-400 mb-3">{t('profile.avatar')}</h3>

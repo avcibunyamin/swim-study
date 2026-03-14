@@ -340,7 +340,6 @@ export default function SwimApp() {
           user={user} userData={userData} setUserData={setUserData}
           totalStudySecs={totalStudySecs} currentAchievement={currentAchievement}
           currentStreak={currentStreak} longestStreak={longestStreak}
-          aboutMe={aboutMe} setAboutMe={setAboutMe}
           showStudyTime={showStudyTime} setShowStudyTime={setShowStudyTime}
 themeKey={themeKey} changeTheme={(th) => changeTheme(th, isOnline)}
           notifications={notifications} setNotifications={setNotifications}
