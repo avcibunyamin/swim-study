@@ -98,6 +98,15 @@ input[type="checkbox"] {
 .pb-safe   { padding-bottom: constant(safe-area-inset-bottom, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 .pb-nav-safe { padding-bottom: calc(constant(safe-area-inset-bottom, 0px) + 0.5rem); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem); }
 
+/* Page transition */
+@keyframes page-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-page-in {
+  animation: page-fade-in 0.18s ease-out;
+}
+
 /* Notification slide-in animation */
 @keyframes fade-in-down {
   0% { opacity: 0; transform: translateY(-12px); }

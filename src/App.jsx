@@ -263,6 +263,7 @@ export default function SwimApp() {
   return (
     <div className={`${themeObj.bg} min-h-screen ${isNative ? 'pt-safe' : ''}`} onClick={unlockAudio}>
       <Toast toast={toast} onClose={handleCloseToast} />
+      <div key={page} className="animate-page-in">
       {page === 'home' && (
         <HomePage
           theme={themeObj} pagePadding={navConfig.pagePad}
@@ -342,6 +343,7 @@ themeKey={themeKey} changeTheme={(th) => changeTheme(th, isOnline)}
         />
       )}
 
+      </div>
       <NavBar
         theme={themeObj} navConfig={navConfig} page={page} setPage={setPage}
         isRunning={isRunning} isOnBreak={isOnBreak} isFreeMode={isFreeMode}
