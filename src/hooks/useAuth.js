@@ -8,6 +8,7 @@ import { getOfflineData } from '../utils/offlineStorage';
 // arka planda Supabase'den taze veri çekip günceller.
 const CACHE_KEY = 'swim_uc';
 const SESSION_TOKEN_KEY = 'swim_session_token';
+const TIMER_SNAP_KEY = 'swim_timer_snap';
 
 function readCache(uid) {
   try {
@@ -95,6 +96,7 @@ export default function useAuth() {
     loadFailedRef.current = false;
     clearCache();
     localStorage.removeItem(SESSION_TOKEN_KEY);
+    localStorage.removeItem(TIMER_SNAP_KEY);
     setUser(null);
     setUserData(null);
     setAuthLoading(false);
@@ -109,6 +111,7 @@ export default function useAuth() {
     loadFailedRef.current = false;
     clearCache();
     localStorage.removeItem(SESSION_TOKEN_KEY);
+    localStorage.removeItem(TIMER_SNAP_KEY);
     setUser(null);
     setUserData(null);
     setAuthLoading(false);

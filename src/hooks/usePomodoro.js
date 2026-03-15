@@ -10,6 +10,8 @@ const isNative = Capacitor.isNativePlatform();
 const TimerPlugin = isNative ? Capacitor.registerPlugin('TimerPlugin') : null;
 const TIMER_NOTIF_ID = 9999;
 
+const TIMER_SNAP_KEY = 'swim_timer_snap';
+
 export default function usePomodoro({
   user, userData, isOnline,
   setTotalStudySecs, setStudyHistory,
@@ -244,6 +246,20 @@ export default function usePomodoro({
       .eq('id', user.id)
       .then(() => {})
       .catch(() => {});
+
+    // localStorage'a timer snapshot yaz — cache'in stale olmasından bağımsız, anında restore
+    if (user) {
+      const snap = {
+        uid: user.id,
+        isRunning, isOnBreak, isFreeMode,
+        timeLeft:      timeLeftRef.current,
+        freeTime:      freeTimeRef.current,
+        workMins, breakMins,
+        sessionWorked: pausedSessionWorkedRef.current,
+        savedAt:       nowMs,
+      };
+      try { localStorage.setItem(TIMER_SNAP_KEY, JSON.stringify(snap)); } catch {}
+    }
   }, [isRunning, isOnBreak, isFreeMode, user?.id, isOnline]);
 
   // ─── Timer durumunu DB'den geri yükle ────────────────────────────────────
@@ -257,9 +273,65 @@ export default function usePomodoro({
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!userData || !user) return;
+    if (!user) return;
     if (restoredForUserRef.current === user.id) return; // zaten restore edildi
-    restoredForUserRef.current = user.id;
+
+    // Timer zaten aktifse (kullanıcı bizzat başlattı) — dokunma
+    if (isRunning || isOnBreak || (isFreeMode && freeTime > 0) || sessionWorked > 0) {
+      restoredForUserRef.current = user.id;
+      return;
+    }
+
+    const now = serverNow();
+
+    // ── Önce localStorage snapshot'ını dene (anlık, DB'den bağımsız) ──────
+    try {
+      const snap = JSON.parse(localStorage.getItem(TIMER_SNAP_KEY) || 'null');
+      if (snap && snap.uid === user.id && (now - snap.savedAt) < 24 * 60 * 60 * 1000) {
+        const ageMs = now - snap.savedAt;
+        const ageSecs = Math.floor(ageMs / 1000);
+
+        restoredForUserRef.current = user.id;
+
+        setWorkMins(snap.workMins);
+        setBreakMins(snap.breakMins);
+
+        if (snap.isFreeMode && (snap.isRunning || snap.freeTime > 0)) {
+          setIsFreeMode(true);
+          const newFree = snap.freeTime + (snap.isRunning ? ageSecs : 0);
+          setFreeTime(newFree);
+          setSessionWorked(newFree);
+          if (snap.isRunning) setIsRunning(true);
+          return;
+        }
+        if (snap.isOnBreak) {
+          setIsOnBreak(true);
+          const remaining = snap.timeLeft - (snap.isRunning ? ageSecs : 0);
+          if (remaining > 0) {
+            setTimeLeft(remaining);
+            if (snap.isRunning) setIsRunning(true);
+          } else {
+            setIsOnBreak(false);
+            setTimeLeft(snap.workMins * 60);
+          }
+          return;
+        }
+        if (snap.isRunning || snap.sessionWorked > 0) {
+          const newTimeLeft = snap.timeLeft - (snap.isRunning ? ageSecs : 0);
+          const newWorked   = snap.sessionWorked + (snap.isRunning ? ageSecs : 0);
+          if (newTimeLeft > 0) {
+            setTimeLeft(newTimeLeft);
+            setSessionWorked(newWorked);
+            if (snap.isRunning) setIsRunning(true);
+          }
+          return;
+        }
+        return; // snapshot var ama timer duraksız bırakılmış (normal bitiş)
+      }
+    } catch {}
+
+    // ── Snapshot yoksa DB verisinden restore et ────────────────────────────
+    if (!userData) return;
 
     const {
       is_working, is_on_break, is_paused, is_break_paused, is_free_mode,
@@ -267,10 +339,11 @@ export default function usePomodoro({
       work_duration, break_duration,
     } = userData;
 
-    // Aktif timer durumu yoksa varsayılan ile devam et
+    // DB'de aktif timer yok — ref'i AYARLAMA, taze veri gelince tekrar dene
     if (!is_working && !is_on_break && !is_paused && !is_break_paused) return;
 
-    const now = serverNow();
+    // Aktif durum bulundu — restore et ve ref'i kapat
+    restoredForUserRef.current = user.id;
 
     // Serbest mod
     if (is_free_mode) {
