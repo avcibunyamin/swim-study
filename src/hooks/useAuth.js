@@ -65,6 +65,12 @@ export default function useAuth() {
     if (notif !== null) setNotifications(notif === 'true');
   }, []);
 
+  // studyHistory her değişince cache'i güncelle — seanslar kaydedilince stale cache kalmasın
+  useEffect(() => {
+    if (!user || !userData) return;
+    writeCache(user.id, userData, studyHistory);
+  }, [studyHistory]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Cache'ten state'e uygula — loading olmadan anında göster
   const applyUserData = useCallback((data, history, uid) => {
     setUserData(data);
