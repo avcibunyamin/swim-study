@@ -93,7 +93,7 @@ export default function SwimApp() {
 
   // Pomodoro hook
   const pomodoroHook = usePomodoro({
-    user, isOnline,
+    user, userData, isOnline,
     setTotalStudySecs, setStudyHistory,
     notifications, t
   });

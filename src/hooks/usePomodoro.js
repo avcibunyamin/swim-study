@@ -11,7 +11,7 @@ const TimerPlugin = isNative ? Capacitor.registerPlugin('TimerPlugin') : null;
 const TIMER_NOTIF_ID = 9999;
 
 export default function usePomodoro({
-  user, isOnline,
+  user, userData, isOnline,
   setTotalStudySecs, setStudyHistory,
   notifications, t
 }) {
@@ -245,6 +245,88 @@ export default function usePomodoro({
       .then(() => {})
       .catch(() => {});
   }, [isRunning, isOnBreak, isFreeMode, user?.id, isOnline]);
+
+  // ─── Timer durumunu DB'den geri yükle ────────────────────────────────────
+  // Sayfa yenilenince, başka cihazdan giriş yapılıp devralındığında veya
+  // uygulama yeniden açıldığında son timer durumu kaldığı yerden devam eder.
+  const restoredForUserRef = useRef(null);
+
+  // Çıkış yapılınca ref'i sıfırla (tekrar giriş yapılınca restore çalışsın)
+  useEffect(() => {
+    if (!user) restoredForUserRef.current = null;
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!userData || !user) return;
+    if (restoredForUserRef.current === user.id) return; // zaten restore edildi
+    restoredForUserRef.current = user.id;
+
+    const {
+      is_working, is_on_break, is_paused, is_break_paused, is_free_mode,
+      work_started_at, work_paused_at, break_started_at, break_paused_at,
+      work_duration, break_duration,
+    } = userData;
+
+    // Aktif timer durumu yoksa varsayılan ile devam et
+    if (!is_working && !is_on_break && !is_paused && !is_break_paused) return;
+
+    const now = serverNow();
+
+    // Serbest mod
+    if (is_free_mode) {
+      if (!work_started_at) return;
+      const virtualStart = new Date(work_started_at).getTime();
+      const endPoint = is_paused && work_paused_at ? new Date(work_paused_at).getTime() : now;
+      const elapsed = Math.floor((endPoint - virtualStart) / 1000);
+      if (elapsed <= 0) return;
+      setIsFreeMode(true);
+      setFreeTime(elapsed);
+      setSessionWorked(elapsed);
+      if (!is_paused) setIsRunning(true);
+      return;
+    }
+
+    // Normal mod — çalışma seansı
+    if ((is_working || is_paused) && !is_on_break) {
+      if (!work_started_at) return;
+      const wDur = work_duration || 25 * 60;
+      const virtualStart = new Date(work_started_at).getTime();
+      const endPoint = is_paused && work_paused_at ? new Date(work_paused_at).getTime() : now;
+      const elapsed = Math.floor((endPoint - virtualStart) / 1000);
+      const remaining = wDur - elapsed;
+      setWorkMins(Math.round(wDur / 60));
+      if (break_duration) setBreakMins(Math.round(break_duration / 60));
+      if (remaining > 0) {
+        setTimeLeft(remaining);
+        setSessionWorked(elapsed);
+        if (!is_paused) setIsRunning(true);
+      }
+      // remaining <= 0: uygulama kapalıyken seans bitti — timer varsayılanıyla başlar
+      return;
+    }
+
+    // Normal mod — mola seansı
+    if (is_on_break || is_break_paused) {
+      if (!break_started_at) return;
+      const bDur = break_duration || 5 * 60;
+      const virtualStart = new Date(break_started_at).getTime();
+      const endPoint = is_break_paused && break_paused_at ? new Date(break_paused_at).getTime() : now;
+      const elapsed = Math.floor((endPoint - virtualStart) / 1000);
+      const remaining = bDur - elapsed;
+      if (work_duration) setWorkMins(Math.round(work_duration / 60));
+      setBreakMins(Math.round(bDur / 60));
+      setIsOnBreak(true);
+      if (remaining > 0) {
+        setTimeLeft(remaining);
+        if (!is_break_paused) setIsRunning(true);
+      } else {
+        // Mola bitti, çalışma ekranına dön
+        setIsOnBreak(false);
+        if (work_duration) setTimeLeft(work_duration);
+      }
+    }
+  }, [userData, user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  // ─────────────────────────────────────────────────────────────────────────
 
   // Ses yönetimi
   useEffect(() => {

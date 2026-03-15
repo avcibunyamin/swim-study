@@ -135,7 +135,7 @@ export default function useAuth() {
       const fetchPromise = Promise.all([
         supabase
           .from('users')
-          .select('id, email, username, full_name, display_name, avatar, is_online, total_study_secs, plans, about_me, show_study_time, theme_id, status_id, last_seen, last_username_change, last_email_change, current_streak, longest_streak, last_study_date, session_token')
+          .select('id, email, username, full_name, display_name, avatar, is_online, total_study_secs, plans, about_me, show_study_time, theme_id, status_id, last_seen, last_username_change, last_email_change, current_streak, longest_streak, last_study_date, session_token, is_working, is_on_break, is_paused, is_break_paused, is_free_mode, work_started_at, work_paused_at, break_started_at, break_paused_at, work_duration, break_duration')
           .eq('id', supaUser.id)
           .single(),
         supabase
@@ -220,11 +220,10 @@ export default function useAuth() {
       applyUserData(data, history, supaUser.id);
       if (!background) setAuthLoading(false);
 
-      // Online durumunu güncelle (arka planda)
+      // Online durumunu güncelle (arka planda) — is_working'e dokunma, timer restore için korunmalı
       supabase.from('users').update({
         is_online: true,
         last_seen: new Date().toISOString(),
-        is_working: false
       }).eq('id', supaUser.id).then(({ error: e }) => {
         if (e) console.warn('Online status update failed:', e.message);
       });
@@ -380,7 +379,10 @@ export default function useAuth() {
     if (user && isOnline) {
       await supabase.from('users').update({
         is_online: false,
-        is_working: false
+        is_working: false, is_on_break: false, is_paused: false,
+        is_break_paused: false, is_free_mode: false,
+        work_started_at: null, work_paused_at: null,
+        break_started_at: null, break_paused_at: null,
       }).eq('id', user.id).then(undefined, () => {});
     }
     await supabase.auth.signOut();
