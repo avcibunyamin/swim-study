@@ -72,11 +72,14 @@ export default function useAuth() {
     writeCache(user.id, userData, studyHistory);
   }, [studyHistory]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Cache'ten state'e uygula — loading olmadan anında göster
+  // Cache'ten veya DB'den state'e uygula — loading olmadan anında göster
   const applyUserData = useCallback((data, history, uid) => {
     setUserData(data);
     setPlans(data.plans || []);
+
+    // DB tek doğru kaynak — her cihazda aynı değeri göster
     setStudyHistory(history || []);
+
     const pendingOffline = getOfflineData(uid);
     setTotalStudySecs((data.total_study_secs || 0) + pendingOffline);
     const themeKey = THEME_KEYS[data.theme_id] || 'dark';
@@ -95,7 +98,7 @@ export default function useAuth() {
     dataLoadedRef.current = false;
     loadFailedRef.current = false;
     clearCache();
-    localStorage.removeItem(SESSION_TOKEN_KEY);
+    localStorage.removeItem('swim_session_token'); // legacy temizlik
     localStorage.removeItem(TIMER_SNAP_KEY);
     setUser(null);
     setUserData(null);
@@ -110,7 +113,7 @@ export default function useAuth() {
     dataLoadedRef.current = false;
     loadFailedRef.current = false;
     clearCache();
-    localStorage.removeItem(SESSION_TOKEN_KEY);
+    localStorage.removeItem('swim_session_token'); // legacy temizlik
     localStorage.removeItem(TIMER_SNAP_KEY);
     setUser(null);
     setUserData(null);
@@ -131,11 +134,11 @@ export default function useAuth() {
         loadingUserIdRef.current = null;
         setAuthLoading(false);
         setLoadFailed(true);
-      }, 8000); // 8 saniye — daha önce 15'ti
+      }, 15000);
     }
 
     try {
-      const timeoutMs = background ? 10000 : 7000;
+      const timeoutMs = background ? 15000 : 12000;
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('timeout')), timeoutMs)
       );
@@ -144,7 +147,7 @@ export default function useAuth() {
       const fetchPromise = Promise.all([
         supabase
           .from('users')
-          .select('id, email, username, full_name, display_name, avatar, is_online, total_study_secs, plans, about_me, show_study_time, theme_id, status_id, last_seen, last_username_change, last_email_change, current_streak, longest_streak, last_study_date, session_token, is_working, is_on_break, is_paused, is_break_paused, is_free_mode, work_started_at, work_paused_at, break_started_at, break_paused_at, work_duration, break_duration')
+          .select('id, email, username, full_name, display_name, avatar, is_online, total_study_secs, plans, about_me, show_study_time, theme_id, status_id, last_seen, last_username_change, last_email_change, current_streak, longest_streak, last_study_date, session_token, is_working, is_on_break, is_paused, is_break_paused, is_free_mode, work_started_at, work_paused_at, break_started_at, break_paused_at, work_duration, break_duration, active_session_device, active_session_start, last_heartbeat_at')
           .eq('id', supaUser.id)
           .single(),
         supabase
@@ -208,16 +211,6 @@ export default function useAuth() {
       }
 
       const history = historyRes.data || [];
-
-      // Session token kontrolü — başka cihazdan giriş yapıldıysa çıkış yap
-      if (!background) {
-        const localToken = localStorage.getItem(SESSION_TOKEN_KEY);
-        if (localToken && data.session_token && localToken !== data.session_token) {
-          loadingUserIdRef.current = null;
-          signOutForced();
-          return;
-        }
-      }
 
       loadingUserIdRef.current = null;
       dataLoadedRef.current = true;
@@ -328,12 +321,6 @@ export default function useAuth() {
         }
         setNeedsVerification(false);
         setUser(session.user);
-        // Giriş yapıldıysa yeni session token üret (sadece yerel token yoksa = gerçek yeni giriş)
-        if (!localStorage.getItem(SESSION_TOKEN_KEY)) {
-          const freshToken = crypto.randomUUID();
-          localStorage.setItem(SESSION_TOKEN_KEY, freshToken);
-          supabase.from('users').update({ session_token: freshToken }).eq('id', session.user.id).catch(() => {});
-        }
         // Veri zaten yüklendiyse VEYA yükleme başarısız olduysa tekrar deneme
         // (token refresh döngüsünü önler)
         if (!dataLoadedRef.current && !loadFailedRef.current) {
@@ -348,7 +335,12 @@ export default function useAuth() {
             await loadUserData(session.user);
           }
         }
+        // Not: Session token mekanizması kaldırıldı.
+        // Çoklu cihaz desteği için forced logout yerine DB timer restore kullanılıyor.
       } else if (event === 'SIGNED_OUT') {
+        dataLoadedRef.current = false;
+        loadFailedRef.current = false;
+        loadingUserIdRef.current = null;
         setUser(null);
         setUserData(null);
         setAuthLoading(false);
@@ -363,26 +355,28 @@ export default function useAuth() {
     };
   }, [loadUserData, signOutAndClear, applyUserData]);
 
-  // Realtime: başka cihazdan giriş yapılınca session_token değişimini yakala
+  // Not: Session token realtime listener kaldırıldı — çoklu cihaz desteği aktif.
+
+  // ─── study_history Sync ───────────────────────────────────────────────────
+  // Tüm cihazlarda her 10s'de bir DB'den study_history çek → herkeste aynı değer.
+  // Realtime publication olmasa bile çalışır; aynı zamanda anlık refresh için
+  // refreshStudyHistory fonksiyonu dışarıya açılır.
+  const refreshStudyHistory = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('study_history')
+      .select('date, secs')
+      .eq('user_id', user.id)
+      .order('date', { ascending: false })
+      .limit(365);
+    if (data) setStudyHistory(data);
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (!user) return;
-    const channel = supabase
-      .channel(`user_session_${user.id}`)
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'users',
-        filter: `id=eq.${user.id}`
-      }, (payload) => {
-        const remoteToken = payload.new?.session_token;
-        const localToken = localStorage.getItem(SESSION_TOKEN_KEY);
-        if (remoteToken && localToken && remoteToken !== localToken) {
-          signOutForced();
-        }
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+    const interval = setInterval(refreshStudyHistory, 10000);
+    return () => clearInterval(interval);
+  }, [user?.id, refreshStudyHistory]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogout = useCallback(async (isOnline) => {
     if (user && isOnline) {
@@ -392,6 +386,7 @@ export default function useAuth() {
         is_break_paused: false, is_free_mode: false,
         work_started_at: null, work_paused_at: null,
         break_started_at: null, break_paused_at: null,
+        active_session_device: null,
       }).eq('id', user.id).then(undefined, () => {});
     }
     await supabase.auth.signOut();
@@ -469,7 +464,7 @@ export default function useAuth() {
   return {
     user, userData, setUserData, authLoading, loadFailed, needsVerification, setNeedsVerification,
     totalStudySecs, setTotalStudySecs,
-    plans, setPlans, studyHistory, setStudyHistory,
+    plans, setPlans, studyHistory, setStudyHistory, refreshStudyHistory,
     friends, setFriends, friendRequests, setFriendRequests,
     sentRequests, setSentRequests,
     status, setStatus, aboutMe, setAboutMe,

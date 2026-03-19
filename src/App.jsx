@@ -78,7 +78,7 @@ export default function SwimApp() {
   const {
     user, userData, setUserData, authLoading, loadFailed, needsVerification, setNeedsVerification,
     totalStudySecs, setTotalStudySecs,
-    plans, setPlans, studyHistory, setStudyHistory,
+    plans, setPlans, studyHistory, setStudyHistory, refreshStudyHistory,
     friends, setFriends, friendRequests, setFriendRequests,
     sentRequests, setSentRequests,
     status, setStatus, aboutMe, setAboutMe,
@@ -94,7 +94,7 @@ export default function SwimApp() {
   // Pomodoro hook
   const pomodoroHook = usePomodoro({
     user, userData, isOnline,
-    setTotalStudySecs, setStudyHistory,
+    setTotalStudySecs, setStudyHistory, refreshStudyHistory,
     notifications, t
   });
   const {
@@ -105,6 +105,7 @@ export default function SwimApp() {
     sound, setSound, audioRef,
     pausedSessionWorkedRef,
     saveStudyTime,
+    remoteDevice, remoteStart, remotePausedAt, pausedByOffline,
     selectPreset, handleStartStop, handleSkipToBreak,
     handleFinish, confirmAction: pomodoroConfirmAction, handleSliderChange
   } = pomodoroHook;
@@ -332,6 +333,7 @@ export default function SwimApp() {
           sound={sound} setSound={setSound} audioRef={audioRef}
           isOnline={isOnline} user={user} getPresetLabel={getPresetLabel}
           studyHistory={studyHistory}
+          remoteDevice={remoteDevice} remoteStart={remoteStart} remotePausedAt={remotePausedAt} pausedByOffline={pausedByOffline}
         />
       )}
       {page === 'friends' && (
