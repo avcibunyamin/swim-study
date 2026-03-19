@@ -201,7 +201,9 @@ export default function SwimApp() {
     document.documentElement.style.backgroundColor = color;
     // Native status bar rengini ve ikon stilini temaya göre güncelle
     if (isNative) {
-      try { StatusBar.setBackgroundColor({ color }); } catch (e) {}
+      const sbColor = themeObj.statusBarColor || color;
+      try { StatusBar.setBackgroundColor({ color: sbColor }); } catch (e) {}
+      // light tema → ikonlar koyu; diğerleri → ikonlar açık
       try { StatusBar.setStyle({ style: themeKey === 'light' ? Style.Dark : Style.Light }); } catch (e) {}
     }
   }, [themeObj]);
