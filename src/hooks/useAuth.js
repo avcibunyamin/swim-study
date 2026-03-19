@@ -363,13 +363,24 @@ export default function useAuth() {
   // refreshStudyHistory fonksiyonu dışarıya açılır.
   const refreshStudyHistory = useCallback(async () => {
     if (!user) return;
-    const { data } = await supabase
-      .from('study_history')
-      .select('date, secs')
-      .eq('user_id', user.id)
-      .order('date', { ascending: false })
-      .limit(365);
-    if (data) setStudyHistory(data);
+    const [{ data: histData }, { data: uData }] = await Promise.all([
+      supabase
+        .from('study_history')
+        .select('date, secs')
+        .eq('user_id', user.id)
+        .order('date', { ascending: false })
+        .limit(365),
+      supabase
+        .from('users')
+        .select('total_study_secs')
+        .eq('id', user.id)
+        .single(),
+    ]);
+    if (histData) setStudyHistory(histData);
+    if (uData) {
+      const pendingOffline = getOfflineData(user.id);
+      setTotalStudySecs((uData.total_study_secs || 0) + pendingOffline);
+    }
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
