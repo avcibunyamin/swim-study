@@ -38,8 +38,9 @@ const isNative = Capacitor.isNativePlatform();
 
 // Native platform başlangıç ayarları
 if (isNative) {
-  // overlay: true — WebView tam ekran, uygulama kendi arka planıyla DI alanını kapatır
-  try { StatusBar.setOverlaysWebView({ overlay: true }); } catch (e) { console.debug('StatusBar overlay error:', e); }
+  // overlay: false — native statusBar kendi alanını korur, WebView onun altından başlar.
+  // Bu sayede içerik hiçbir zaman Dynamic Island / notch arkasına denk gelmez.
+  try { StatusBar.setOverlaysWebView({ overlay: false }); } catch (e) { console.debug('StatusBar overlay error:', e); }
   try { LocalNotifications.requestPermissions(); } catch (e) { console.debug('Notification permission error:', e); }
 }
 
@@ -295,7 +296,7 @@ export default function SwimApp() {
   return (
     <div className={`${themeObj.bg} min-h-screen`} onClick={unlockAudio}>
       <Toast toast={toast} onClose={handleCloseToast} />
-      <div key={page} className={`animate-page-in ${isNative ? 'pt-safe' : ''}`}>
+      <div key={page} className="animate-page-in">
       {page === 'home' && (
         <HomePage
           theme={themeObj} pagePadding={navConfig.pagePad}
