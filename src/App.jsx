@@ -38,9 +38,9 @@ const isNative = Capacitor.isNativePlatform();
 
 // Native platform başlangıç ayarları
 if (isNative) {
-  // overlay: false — native statusBar kendi alanını korur, WebView onun altından başlar.
-  // Bu sayede içerik hiçbir zaman Dynamic Island / notch arkasına denk gelmez.
-  try { StatusBar.setOverlaysWebView({ overlay: false }); } catch (e) { console.debug('StatusBar overlay error:', e); }
+  // overlay: true → WebView tam ekran, tema arka planı status bar arkasına uzanır (seamless).
+  // İçeriği kameranın altında tutmak için pagePad'e pt-safe eklendi.
+  try { StatusBar.setOverlaysWebView({ overlay: true }); } catch (e) { console.debug('StatusBar overlay error:', e); }
   try { LocalNotifications.requestPermissions(); } catch (e) { console.debug('Notification permission error:', e); }
 }
 
@@ -153,7 +153,7 @@ export default function SwimApp() {
   // Nav konfigürasyonu
   const isVerticalNav = !isNative && (navPosition === 'left' || navPosition === 'right');
   const navConfig = useMemo(() => {
-    if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-32 px-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
+    if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pt-safe pb-32 px-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
     const c = {
       bottom: { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-24 p-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false },
       top: { navCls: 'fixed top-0 inset-x-0 border-b', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pt-20 px-4 pb-4', timerCls: 'absolute -bottom-8 left-1/2 -translate-x-1/2', vertical: false },
@@ -201,9 +201,8 @@ export default function SwimApp() {
     document.documentElement.style.backgroundColor = color;
     // Native status bar rengini ve ikon stilini temaya göre güncelle
     if (isNative) {
-      const sbColor = themeObj.statusBarColor || color;
-      try { StatusBar.setBackgroundColor({ color: sbColor }); } catch (e) {}
-      // light tema → ikonlar koyu; diğerleri → ikonlar açık
+      // overlay: true → background arkadan görünür, setBackgroundColor gerekmez.
+      // Sadece ikon rengini temaya göre ayarla.
       try { StatusBar.setStyle({ style: themeKey === 'light' ? Style.Dark : Style.Light }); } catch (e) {}
     }
   }, [themeObj]);
