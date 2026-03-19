@@ -3,6 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Safe area top: env() ile oku, 0 dönerse 62px (Dynamic Island) fallback -->
+    <style id="sat-style">:root{--sat:0px}</style>
+    <script>
+      (function(){
+        function applysat(){
+          var el=document.createElement('div');
+          el.style.cssText='position:fixed;top:0;left:0;height:env(safe-area-inset-top,0px);width:0;opacity:0;pointer-events:none';
+          document.documentElement.appendChild(el);
+          var h=el.offsetHeight||0;
+          document.documentElement.removeChild(el);
+          document.getElementById('sat-style').textContent=':root{--sat:'+(h>0?h:62)+'px}';
+        }
+        if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',applysat);}
+        else{applysat();}
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>SWIM</title>
