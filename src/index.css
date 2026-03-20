@@ -93,10 +93,10 @@ input[type="checkbox"] {
   animation: shimmer 2s infinite;
 }
 
-/* iOS Safe Area — Capacitor */
-.pt-safe   { padding-top: var(--sat, 62px); }
-.pb-safe   { padding-bottom: constant(safe-area-inset-bottom, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
-.pb-nav-safe { padding-bottom: calc(constant(safe-area-inset-bottom, 0px) + 0.5rem); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem); }
+/* iOS Safe Area — JS tarafından --sat/--sab set edilir */
+.pt-safe     { padding-top: var(--sat, 0px) !important; }
+.pb-safe     { padding-bottom: var(--sab, 0px); }
+.pb-nav-safe { padding-bottom: calc(var(--sab, 0px) + 0.5rem); }
 
 /* Page transition */
 @keyframes page-fade-in {

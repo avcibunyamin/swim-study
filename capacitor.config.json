@@ -7,11 +7,11 @@
     "iosScheme": "https"
   },
   "ios": {
-    "backgroundColor": "#000000"
+    "backgroundColor": "#FFFFFF"
   },
   "plugins": {
     "StatusBar": {
-      "style": "Light",
+      "style": "Dark",
       "overlaysWebView": true
     },
     "Keyboard": {

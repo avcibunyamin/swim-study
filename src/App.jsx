@@ -151,7 +151,7 @@ export default function SwimApp() {
   // Nav konfigürasyonu
   const isVerticalNav = !isNative && (navPosition === 'left' || navPosition === 'right');
   const navConfig = useMemo(() => {
-    if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-32 px-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
+    if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-32 px-4 pt-2', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
     const c = {
       bottom: { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-24 p-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false },
       top: { navCls: 'fixed top-0 inset-x-0 border-b', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pt-20 px-4 pb-4', timerCls: 'absolute -bottom-8 left-1/2 -translate-x-1/2', vertical: false },
@@ -192,6 +192,7 @@ export default function SwimApp() {
     return () => { sub?.remove(); };
   }, []);
 
+
   // Body arka planını tema ile eşitle
   useEffect(() => {
     const color = themeObj.bodyBg || '#000000';
@@ -199,8 +200,9 @@ export default function SwimApp() {
     document.documentElement.style.backgroundColor = color;
     // Native status bar rengini ve ikon stilini temaya göre güncelle
     if (isNative) {
-      // overlay: true → status bar şeffaf, arkaplan görünür. Sadece ikon rengi ayarlanır.
       try { StatusBar.setStyle({ style: themeKey === 'light' ? Style.Dark : Style.Light }); } catch (e) {}
+      // Native window background'u tema ile senkronize et (status bar alanı rengi)
+      try { window.webkit?.messageHandlers?.updateStatusBarBg?.postMessage(color); } catch (e) {}
     }
   }, [themeObj]);
 
@@ -291,10 +293,20 @@ export default function SwimApp() {
     );
   }
 
+  // iOS safe area yüksekliği
+  const safeTop = isNative ? Math.round(window.screen.height >= 852 ? 59 : window.screen.height >= 812 ? 47 : 20) : 0;
+
   return (
-    <div className={`${themeObj.bg} min-h-screen`} onClick={unlockAudio}>
-      {/* Native: Dynamic Island / safe area boşluğu — gradient arkada devam eder, içerik aşağıda başlar */}
-      {isNative && <div style={{ height: 'env(safe-area-inset-top, 62px)', minHeight: 44 }} />}
+    <div className={`${themeObj.bg} min-h-screen`} onClick={unlockAudio} style={safeTop ? { paddingTop: safeTop } : undefined}>
+      {/* Status bar arka plan rengi — fixed div ile */}
+      {safeTop > 0 && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0,
+          height: safeTop, zIndex: 9999,
+          backgroundColor: themeKey === 'light' ? '#ffffff' : themeObj.bodyBg,
+          pointerEvents: 'none'
+        }} />
+      )}
       <Toast toast={toast} onClose={handleCloseToast} />
       <div key={page} className="animate-page-in">
       {page === 'home' && (
