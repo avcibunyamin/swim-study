@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { ChevronLeft, ChevronRight, Clock, Target, Flame, Trophy } from 'lucide-react';
 import { useLanguage } from '../../i18n';
-import { fmtSecs, fmtShort } from '../../utils/formatters';
+import { fmtShort } from '../../utils/formatters';
 import Logo from '../ui/Logo';
 
 const PerformancePage = memo(({
@@ -18,11 +18,7 @@ const PerformancePage = memo(({
 
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.text} ${pagePadding}`}>
-      <div className="text-center py-4">
-        <Logo size="md" centered />
-        <p className="text-teal-400 text-sm mt-1">{t('nav.performance')}</p>
-      </div>
-
+      <div className="text-center py-2"><Logo size="sm" centered /></div>
       {/* Seri (Streak) */}
       <div className={`${theme.card} rounded-xl p-4 mb-4 border`}>
         <h3 className="font-bold text-orange-400 mb-3 flex items-center gap-2">

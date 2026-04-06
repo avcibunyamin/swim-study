@@ -1,32 +1,25 @@
 import React, { useState } from 'react';
 import { Settings, Trophy, WifiOff, Flame } from 'lucide-react';
-import { supabase } from '../../supabase';
 import { useLanguage } from '../../i18n';
 import { fmtSecs } from '../../utils/formatters';
-import { sanitizeInput } from '../../utils/sanitize';
 import { achievements } from '../../constants/achievements';
-import { avatarOptions } from '../../constants/avatarOptions';
 import Logo from '../ui/Logo';
 import SettingsModal from './SettingsModal';
 import EditProfileModal from './EditProfileModal';
-import ChangePasswordModal from './ChangePasswordModal';
 
 export default function ProfilePage({ theme, pagePadding, navPosition, changeNavPosition, user, userData, setUserData, totalStudySecs, currentAchievement, currentStreak, longestStreak, showStudyTime, setShowStudyTime, themeKey, changeTheme, notifications, setNotifications, showSettings, setShowSettings, showEditProfile, setShowEditProfile, showDeleteConfirm, setShowDeleteConfirm, handleLogout, handleDeleteAccount, isOnline, deletePassword, setDeletePassword }) {
   const { t, ta } = useLanguage();
-  const [showChangePassword, setShowChangePassword] = useState(false);
-  const isPasswordUser = user.app_metadata?.provider === 'email';
+  const isPasswordUser = false;
   const achievementTitles = ta('achievementTitles') || [];
 
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.text} ${pagePadding} relative`}>
-      <button onClick={() => setShowSettings(true)} className={`absolute ${navPosition === 'top' ? 'top-16' : 'top-4'} ${navPosition === 'right' ? 'right-20' : 'right-4'} p-2 ${theme.input} rounded-xl border z-10`}><Settings size={20} className="text-teal-400" /></button>
+      <button onClick={() => setShowSettings(true)} className={`absolute ${navPosition === 'top' ? 'top-16' : 'top-2'} ${navPosition === 'right' ? 'right-20' : 'right-4'} p-2 ${theme.input} rounded-xl border z-10`}><Settings size={20} className="text-teal-400" /></button>
       <div className="text-center py-2"><Logo size="sm" centered /></div>
       {!isOnline && <div className="bg-yellow-600 rounded-xl p-2 mb-4 text-white text-sm text-center flex items-center justify-center gap-2"><WifiOff size={16} />{t('auth.offline')}</div>}
       <div className="flex flex-col items-center mb-6">
         <span className="text-6xl mb-2">{userData?.avatar || '🐟'}</span>
-        <h2 className="text-xl font-bold">@{userData?.username}</h2>
-        {userData?.full_name && <p className={`${theme.text} text-sm`}>{userData.full_name}</p>}
-        <p className={`${theme.textMuted} text-sm`}>{userData?.email}</p>
+        <h2 className="text-xl font-bold">{userData?.full_name || userData?.display_name}</h2>
         <div className={`mt-2 px-3 py-1 rounded-full bg-gradient-to-r ${currentAchievement.color}`}>
           <span className="text-white text-sm font-bold">{currentAchievement.icon} {currentAchievement.title}</span>
         </div>
@@ -70,20 +63,8 @@ export default function ProfilePage({ theme, pagePadding, navPosition, changeNav
       </div>
 
 
-      <div className={`${theme.card} rounded-xl p-4 border`}>
-        <h3 className="font-bold text-teal-400 mb-3">{t('profile.avatar')}</h3>
-        <div className="flex flex-wrap gap-2 justify-center max-h-40 overflow-y-auto">
-          {avatarOptions.map(a => (
-            <button key={a} onClick={() => { if (isOnline) { supabase.from('users').update({ avatar: a }).eq('id', user.id).then(() => {}).catch(e => console.warn('Avatar update failed:', e.message)); setUserData({ ...userData, avatar: a }); }}} className={`text-2xl p-2 rounded-lg ${userData?.avatar === a ? 'bg-teal-600 ring-2 ring-teal-400 scale-110' : `${theme.input} border`}`}>
-              {a}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {showSettings && <SettingsModal theme={theme} user={user} themeKey={themeKey} changeTheme={changeTheme} navPosition={navPosition} changeNavPosition={changeNavPosition} showStudyTime={showStudyTime} setShowStudyTime={setShowStudyTime} notifications={notifications} setNotifications={setNotifications} onClose={() => setShowSettings(false)} openEditProfile={() => { setShowSettings(false); setShowEditProfile(true); }} openChangePassword={() => { setShowSettings(false); setShowChangePassword(true); }} openDeleteConfirm={() => { setShowSettings(false); setShowDeleteConfirm(true); }} handleLogout={handleLogout} isOnline={isOnline} isPasswordUser={isPasswordUser} />}
-      {showEditProfile && <EditProfileModal theme={theme} user={user} userData={userData} setUserData={setUserData} onClose={() => setShowEditProfile(false)} isOnline={isOnline} />}
-      {showChangePassword && <ChangePasswordModal theme={theme} user={user} onClose={() => setShowChangePassword(false)} isOnline={isOnline} />}
+      {showSettings && <SettingsModal theme={theme} themeKey={themeKey} changeTheme={changeTheme} onClose={() => setShowSettings(false)} openEditProfile={() => { setShowSettings(false); setShowEditProfile(true); }} openDeleteConfirm={() => { setShowSettings(false); setShowDeleteConfirm(true); }} handleLogout={handleLogout} isPasswordUser={isPasswordUser} />}
+      {showEditProfile && <EditProfileModal theme={theme} userData={userData} setUserData={setUserData} onClose={() => setShowEditProfile(false)} />}
 
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
