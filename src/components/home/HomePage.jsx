@@ -1,16 +1,14 @@
 import React, { useState, useEffect, memo } from 'react';
-import { Calendar, BarChart3, Trophy, ChevronLeft, ChevronRight, Heart, Quote, Check, WifiOff, Clock, Target } from 'lucide-react';
+import { Calendar, Trophy, Heart, Quote, Check, WifiOff, Clock } from 'lucide-react';
 import { useLanguage } from '../../i18n';
-import { fmtSecs, fmtShort } from '../../utils/formatters';
+import { fmtSecs } from '../../utils/formatters';
 import Logo from '../ui/Logo';
 
 const HomePage = memo(({
   theme, pagePadding,
   userData, totalStudySecs,
   currentAchievement, nextAchievement,
-  studyHistory,
-  statsPeriod, setStatsPeriod, statsOffset, setStatsOffset,
-  stats, plans, savePlans, isOnline,
+  plans, savePlans, isOnline,
 }) => {
   const { t, ta, lang } = useLanguage();
 
@@ -21,9 +19,7 @@ const HomePage = memo(({
       day: 'numeric', month: 'long', weekday: 'long',
     }).format(date);
   };
-  const [homeTab, setHomeTab] = useState('plans');
-  const maxSecs = Math.max(...(stats.chartData || []).map(d => d.secs), 1);
-  const today   = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split('T')[0];
   const allPlans = plans || [];
 
   const futurePlans = allPlans
@@ -118,144 +114,49 @@ const HomePage = memo(({
         </div>
       )}
 
-      {/* Tab seçici */}
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setHomeTab('plans')}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 ${
-            homeTab === 'plans'
-              ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white'
-              : `${theme.input} border ${theme.text}`
-          }`}
-        >
-          <Calendar size={16} />{t('home.plans')}
-        </button>
-        <button
-          onClick={() => setHomeTab('stats')}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 ${
-            homeTab === 'stats'
-              ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white'
-              : `${theme.input} border ${theme.text}`
-          }`}
-        >
-          <BarChart3 size={16} />{t('home.performance')}
-        </button>
-      </div>
-
       {/* Planlar */}
-      {homeTab === 'plans' && (
-        <>
-          <h2 className="font-bold text-cyan-400 mb-2 flex items-center gap-2 text-sm">
-            <Calendar size={16} />{t('home.upcomingPlans')}
-          </h2>
-          <div className="space-y-2 mb-4">
-            {futurePlans.length === 0 ? (
-              <p className={`${theme.textMuted} text-sm text-center py-4`}>{t('home.noPlans')}</p>
-            ) : (
-              futurePlans.slice(0, 10).map(p => (
-                <div
-                  key={p.id}
-                  className={`${theme.card} rounded-xl p-3 border-l-4 border flex items-center gap-2 ${
-                    p.completed
-                      ? 'border-l-emerald-500 bg-emerald-900/20'
-                      : p.date === today
-                        ? 'border-l-emerald-500 bg-emerald-900/10'
-                        : 'border-l-teal-500'
-                  }`}
-                >
-                  <button onClick={() => togglePlan(p.id)} className="flex-shrink-0">
-                    {p.completed ? (
-                      <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
-                        <Check size={12} className="text-white" />
-                      </div>
-                    ) : (
-                      <div className="w-6 h-6 rounded-full border-2 border-slate-500" />
-                    )}
-                  </button>
-                  <div className="flex-1 min-w-0">
-                    <p className={`font-medium text-sm ${p.completed ? 'line-through opacity-60' : ''}`}>{p.title}</p>
-                    <p className={`text-xs flex items-center gap-1 ${p.date === today ? 'text-emerald-400' : theme.textMuted}`}>
-                      {p.date === today ? t('home.today') : fmtPlanDate(p.date)}
-                      {p.time && (
-                        <span className="text-cyan-400 flex items-center gap-0.5">
-                          <Clock size={9} />{p.time}
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </>
-      )}
-
-      {/* İstatistikler */}
-      {homeTab === 'stats' && (
-        <div className={`${theme.card} rounded-2xl p-4 mb-4 border`}>
-          {/* Periyot seçici */}
-          <div className="flex gap-2 mb-3">
-            {['day', 'week', 'month', 'year'].map(p => (
-              <button
-                key={p}
-                onClick={() => { setStatsPeriod(p); setStatsOffset(0); }}
-                className={`flex-1 py-2 rounded-xl text-sm font-medium ${
-                  statsPeriod === p
-                    ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white'
-                    : `${theme.input} border ${theme.text}`
-                }`}
-              >
-                {t(`stats.${p}`)}
-              </button>
-            ))}
-          </div>
-
-          {/* Dönem navigasyonu */}
-          <div className="flex justify-between items-center mb-3">
-            <button onClick={() => setStatsOffset(o => o + 1)} className={`p-2 rounded-lg ${theme.input} border`}>
-              <ChevronLeft size={18} />
-            </button>
-            <span className="text-sm font-medium">{stats.periodLabel}</span>
-            <button
-              onClick={() => setStatsOffset(o => Math.max(0, o - 1))}
-              disabled={statsOffset === 0}
-              className={`p-2 rounded-lg ${theme.input} border ${statsOffset === 0 ? 'opacity-30' : ''}`}
+      <h2 className="font-bold text-cyan-400 mb-2 flex items-center gap-2 text-sm">
+        <Calendar size={16} />{t('home.upcomingPlans')}
+      </h2>
+      <div className="space-y-2 mb-4">
+        {futurePlans.length === 0 ? (
+          <p className={`${theme.textMuted} text-sm text-center py-4`}>{t('home.noPlans')}</p>
+        ) : (
+          futurePlans.slice(0, 10).map(p => (
+            <div
+              key={p.id}
+              className={`${theme.card} rounded-xl p-3 border-l-4 border flex items-center gap-2 ${
+                p.completed
+                  ? 'border-l-emerald-500 bg-emerald-900/20'
+                  : p.date === today
+                    ? 'border-l-emerald-500 bg-emerald-900/10'
+                    : 'border-l-teal-500'
+              }`}
             >
-              <ChevronRight size={18} />
-            </button>
-          </div>
-
-          {/* Özet kartlar */}
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            <div className={`${theme.input} rounded-xl p-3 text-center border`}>
-              <Clock size={16} className="mx-auto text-cyan-400 mb-1" />
-              <p className="font-bold">{fmtShort(stats.totalSecs, t)}</p>
-              <p className={`text-[10px] ${theme.textMuted}`}>{t('home.thisPeriod')}</p>
-            </div>
-            <div className={`${theme.input} rounded-xl p-3 text-center border`}>
-              <Target size={16} className="mx-auto text-emerald-400 mb-1" />
-              <p className="font-bold">{fmtShort(totalStudySecs, t)}</p>
-              <p className={`text-[10px] ${theme.textMuted}`}>{t('home.total')}</p>
-            </div>
-          </div>
-
-          {/* Ana sütun grafik — toplam */}
-          <p className={`text-xs font-bold ${theme.textMuted} mb-2`}>{t('home.performance')}</p>
-          <div className="h-40 flex items-end gap-1 mb-2">
-            {(stats.chartData || []).map((d, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center">
-                <span className={`text-[11px] ${theme.text} mb-1 font-bold`}>{d.secs > 0 ? fmtShort(d.secs, t) : ''}</span>
-                <div
-                  className={`w-full rounded-t transition-all ${d.secs > 0 ? 'bg-gradient-to-t from-teal-600 to-cyan-400' : theme.input}`}
-                  style={{ height: `${Math.max((d.secs / maxSecs) * 70, 4)}px`, minHeight: '4px' }}
-                />
-                <span className={`text-[11px] ${theme.text} mt-1 font-bold`}>{d.label}</span>
+              <button onClick={() => togglePlan(p.id)} className="flex-shrink-0">
+                {p.completed ? (
+                  <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+                    <Check size={12} className="text-white" />
+                  </div>
+                ) : (
+                  <div className="w-6 h-6 rounded-full border-2 border-slate-500" />
+                )}
+              </button>
+              <div className="flex-1 min-w-0">
+                <p className={`font-medium text-sm ${p.completed ? 'line-through opacity-60' : ''}`}>{p.title}</p>
+                <p className={`text-xs flex items-center gap-1 ${p.date === today ? 'text-emerald-400' : theme.textMuted}`}>
+                  {p.date === today ? t('home.today') : fmtPlanDate(p.date)}
+                  {p.time && (
+                    <span className="text-cyan-400 flex items-center gap-0.5">
+                      <Clock size={9} />{p.time}
+                    </span>
+                  )}
+                </p>
               </div>
-            ))}
-          </div>
-
-        </div>
-      )}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 });

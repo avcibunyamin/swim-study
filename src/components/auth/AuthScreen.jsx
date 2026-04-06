@@ -106,14 +106,9 @@ export default function AuthScreen({ onUserCreated }) {
             {/* Önizleme */}
             <div className="flex items-center gap-3 bg-gray-800 rounded-xl px-4 py-3">
               <span className="text-4xl">{avatar}</span>
-              <div>
-                <p className="text-white font-bold text-base leading-tight">
-                  {fullName.trim() || 'Adın Soyadın'}
-                </p>
-                <p className="text-gray-400 text-sm">
-                  @{generateUsername(fullName.trim() || 'kullanici')}
-                </p>
-              </div>
+              <p className="text-white font-bold text-base">
+                {fullName.trim() || 'Adın Soyadın'}
+              </p>
             </div>
 
             <button

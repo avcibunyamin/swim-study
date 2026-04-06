@@ -11,7 +11,6 @@
   },
   "plugins": {
     "StatusBar": {
-      "style": "Dark",
       "overlaysWebView": true
     },
     "Keyboard": {

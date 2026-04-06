@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { Settings, X, ChevronRight, Palette, Eye, LogOut, Edit3, KeyRound, Trash, ShieldCheck } from 'lucide-react';
-import { supabase } from '../../supabase';
+import { Settings, X, ChevronRight, Palette, LogOut, Edit3, KeyRound, Trash, ShieldCheck } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useLanguage } from '../../i18n';
 import { themes } from '../../constants/themes';
 
 const isNative = Capacitor.isNativePlatform();
 
-export default function SettingsModal({ theme, user, themeKey, changeTheme, showStudyTime, setShowStudyTime, onClose, openEditProfile, openChangePassword, openDeleteConfirm, handleLogout, isOnline, isPasswordUser }) {
+export default function SettingsModal({ theme, themeKey, changeTheme, onClose, openEditProfile, openDeleteConfirm, handleLogout, isPasswordUser }) {
   const { t, lang, setLang } = useLanguage();
   const [showAccountMenu, setShowAccountMenu] = useState(false);
 
@@ -46,11 +45,6 @@ export default function SettingsModal({ theme, user, themeKey, changeTheme, show
                 <button key={l.id} onClick={() => setLang(l.id)} className={`flex-1 py-2 rounded-lg text-xs ${lang === l.id ? 'bg-teal-600 text-white' : `${theme.card} border ${theme.text}`}`}>{l.l}</button>
               ))}
             </div>
-          </div>
-
-          <div className={`flex justify-between items-center p-3 ${theme.input} rounded-xl border`}>
-            <span className="text-sm"><Eye size={16} className="inline mr-2 text-teal-400" />{t('settings.showStudyTime')}</span>
-            <button onClick={() => { const v = !showStudyTime; setShowStudyTime(v); if (isOnline) supabase.from('users').update({ show_study_time: v }).eq('id', user.id).then(() => {}).catch(e => console.warn('Toggle failed:', e.message)); }} className={`w-12 h-6 rounded-full ${showStudyTime ? 'bg-teal-600' : 'bg-slate-600'}`}><div className={`w-5 h-5 bg-white rounded-full transition-transform ${showStudyTime ? 'translate-x-6' : 'translate-x-0.5'}`} /></button>
           </div>
 
           <button onClick={handleLogout} className={`w-full py-3 ${theme.input} rounded-xl border ${theme.text}`}><LogOut size={16} className="inline mr-2" />{t('settings.logout')}</button>

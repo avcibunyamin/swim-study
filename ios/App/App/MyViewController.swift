@@ -4,6 +4,12 @@ import WebKit
 
 class MyViewController: CAPBridgeViewController, WKScriptMessageHandler {
 
+    private var isDarkStatusBar = false
+
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return isDarkStatusBar ? .darkContent : .lightContent
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -11,6 +17,7 @@ class MyViewController: CAPBridgeViewController, WKScriptMessageHandler {
 
     override func capacitorDidLoad() {
         bridge?.webView?.configuration.userContentController.add(self, name: "updateStatusBarBg")
+        bridge?.webView?.configuration.userContentController.add(self, name: "updateStatusBarStyle")
         // WebView arka planını beyaz yap — status bar alanı bu rengi gösterir
         bridge?.webView?.isOpaque = false
         bridge?.webView?.backgroundColor = .white
@@ -45,6 +52,13 @@ class MyViewController: CAPBridgeViewController, WKScriptMessageHandler {
     }
 
     func userContentController(_ uc: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "updateStatusBarStyle", let style = message.body as? String {
+            DispatchQueue.main.async { [weak self] in
+                self?.isDarkStatusBar = (style == "dark")
+                self?.setNeedsStatusBarAppearanceUpdate()
+            }
+            return
+        }
         guard message.name == "updateStatusBarBg", let hex = message.body as? String else { return }
         DispatchQueue.main.async { [weak self] in
             let color = UIColor(hex: hex)

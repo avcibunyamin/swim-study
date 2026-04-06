@@ -229,8 +229,6 @@ export default function SwimApp() {
             theme={themeObj} pagePadding={navConfig.pagePad}
             userData={userData} totalStudySecs={totalStudySecs}
             currentAchievement={currentAchievement} nextAchievement={nextAchievement}
-            studyHistory={studyHistory} statsPeriod={statsPeriod} setStatsPeriod={setStatsPeriod}
-            statsOffset={statsOffset} setStatsOffset={setStatsOffset} stats={getStatsData}
             plans={plans} savePlans={savePlans} isOnline={isOnline}
           />
         )}
