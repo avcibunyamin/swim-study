@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Home, Calendar, Timer, Users, User, Loader2 } from 'lucide-react';
+import { Home, Calendar, Timer, BarChart3, User, Loader2 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { App as CapApp } from '@capacitor/app';
 import { Keyboard } from '@capacitor/keyboard';
 import { LocalNotifications } from '@capacitor/local-notifications';
-import { supabase } from './supabase';
 import { useLanguage } from './i18n';
 
 // Constants
@@ -20,7 +19,6 @@ import { unlockAudio } from './utils/audio';
 import useAuth from './hooks/useAuth';
 import usePresence from './hooks/usePresence';
 import usePomodoro from './hooks/usePomodoro';
-import useFriends from './hooks/useFriends';
 import usePlans from './hooks/usePlans';
 import useStats from './hooks/useStats';
 
@@ -29,17 +27,18 @@ import AuthScreen from './components/auth/AuthScreen';
 import HomePage from './components/home/HomePage';
 import PlanPage from './components/plan/PlanPage';
 import PomodoroPage from './components/pomodoro/PomodoroPage';
-import FriendsPage from './components/friends/FriendsPage';
+import PerformancePage from './components/performance/PerformancePage';
 import ProfilePage from './components/profile/ProfilePage';
 import NavBar from './components/shared/NavBar';
 import Toast from './components/ui/Toast';
 
 const isNative = Capacitor.isNativePlatform();
 
-// Native platform başlangıç ayarları — React render'dan ÖNCE çalışır
 if (isNative) {
   try { LocalNotifications.requestPermissions(); } catch (e) { console.debug('Notification permission error:', e); }
 }
+
+const VALID_PAGES = ['home', 'plan', 'pomodoro', 'performance', 'profile'];
 
 export default function SwimApp() {
   const { t, ta } = useLanguage();
@@ -47,7 +46,7 @@ export default function SwimApp() {
 
   const [page, setPage] = useState(() => {
     const saved = localStorage.getItem('swim_page');
-    return saved && ['home', 'plan', 'pomodoro', 'friends', 'profile'].includes(saved) ? saved : 'home';
+    return saved && VALID_PAGES.includes(saved) ? saved : 'home';
   });
   const [navPosition, setNavPosition] = useState(() => {
     if (isNative) return 'bottom';
@@ -56,43 +55,35 @@ export default function SwimApp() {
   });
 
   // UI modal durumları
-  const [showSettings, setShowSettings] = useState(false);
-  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showSettings,     setShowSettings]     = useState(false);
+  const [showEditProfile,  setShowEditProfile]   = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showPlanModal, setShowPlanModal] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(null);
-  const [showRemoveFriend, setShowRemoveFriend] = useState(null);
-  const [showRequestsModal, setShowRequestsModal] = useState(false);
-  const [showChat, setShowChat] = useState(null);
-  const [selDate, setSelDate] = useState(null);
-  const [deletePassword, setDeletePassword] = useState('');
-  const [notification, setNotification] = useState(null);
-  const [toast, setToast] = useState(null);
-  const [quoteIdx, setQuoteIdx] = useState(0);
-  const [healthTipIdx, setHealthTipIdx] = useState(0);
-  const [calDate, setCalDate] = useState(new Date());
+  const [showPlanModal,    setShowPlanModal]     = useState(false);
+  const [showConfirm,      setShowConfirm]       = useState(null);
+  const [selDate,          setSelDate]           = useState(null);
+  const [deletePassword,   setDeletePassword]    = useState('');
+  const [toast,            setToast]             = useState(null);
+  const [calDate,          setCalDate]           = useState(new Date());
 
   // Auth hook
   const authHook = useAuth();
   const {
-    user, userData, setUserData, authLoading, loadFailed, needsVerification, setNeedsVerification,
+    user, userData, setUserData, authLoading,
     totalStudySecs, setTotalStudySecs,
     plans, setPlans, studyHistory, setStudyHistory, refreshStudyHistory,
-    friends, setFriends, friendRequests, setFriendRequests,
-    sentRequests, setSentRequests,
     status, setStatus, aboutMe, setAboutMe,
     showStudyTime, setShowStudyTime,
     currentStreak, longestStreak,
     theme: themeKey, setTheme: setThemeKey, notifications, setNotifications,
-    handleLogout: authLogout, handleDeleteAccount, changeTheme, retryLoad,
-    sessionInvalidated,
+    handleLogout: authLogout, handleDeleteAccount, changeTheme,
+    createLocalUser,
   } = authHook;
 
   const themeObj = themes[themeKey] || themes.dark;
 
   // Pomodoro hook
   const pomodoroHook = usePomodoro({
-    user, userData, isOnline,
+    user, isOnline,
     setTotalStudySecs, setStudyHistory, refreshStudyHistory,
     notifications, t
   });
@@ -109,44 +100,25 @@ export default function SwimApp() {
     handleFinish, confirmAction: pomodoroConfirmAction, handleSliderChange
   } = pomodoroHook;
 
-  // Presence hook (online/offline, heartbeat, görünürlük)
-  usePresence({
-    user, isOnline, setIsOnline,
-    setTotalStudySecs, setStudyHistory, setNotification,
-    setFriends, setFriendRequests, setSentRequests,
-  });
-
-  // Friends hook
-  const friendsHook = useFriends({
-    user, userData, isOnline,
-    friends, setFriends,
-    friendRequests, setFriendRequests,
-    sentRequests, setSentRequests,
-    status,
-  });
-  const {
-    friendsData, unreadMessages, setUnreadMessages,
-    searchUsers, sendFriendRequest, acceptFriendRequest,
-    rejectFriendRequest, removeFriend
-  } = friendsHook;
+  // Presence hook (online/offline)
+  usePresence({ isOnline, setIsOnline });
 
   // Plans hook
-  const { savePlans } = usePlans({ user, isOnline, plans, setPlans });
+  const { savePlans } = usePlans({ plans, setPlans });
 
   // Stats hook
   const { statsPeriod, setStatsPeriod, statsOffset, setStatsOffset, getStatsData } = useStats({ studyHistory });
 
   // Türetilmiş değerler
-  const totalUnread = useMemo(() => Object.values(unreadMessages).reduce((a, b) => a + b, 0), [unreadMessages]);
   const currentAchievement = useMemo(() => getAchievement(totalStudySecs / 60, ta), [totalStudySecs, ta]);
-  const nextAchievement = useMemo(() => getNextAchievement(totalStudySecs / 60, ta), [totalStudySecs, ta]);
-  const getPresetLabel = useCallback(() => isFreeMode ? t('pomodoro.freeMode') : `${workMins}/${breakMins}`, [isFreeMode, workMins, breakMins, t]);
+  const nextAchievement    = useMemo(() => getNextAchievement(totalStudySecs / 60, ta), [totalStudySecs, ta]);
+  const getPresetLabel     = useCallback(() => isFreeMode ? t('pomodoro.freeMode') : `${workMins}/${breakMins}`, [isFreeMode, workMins, breakMins, t]);
 
   // Takvim hesaplanan değerleri
-  const year = calDate.getFullYear();
-  const month = calDate.getMonth();
+  const year        = calDate.getFullYear();
+  const month       = calDate.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDay = new Date(year, month, 1).getDay();
+  const firstDay    = new Date(year, month, 1).getDay();
 
   // Nav konfigürasyonu
   const isVerticalNav = !isNative && (navPosition === 'left' || navPosition === 'right');
@@ -154,9 +126,9 @@ export default function SwimApp() {
     if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-32 px-4 pt-2', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
     const c = {
       bottom: { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-24 p-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false },
-      top: { navCls: 'fixed top-0 inset-x-0 border-b', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pt-20 px-4 pb-4', timerCls: 'absolute -bottom-8 left-1/2 -translate-x-1/2', vertical: false },
-      left: { navCls: 'fixed left-0 inset-y-0 border-r w-16', innerCls: 'flex flex-col items-center justify-center gap-1 h-full', pagePad: 'pl-20 px-4 pb-4', timerCls: 'absolute -right-16 top-2 whitespace-nowrap', vertical: true },
-      right: { navCls: 'fixed right-0 inset-y-0 border-l w-16', innerCls: 'flex flex-col items-center justify-center gap-1 h-full', pagePad: 'pr-20 px-4 pb-4', timerCls: 'absolute -left-16 top-2 whitespace-nowrap', vertical: true },
+      top:    { navCls: 'fixed top-0 inset-x-0 border-b',   innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pt-20 px-4 pb-4', timerCls: 'absolute -bottom-8 left-1/2 -translate-x-1/2', vertical: false },
+      left:   { navCls: 'fixed left-0 inset-y-0 border-r w-16', innerCls: 'flex flex-col items-center justify-center gap-1 h-full', pagePad: 'pl-20 px-4 pb-4', timerCls: 'absolute -right-16 top-2 whitespace-nowrap', vertical: true },
+      right:  { navCls: 'fixed right-0 inset-y-0 border-l w-16', innerCls: 'flex flex-col items-center justify-center gap-1 h-full', pagePad: 'pr-20 px-4 pb-4', timerCls: 'absolute -left-16 top-2 whitespace-nowrap', vertical: true },
     };
     return c[navPosition] || c.bottom;
   }, [navPosition]);
@@ -168,19 +140,9 @@ export default function SwimApp() {
 
   // Toast helper
   const handleCloseToast = useCallback(() => setToast(null), []);
+  const showToast = useCallback((type, message, title) => { setToast({ type, message, title }); }, []);
 
-  const showToast = useCallback((type, message, title) => {
-    setToast({ type, message, title });
-  }, []);
-
-  // Bildirimi 4 saniye sonra kapat
-  useEffect(() => {
-    if (!notification) return;
-    const timer = setTimeout(() => setNotification(null), 4000);
-    return () => clearTimeout(timer);
-  }, [notification]);
-
-  // Klavye açılınca aktif input'u görünür alana getir (iOS/Android)
+  // Klavye (iOS/Android)
   useEffect(() => {
     if (!isNative) return;
     let sub;
@@ -192,66 +154,43 @@ export default function SwimApp() {
     return () => { sub?.remove(); };
   }, []);
 
-
   // Body arka planını tema ile eşitle
   useEffect(() => {
     const color = themeObj.bodyBg || '#000000';
     document.body.style.backgroundColor = color;
     document.documentElement.style.backgroundColor = color;
-    // Native status bar rengini ve ikon stilini temaya göre güncelle
     if (isNative) {
       try { StatusBar.setStyle({ style: themeKey === 'light' ? Style.Dark : Style.Light }); } catch (e) {}
-      // Native window background'u tema ile senkronize et (status bar alanı rengi)
+      try { window.webkit?.messageHandlers?.updateStatusBarStyle?.postMessage(themeKey === 'light' ? 'dark' : 'light'); } catch (e) {}
       try { window.webkit?.messageHandlers?.updateStatusBarBg?.postMessage(color); } catch (e) {}
     }
   }, [themeObj]);
-
-  // Alıntı & sağlık ipucu döngüsü
-  useEffect(() => { const i = setInterval(() => setQuoteIdx(q => (q + 1) % 4), 5000); return () => clearInterval(i); }, []);
-  useEffect(() => { const i = setInterval(() => setHealthTipIdx(h => (h + 1) % 10), 30000); return () => clearInterval(i); }, []);
-
-  // Google OAuth deep link callback (com.swimstudy.app://login-callback#access_token=...)
-  useEffect(() => {
-    if (!isNative) return;
-    const handler = CapApp.addListener('appUrlOpen', async ({ url }) => {
-      if (!url.startsWith('com.swimstudy.app://')) return;
-      const hashOrQuery = url.includes('#') ? url.split('#')[1] : url.split('?')[1] || '';
-      const params = new URLSearchParams(hashOrQuery);
-      const access_token = params.get('access_token');
-      const refresh_token = params.get('refresh_token');
-      if (access_token && refresh_token) {
-        await supabase.auth.setSession({ access_token, refresh_token });
-      }
-    });
-    return () => { handler.then(h => h.remove()); };
-  }, []);
 
   // Android geri tuşu yöneticisi
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const handler = CapApp.addListener('backButton', () => {
-      if (showChat || showSettings || showEditProfile || showPlanModal || showRequestsModal || showDeleteConfirm || showRemoveFriend || showConfirm) {
-        setShowChat(null); setShowSettings(false); setShowEditProfile(false);
-        setShowPlanModal(false); setShowRequestsModal(false); setShowDeleteConfirm(false);
-        setShowRemoveFriend(null); setShowConfirm(null);
+      if (showSettings || showEditProfile || showPlanModal || showDeleteConfirm || showConfirm) {
+        setShowSettings(false); setShowEditProfile(false);
+        setShowPlanModal(false); setShowDeleteConfirm(false); setShowConfirm(null);
       } else if (page !== 'home') { setPage('home'); }
       else { CapApp.minimizeApp(); }
     });
     return () => { handler.then(h => h.remove()); };
-  }, [page, showChat, showSettings, showEditProfile, showPlanModal, showRequestsModal, showDeleteConfirm, showRemoveFriend, showConfirm]);
+  }, [page, showSettings, showEditProfile, showPlanModal, showDeleteConfirm, showConfirm]);
 
   // Confirm action sarmalayıcı
   const confirmAction = useCallback(async () => {
     const action = showConfirm;
-    setShowConfirm(null);           // Modal anında kapanır — çift tıklamayı engeller
+    setShowConfirm(null);
     await pomodoroConfirmAction(action);
   }, [showConfirm, pomodoroConfirmAction]);
 
   // Çıkış sarmalayıcı
   const handleLogout = useCallback(async () => {
-    await authLogout(isOnline);
+    await authLogout();
     setShowSettings(false);
-  }, [authLogout, isOnline]);
+  }, [authLogout]);
 
   // Yükleme ekranı
   if (authLoading) {
@@ -262,139 +201,106 @@ export default function SwimApp() {
     );
   }
 
-  // Bağlantı hatası ekranı — sadece açık hata durumunda göster (geçici loading sırasında değil)
-  if (user && !userData && loadFailed) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center gap-4 px-6 text-center">
-        <Loader2 size={40} className="text-slate-600" />
-        <p className="text-slate-300 font-medium">Sunucuya bağlanılamadı</p>
-        <p className="text-slate-500 text-sm">İnternet bağlantını kontrol et ve tekrar dene.</p>
-        <button
-          onClick={retryLoad}
-          className="mt-2 px-6 py-2.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl font-medium transition-colors"
-        >
-          Yeniden Dene
-        </button>
-      </div>
-    );
-  }
-
   // Auth ekranı
   if (!user) {
-    return (
-      <>
-        {sessionInvalidated && (
-          <div className="fixed top-0 inset-x-0 z-50 bg-amber-600 text-white text-sm text-center py-3 px-4 font-medium">
-            Hesabın başka bir cihazda açıldığı için oturum kapatıldı.
-          </div>
-        )}
-        <AuthScreen />
-      </>
-    );
+    return <AuthScreen onUserCreated={createLocalUser} />;
   }
 
-  // iOS safe area yüksekliği
-  const safeTop = isNative ? Math.round(window.screen.height >= 852 ? 59 : window.screen.height >= 812 ? 47 : 20) : 0;
+  // iOS safe area
+  const sh = window.screen.height;
+  const safeTop    = isNative ? Math.round(sh >= 852 ? 59 : sh >= 812 ? 47 : 20) : 0;
+  const safeBottom = isNative ? (sh >= 812 ? 34 : 0) : 0;
+  if (safeBottom > 0) {
+    document.documentElement.style.setProperty('--sab', safeBottom + 'px');
+  }
 
   return (
-    <div className={`${themeObj.bg} min-h-screen`} onClick={unlockAudio} style={safeTop ? { paddingTop: safeTop } : undefined}>
-      {/* Status bar arka plan rengi — fixed div ile */}
-      {safeTop > 0 && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0,
-          height: safeTop, zIndex: 9999,
-          backgroundColor: themeKey === 'light' ? '#ffffff' : themeObj.bodyBg,
-          pointerEvents: 'none'
-        }} />
-      )}
-      <Toast toast={toast} onClose={handleCloseToast} />
-      <div key={page} className="animate-page-in">
-      {page === 'home' && (
-        <HomePage
-          theme={themeObj} pagePadding={navConfig.pagePad}
-          userData={userData} totalStudySecs={totalStudySecs}
-          currentAchievement={currentAchievement} nextAchievement={nextAchievement}
-          studyHistory={studyHistory} statsPeriod={statsPeriod} setStatsPeriod={setStatsPeriod}
-          statsOffset={statsOffset} setStatsOffset={setStatsOffset} stats={getStatsData}
-          plans={plans} savePlans={savePlans} isOnline={isOnline}
-        />
-      )}
-      {page === 'plan' && (
-        <PlanPage
-          theme={themeObj} pagePadding={navConfig.pagePad}
-          calDate={calDate} setCalDate={setCalDate}
-          plans={plans} savePlans={savePlans}
-          year={year} month={month} daysInMonth={daysInMonth} firstDay={firstDay}
-          isOnline={isOnline} showPlanModal={showPlanModal} setShowPlanModal={setShowPlanModal}
-          selDate={selDate} setSelDate={setSelDate}
-        />
-      )}
-      {page === 'pomodoro' && (
-        <PomodoroPage
-          theme={themeObj} pagePadding={navConfig.pagePad}
-          notification={notification} setNotification={setNotification}
-          workMins={workMins} breakMins={breakMins} timeLeft={timeLeft}
-          isRunning={isRunning} isOnBreak={isOnBreak} isFreeMode={isFreeMode}
-          freeTime={freeTime} sessionWorked={sessionWorked}
-          totalStudySecs={totalStudySecs} selectPreset={selectPreset}
-          handleStartStop={handleStartStop}
-          handleSkipToBreak={() => { const r = handleSkipToBreak(); if (r) setShowConfirm(r); }}
-          handleFinish={() => { const r = handleFinish(); if (r) setShowConfirm(r); }}
-          handleSliderChange={handleSliderChange}
-          showConfirm={showConfirm} setShowConfirm={setShowConfirm}
-          confirmAction={confirmAction}
-          sound={sound} setSound={setSound} audioRef={audioRef}
-          isOnline={isOnline} user={user} getPresetLabel={getPresetLabel}
-          studyHistory={studyHistory}
-          remoteDevice={remoteDevice} remoteStart={remoteStart} remotePausedAt={remotePausedAt} pausedByOffline={pausedByOffline}
-        />
-      )}
-      {page === 'friends' && (
-        <FriendsPage
-          theme={themeObj} pagePadding={navConfig.pagePad}
-          user={user} userData={userData} isOnline={isOnline}
-          friends={friends} friendsData={friendsData}
-          friendRequests={friendRequests} sentRequests={sentRequests}
-          unreadMessages={unreadMessages} status={status} setStatus={setStatus}
-          searchUsers={searchUsers} sendFriendRequest={sendFriendRequest}
-          acceptFriendRequest={acceptFriendRequest} rejectFriendRequest={rejectFriendRequest}
-          removeFriend={removeFriend}
-          showRemoveFriend={showRemoveFriend} setShowRemoveFriend={setShowRemoveFriend}
-          showRequestsModal={showRequestsModal} setShowRequestsModal={setShowRequestsModal}
-          showChat={showChat} setShowChat={setShowChat}
-          setUnreadMessages={setUnreadMessages}
-        />
-      )}
-      {page === 'profile' && (
-        <ProfilePage
-          theme={themeObj} pagePadding={navConfig.pagePad}
-          navPosition={navPosition} changeNavPosition={changeNavPosition}
-          user={user} userData={userData} setUserData={setUserData}
-          totalStudySecs={totalStudySecs} currentAchievement={currentAchievement}
-          currentStreak={currentStreak} longestStreak={longestStreak}
-          showStudyTime={showStudyTime} setShowStudyTime={setShowStudyTime}
-themeKey={themeKey} changeTheme={(th) => changeTheme(th, isOnline)}
-          notifications={notifications} setNotifications={setNotifications}
-          showSettings={showSettings} setShowSettings={setShowSettings}
-          showEditProfile={showEditProfile} setShowEditProfile={setShowEditProfile}
-          showDeleteConfirm={showDeleteConfirm} setShowDeleteConfirm={setShowDeleteConfirm}
-          handleLogout={handleLogout}
-          handleDeleteAccount={() => handleDeleteAccount({
-            deletePassword, isOnline,
-            onError: (msg) => showToast('error', msg),
-            onSuccess: (msg) => showToast('success', msg)
-          })}
-          isOnline={isOnline} deletePassword={deletePassword} setDeletePassword={setDeletePassword}
-        />
-      )}
+    <div className={`${themeObj.bg} min-h-screen`} onClick={unlockAudio}>
+      {safeTop > 0 && <>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: safeTop, zIndex: 9999, backgroundColor: themeObj.bodyBg, pointerEvents: 'none' }} />
+        <div style={{ height: safeTop, width: '100%', flexShrink: 0 }} />
+      </>}
 
+      <Toast toast={toast} onClose={handleCloseToast} />
+
+      <div key={page} className="animate-page-in">
+        {page === 'home' && (
+          <HomePage
+            theme={themeObj} pagePadding={navConfig.pagePad}
+            userData={userData} totalStudySecs={totalStudySecs}
+            currentAchievement={currentAchievement} nextAchievement={nextAchievement}
+            studyHistory={studyHistory} statsPeriod={statsPeriod} setStatsPeriod={setStatsPeriod}
+            statsOffset={statsOffset} setStatsOffset={setStatsOffset} stats={getStatsData}
+            plans={plans} savePlans={savePlans} isOnline={isOnline}
+          />
+        )}
+        {page === 'plan' && (
+          <PlanPage
+            theme={themeObj} pagePadding={navConfig.pagePad}
+            calDate={calDate} setCalDate={setCalDate}
+            plans={plans} savePlans={savePlans}
+            year={year} month={month} daysInMonth={daysInMonth} firstDay={firstDay}
+            isOnline={isOnline} showPlanModal={showPlanModal} setShowPlanModal={setShowPlanModal}
+            selDate={selDate} setSelDate={setSelDate}
+          />
+        )}
+        {page === 'pomodoro' && (
+          <PomodoroPage
+            theme={themeObj} pagePadding={navConfig.pagePad}
+            workMins={workMins} breakMins={breakMins} timeLeft={timeLeft}
+            isRunning={isRunning} isOnBreak={isOnBreak} isFreeMode={isFreeMode}
+            freeTime={freeTime} sessionWorked={sessionWorked}
+            totalStudySecs={totalStudySecs} selectPreset={selectPreset}
+            handleStartStop={handleStartStop}
+            handleSkipToBreak={() => { const r = handleSkipToBreak(); if (r) setShowConfirm(r); }}
+            handleFinish={() => { const r = handleFinish(); if (r) setShowConfirm(r); }}
+            handleSliderChange={handleSliderChange}
+            showConfirm={showConfirm} setShowConfirm={setShowConfirm}
+            confirmAction={confirmAction}
+            sound={sound} setSound={setSound} audioRef={audioRef}
+            isOnline={isOnline} user={user} getPresetLabel={getPresetLabel}
+            studyHistory={studyHistory}
+            remoteDevice={remoteDevice} remoteStart={remoteStart} remotePausedAt={remotePausedAt} pausedByOffline={pausedByOffline}
+          />
+        )}
+        {page === 'performance' && (
+          <PerformancePage
+            theme={themeObj} pagePadding={navConfig.pagePad}
+            totalStudySecs={totalStudySecs}
+            currentStreak={currentStreak} longestStreak={longestStreak}
+            currentAchievement={currentAchievement} nextAchievement={nextAchievement}
+            statsPeriod={statsPeriod} setStatsPeriod={setStatsPeriod}
+            statsOffset={statsOffset} setStatsOffset={setStatsOffset}
+            stats={getStatsData}
+          />
+        )}
+        {page === 'profile' && (
+          <ProfilePage
+            theme={themeObj} pagePadding={navConfig.pagePad}
+            navPosition={navPosition} changeNavPosition={changeNavPosition}
+            user={user} userData={userData} setUserData={setUserData}
+            totalStudySecs={totalStudySecs} currentAchievement={currentAchievement}
+            currentStreak={currentStreak} longestStreak={longestStreak}
+            showStudyTime={showStudyTime} setShowStudyTime={setShowStudyTime}
+            themeKey={themeKey} changeTheme={(th) => changeTheme(th)}
+            notifications={notifications} setNotifications={setNotifications}
+            showSettings={showSettings} setShowSettings={setShowSettings}
+            showEditProfile={showEditProfile} setShowEditProfile={setShowEditProfile}
+            showDeleteConfirm={showDeleteConfirm} setShowDeleteConfirm={setShowDeleteConfirm}
+            handleLogout={handleLogout}
+            handleDeleteAccount={() => handleDeleteAccount({
+              onError:   (msg) => showToast('error', msg),
+              onSuccess: (msg) => showToast('success', msg)
+            })}
+            isOnline={isOnline} deletePassword={deletePassword} setDeletePassword={setDeletePassword}
+          />
+        )}
       </div>
+
       <NavBar
         theme={themeObj} navConfig={navConfig} page={page} setPage={setPage}
         isRunning={isRunning} isOnBreak={isOnBreak} isFreeMode={isFreeMode}
         freeTime={freeTime} timeLeft={timeLeft}
-        friendRequests={friendRequests}
-        totalUnread={totalUnread}
       />
 
       <audio ref={audioRef} loop />

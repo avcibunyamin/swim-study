@@ -28,7 +28,7 @@ export default {
   'nav.home': 'Home',
   'nav.plan': 'Plan',
   'nav.pomodoro': 'Pomodoro',
-  'nav.friends': 'Friends',
+  'nav.performance': 'Performance',
   'nav.profile': 'Profile',
 
   // --- Time ---

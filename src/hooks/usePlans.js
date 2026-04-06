@@ -1,15 +1,10 @@
 import { useCallback } from 'react';
-import { supabase } from '../supabase';
 
-export default function usePlans({ user, isOnline, plans, setPlans }) {
-  const savePlans = useCallback(async (newPlans) => {
+export default function usePlans({ plans, setPlans }) {
+  const savePlans = useCallback((newPlans) => {
     setPlans(newPlans);
-    if (!user || !isOnline) return;
-    await supabase.from('users')
-      .update({ plans: newPlans })
-      .eq('id', user.id)
-      .then(undefined, e => console.warn('Plans save error:', e.message));
-  }, [user, isOnline, setPlans]);
+    // Persistence is handled by useAuth's plans effect
+  }, [setPlans]);
 
   return { savePlans };
 }

@@ -28,7 +28,7 @@ export default {
   'nav.home': 'Ana Sayfa',
   'nav.plan': 'Plan',
   'nav.pomodoro': 'Pomodoro',
-  'nav.friends': 'Arkadaş',
+  'nav.performance': 'Performans',
   'nav.profile': 'Profil',
 
   // --- Time ---
