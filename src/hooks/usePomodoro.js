@@ -4,6 +4,7 @@ import { App as CapApp } from '@capacitor/app';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { playBell } from '../utils/audio';
 import { serverNow } from '../utils/serverTime';
+import { startLiveActivity, updateLiveActivity, endLiveActivity } from '../utils/liveActivity';
 
 const isNative = Capacitor.isNativePlatform();
 const TimerPlugin = isNative ? Capacitor.registerPlugin('TimerPlugin') : null;
@@ -115,6 +116,34 @@ export default function usePomodoro({
     return () => clearInterval(i);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning, isOnBreak, isFreeMode, workMins, breakMins, notifications, user?.id]);
+
+  // ─── iOS Live Activity ────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!isNative) return;
+    if (isRunning) {
+      startLiveActivity({
+        timeLeft:   isFreeMode ? 0 : timeLeft,
+        totalSecs:  isFreeMode ? 0 : (isOnBreak ? breakMins * 60 : workMins * 60),
+        isOnBreak,
+        isFreeMode,
+        freeTime,
+      });
+    } else {
+      endLiveActivity();
+    }
+  }, [isRunning]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Work → Break geçişinde Live Activity'yi güncelle
+  useEffect(() => {
+    if (!isNative || !isRunning) return;
+    updateLiveActivity({
+      timeLeft:  isFreeMode ? 0 : timeLeft,
+      totalSecs: isFreeMode ? 0 : (isOnBreak ? breakMins * 60 : workMins * 60),
+      isOnBreak,
+      isFreeMode,
+      freeTime,
+    });
+  }, [isOnBreak, isFreeMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Native timer servisi ─────────────────────────────────────────────────
   useEffect(() => {
