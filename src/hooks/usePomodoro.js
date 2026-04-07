@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
+import { App as CapApp } from '@capacitor/app';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { playBell } from '../utils/audio';
 import { serverNow } from '../utils/serverTime';
 
 const isNative = Capacitor.isNativePlatform();
 const TimerPlugin = isNative ? Capacitor.registerPlugin('TimerPlugin') : null;
-const TIMER_NOTIF_ID = 9999;
-const TIMER_SNAP_KEY = 'swim_timer_snap';
+const TIMER_NOTIF_ID   = 9999;
+const BG_NOTIF_ID      = 9998;
+const TIMER_SNAP_KEY   = 'swim_timer_snap';
 
 export default function usePomodoro({
   user, isOnline,
@@ -37,6 +39,12 @@ export default function usePomodoro({
 
   const isRunningRef2 = useRef(isRunning);
   useEffect(() => { isRunningRef2.current = isRunning; }, [isRunning]);
+
+  const isOnBreakRef = useRef(isOnBreak);
+  useEffect(() => { isOnBreakRef.current = isOnBreak; }, [isOnBreak]);
+
+  const isFreeModeRef = useRef(isFreeMode);
+  useEffect(() => { isFreeModeRef.current = isFreeMode; }, [isFreeMode]);
 
   // ─── Çalışma süresini localStorage'a kaydet ───────────────────────────────
   const saveStudyTime = useCallback(async (secs) => {
@@ -148,6 +156,68 @@ export default function usePomodoro({
       LocalNotifications.cancel({ notifications: [{ id: TIMER_NOTIF_ID }] }).catch(() => {});
     };
   }, [isRunning, isFreeMode, isOnBreak, notifications]);
+
+  // ─── Arka plan kalıcı bildirimi (uygulama minimize olunca) ───────────────
+  useEffect(() => {
+    if (!isNative) return;
+
+    const showBgNotif = async () => {
+      const tl       = timeLeftRef.current;
+      const onBreak  = isOnBreakRef.current;
+      const freeMode = isFreeModeRef.current;
+      const mins     = Math.floor(tl / 60);
+      const secs     = tl % 60;
+      const timeStr  = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+      const title = onBreak ? '☕ Mola sürüyor' : '🏊 Çalışma seansı aktif';
+      const body  = freeMode
+        ? 'Serbest mod — sayaç çalışıyor'
+        : onBreak
+          ? `Mola bitimine ${timeStr} kaldı`
+          : `${timeStr} kaldı — odaklanmaya devam et!`;
+
+      await LocalNotifications.cancel({ notifications: [{ id: BG_NOTIF_ID }] }).catch(() => {});
+      await LocalNotifications.schedule({
+        notifications: [{
+          id:        BG_NOTIF_ID,
+          title,
+          body,
+          ongoing:   true,   // Android: notification bar'dan kaydırılamaz
+          autoCancel: false,
+          schedule:  { at: new Date(Date.now() + 400) },
+          sound:     null,
+        }]
+      }).catch(() => {});
+    };
+
+    const cancelBgNotif = () => {
+      LocalNotifications.cancel({ notifications: [{ id: BG_NOTIF_ID }] }).catch(() => {});
+    };
+
+    let sub;
+    (async () => {
+      sub = await CapApp.addListener('appStateChange', ({ isActive }) => {
+        if (!isActive && isRunningRef2.current) {
+          showBgNotif();
+        } else if (isActive) {
+          cancelBgNotif();
+        }
+      });
+    })();
+
+    return () => {
+      sub?.remove?.();
+      cancelBgNotif();
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Timer durduğunda arka plan bildirimini kaldır
+  useEffect(() => {
+    if (!isNative) return;
+    if (!isRunning) {
+      LocalNotifications.cancel({ notifications: [{ id: BG_NOTIF_ID }] }).catch(() => {});
+    }
+  }, [isRunning]);
 
   // ─── Timer snapshot → localStorage ───────────────────────────────────────
   useEffect(() => {
