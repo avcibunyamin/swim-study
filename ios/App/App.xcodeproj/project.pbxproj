@@ -169,6 +169,7 @@
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
 				C9E797142F84DBCD00B47F97 /* Embed Foundation Extensions */,
+				C97085C02F86E7E700EC1357 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -269,6 +270,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C97085C02F86E7E700EC1357 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/bin/find \"${CODESIGNING_FOLDER_PATH}/Frameworks\" -name \"*.framework\" -type d | while read -r framework; do\n  /usr/bin/codesign --force --deep --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" --preserve-metadata=identifier,entitlements,flags \"${framework}\"\ndone\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		504EC3001FED79650016851F /* Sources */ = {
