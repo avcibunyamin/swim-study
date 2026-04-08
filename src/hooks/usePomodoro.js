@@ -145,6 +145,13 @@ export default function usePomodoro({
     });
   }, [isOnBreak, isFreeMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Serbest modda freeTime'ı her 30sn'de güncelle
+  useEffect(() => {
+    if (!isNative || !isRunning || !isFreeMode) return;
+    if (freeTime % 30 !== 0 || freeTime === 0) return;
+    updateLiveActivity({ timeLeft: 0, totalSecs: 0, isOnBreak: false, isFreeMode: true, freeTime });
+  }, [freeTime]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ─── Native timer servisi ─────────────────────────────────────────────────
   useEffect(() => {
     if (!isNative || !TimerPlugin) return;
