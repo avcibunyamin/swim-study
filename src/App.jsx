@@ -206,6 +206,7 @@ export default function SwimApp() {
     return <AuthScreen onUserCreated={(profile) => {
       setShowDeleteConfirm(false);
       setShowSettings(false);
+      setToast(null);
       createLocalUser(profile);
     }} />;
   }
