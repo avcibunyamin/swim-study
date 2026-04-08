@@ -2,6 +2,19 @@ import Capacitor
 import ActivityKit
 import Foundation
 
+// MARK: - Paylaşılan veri modeli (App target)
+struct SwimTimerAttributes: ActivityAttributes {
+    public struct ContentState: Codable, Hashable {
+        var timeLeft: Int
+        var totalSecs: Int
+        var isOnBreak: Bool
+        var isFreeMode: Bool
+        var freeTime: Int
+        var endDate: Date
+        var isRunning: Bool
+    }
+}
+
 @objc(LiveActivityPlugin)
 public class LiveActivityPlugin: CAPPlugin {
 

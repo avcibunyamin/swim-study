@@ -203,7 +203,11 @@ export default function SwimApp() {
 
   // Auth ekranı
   if (!user) {
-    return <AuthScreen onUserCreated={createLocalUser} />;
+    return <AuthScreen onUserCreated={(profile) => {
+      setShowDeleteConfirm(false);
+      setShowSettings(false);
+      createLocalUser(profile);
+    }} />;
   }
 
   // iOS safe area
@@ -288,7 +292,7 @@ export default function SwimApp() {
             handleLogout={handleLogout}
             handleDeleteAccount={() => handleDeleteAccount({
               onError:   (msg) => showToast('error', msg),
-              onSuccess: (msg) => showToast('success', msg)
+              onSuccess: (msg) => { setShowDeleteConfirm(false); showToast('success', msg); }
             })}
             isOnline={isOnline} deletePassword={deletePassword} setDeletePassword={setDeletePassword}
           />

@@ -44,6 +44,10 @@
 	<true/>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>SWIM, çalışma ve mola süreleriniz bittiğinde sizi bilgilendirmek için bildirim gönderir.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
+	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>UIBackgroundModes</key>
