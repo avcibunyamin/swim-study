@@ -211,19 +211,12 @@ export default function SwimApp() {
     }} />;
   }
 
-  // iOS safe area
-  const sh = window.screen.height;
-  const safeTop    = isNative ? Math.round(sh >= 852 ? 59 : sh >= 812 ? 47 : 20) : 0;
-  const safeBottom = isNative ? (sh >= 812 ? 34 : 0) : 0;
-  if (safeBottom > 0) {
-    document.documentElement.style.setProperty('--sab', safeBottom + 'px');
-  }
-
   return (
     <div className={`${themeObj.bg} min-h-screen`} onClick={unlockAudio}>
-      {safeTop > 0 && <>
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: safeTop, zIndex: 9999, backgroundColor: themeObj.bodyBg, pointerEvents: 'none' }} />
-        <div style={{ height: safeTop, width: '100%', flexShrink: 0 }} />
+      {/* iOS safe area — üst boşluk her cihaz için env() ile otomatik */}
+      {isNative && <>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 'env(safe-area-inset-top, 0px)', zIndex: 9999, backgroundColor: themeObj.bodyBg, pointerEvents: 'none' }} />
+        <div style={{ height: 'env(safe-area-inset-top, 0px)', width: '100%', flexShrink: 0 }} />
       </>}
 
       <Toast toast={toast} onClose={handleCloseToast} />

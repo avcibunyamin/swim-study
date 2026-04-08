@@ -93,10 +93,16 @@ input[type="checkbox"] {
   animation: shimmer 2s infinite;
 }
 
-/* iOS Safe Area — JS tarafından --sat/--sab set edilir */
-.pt-safe     { padding-top: var(--sat, 0px) !important; }
-.pb-safe     { padding-bottom: var(--sab, 0px); }
-.pb-nav-safe { padding-bottom: calc(var(--sab, 0px) + 0.5rem); }
+/* iOS Safe Area — env() ile her cihaz kendi değerini otomatik verir */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+}
+.pt-safe     { padding-top: var(--sat) !important; }
+.pb-safe     { padding-bottom: var(--sab); }
+.pb-nav-safe { padding-bottom: calc(var(--sab) + 0.5rem); }
 
 /* Page transition */
 @keyframes page-fade-in {
