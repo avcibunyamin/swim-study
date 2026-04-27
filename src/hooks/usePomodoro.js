@@ -141,16 +141,18 @@ export default function usePomodoro({
           playBell(notifications);
           if (!isOnBreak) {
             const finalSessionWorked = initialSessionWorked + initialTimeLeft;
-            if (finalSessionWorked > 0) {
-              await saveStudyTime(finalSessionWorked);
-              setTotalStudySecs(prev => prev + finalSessionWorked);
-            }
-            // "Çalışma bitti" göster, sonra molaya geç
+            // Molayı hemen başlat — Firestore yazma işlemini bekleme (10sn sapma kaynağı)
             if (isNative) updateLiveActivity({ timeLeft: 0, totalSecs: workMins*60, isOnBreak: false, isFreeMode: false, freeTime: 0, isRunning: false, finishedType: 1 });
             setIsOnBreak(true);
             setTimeLeft(breakMins * 60);
             setSessionWorked(0);
             pausedSessionWorkedRef.current = 0;
+            // Çalışma süresini arka planda kaydet (non-blocking)
+            if (finalSessionWorked > 0) {
+              saveStudyTime(finalSessionWorked).then(() => {
+                setTotalStudySecs(prev => prev + finalSessionWorked);
+              });
+            }
           } else {
             // "Mola bitti" göster
             if (isNative) updateLiveActivity({ timeLeft: 0, totalSecs: breakMins*60, isOnBreak: true, isFreeMode: false, freeTime: 0, isRunning: false, finishedType: 2 });
