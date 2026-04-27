@@ -5,6 +5,7 @@ import { fmt, fmtSecs } from '../../utils/formatters';
 import { serverNow } from '../../utils/serverTime';
 import Logo from '../ui/Logo';
 import DragSlider from '../ui/DragSlider';
+import AquariumTimer from '../ui/AquariumTimer';
 
 
 const PomodoroPage = memo(({
@@ -19,6 +20,7 @@ const PomodoroPage = memo(({
   sound, setSound, audioRef,
   isOnline, user, studyHistory,
   remoteDevice, remoteStart, remotePausedAt, pausedByOffline,
+  cheatNotification, setCheatNotification,
 }) => {
   const { t } = useLanguage();
   const circ     = 2 * Math.PI * 100;
@@ -78,9 +80,11 @@ const PomodoroPage = memo(({
     <div className={`min-h-screen ${theme.bg} ${theme.text} ${pagePadding}`}>
       <div className="text-center py-2"><Logo size="sm" centered /></div>
 
-      {!isOnline && (
-        <div className="bg-yellow-600 rounded-xl p-2 mb-4 text-white text-sm text-center flex items-center justify-center gap-2">
-          <WifiOff size={16} />{t('pomodoro.offlineNote')}
+
+      {cheatNotification && (
+        <div className="bg-red-600/90 rounded-xl p-3 mb-4 text-white text-sm text-center animate-fade-in cursor-pointer backdrop-blur-sm"
+          onClick={() => setCheatNotification(null)}>
+          {cheatNotification}
         </div>
       )}
 
@@ -121,9 +125,9 @@ const PomodoroPage = memo(({
         ))}
       </div>
 
-      {/* Timer Çemberi */}
+      {/* Timer Çemberi — Akvaryum */}
       <div className="flex justify-center mb-4">
-        <div className="relative p-6">
+        <AquariumTimer>
           <svg width="220" height="220" className="-rotate-90" style={{ overflow: 'visible' }}>
             <circle cx="110" cy="110" r="100" stroke={theme.slider} strokeWidth="10" fill="none" />
             <circle
@@ -146,7 +150,7 @@ const PomodoroPage = memo(({
               <span className={`text-xs ${theme.textMuted} mt-1`}>+{fmtSecs(sessionWorked, t)}</span>
             ) : null}
           </div>
-        </div>
+        </AquariumTimer>
       </div>
 
       {/* Kontrol Butonları veya Remote Mode Banner */}
@@ -154,19 +158,19 @@ const PomodoroPage = memo(({
         <div className="bg-indigo-900/60 border border-indigo-500/40 rounded-2xl p-5 mb-4 text-center">
           <div className="flex items-center justify-center gap-2 text-indigo-300 text-sm mb-2">
             <Smartphone size={16} />
-            <span>Başka cihazda aktif oturum</span>
+            <span>{t('pomodoro.remoteActiveSession')}</span>
           </div>
           <p className="text-white font-semibold mb-3">
-            Şu an <span className="text-indigo-400 font-bold">{remoteDevice}</span> cihazında çalışıyorsun
+            <span className="text-indigo-400 font-bold">{remoteDevice}</span> {t('pomodoro.remoteDevice')}
           </p>
           <p className="text-indigo-300/70 text-xs">
-            Devam etmek için diğer cihazda önce durdur
+            {t('pomodoro.remoteStop')}
           </p>
         </div>
       ) : pausedByOffline ? (
         <div className="bg-yellow-900/40 border border-yellow-600/40 rounded-2xl p-4 mb-4 text-center">
-          <p className="text-yellow-300 text-sm font-semibold">⏸ İnternet bekleniyor…</p>
-          <p className="text-yellow-300/70 text-xs mt-1">Bağlantı gelince timer kaldığı yerden devam eder</p>
+          <p className="text-yellow-300 text-sm font-semibold">⏸ {t('pomodoro.waitingConnection')}</p>
+          <p className="text-yellow-300/70 text-xs mt-1">{t('pomodoro.waitingConnectionDesc')}</p>
         </div>
       ) : (
         <div className="flex justify-center gap-2 mb-4 flex-wrap">

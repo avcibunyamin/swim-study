@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Home, Calendar, Timer, BarChart3, User, Loader2 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -14,6 +14,7 @@ import { getAchievement, getNextAchievement } from './constants/achievements';
 // Utils
 import { fmt } from './utils/formatters';
 import { unlockAudio } from './utils/audio';
+import { syncServerTime } from './utils/serverTime';
 
 // Hooks
 import useAuth from './hooks/useAuth';
@@ -52,6 +53,10 @@ export default function SwimApp() {
     if (isNative) return 'bottom';
     const saved = localStorage.getItem('swim_nav_position');
     return saved && ['bottom', 'top', 'left', 'right'].includes(saved) ? saved : 'bottom';
+  });
+  const [weekStart, setWeekStart] = useState(() => {
+    const saved = localStorage.getItem('swim_week_start');
+    return saved === '0' ? 0 : 1; // 0=Pazar, 1=Pazartesi (varsayılan)
   });
 
   // UI modal durumları
@@ -97,7 +102,8 @@ export default function SwimApp() {
     saveStudyTime,
     remoteDevice, remoteStart, remotePausedAt, pausedByOffline,
     selectPreset, handleStartStop, handleSkipToBreak,
-    handleFinish, confirmAction: pomodoroConfirmAction, handleSliderChange
+    handleFinish, confirmAction: pomodoroConfirmAction, handleSliderChange,
+    cheatNotification, setCheatNotification,
   } = pomodoroHook;
 
   // Presence hook (online/offline)
@@ -118,7 +124,7 @@ export default function SwimApp() {
   const year        = calDate.getFullYear();
   const month       = calDate.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDay    = new Date(year, month, 1).getDay();
+  const firstDay    = new Date(year, month, 1).getDay(); // ham JS değeri, PlanPage içinde weekStart'a göre offset uygulanıyor
 
   // Nav konfigürasyonu
   const isVerticalNav = !isNative && (navPosition === 'left' || navPosition === 'right');
@@ -134,8 +140,12 @@ export default function SwimApp() {
   }, [navPosition]);
 
   // Sayfa kalıcılığı
+  // Uygulama açılışında NTP sync
+  useEffect(() => { syncServerTime(); }, []);
+
   useEffect(() => { localStorage.setItem('swim_page', page); }, [page]);
   useEffect(() => { if (!isNative) localStorage.setItem('swim_nav_position', navPosition); }, [navPosition]);
+  useEffect(() => { localStorage.setItem('swim_week_start', String(weekStart)); }, [weekStart]);
   const changeNavPosition = useCallback((pos) => { if (!isNative) setNavPosition(pos); }, []);
 
   // Toast helper
@@ -153,6 +163,17 @@ export default function SwimApp() {
     })();
     return () => { sub?.remove(); };
   }, []);
+
+  // Sayfa değişince en üstten başla
+  const pageScrollRef = useRef(null);
+  useEffect(() => {
+    if (pageScrollRef.current) pageScrollRef.current.scrollTop = 0;
+    // Fallback: window/body scroll sıfırlama
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+  }, [page]);
 
   // Body arka planını tema ile eşitle
   useEffect(() => {
@@ -221,7 +242,7 @@ export default function SwimApp() {
 
       <Toast toast={toast} onClose={handleCloseToast} />
 
-      <div key={page} className="animate-page-in">
+      <div ref={pageScrollRef} key={page} className="animate-page-in" style={{ overflowY: 'auto' }}>
         {page === 'home' && (
           <HomePage
             theme={themeObj} pagePadding={navConfig.pagePad}
@@ -238,6 +259,7 @@ export default function SwimApp() {
             year={year} month={month} daysInMonth={daysInMonth} firstDay={firstDay}
             isOnline={isOnline} showPlanModal={showPlanModal} setShowPlanModal={setShowPlanModal}
             selDate={selDate} setSelDate={setSelDate}
+            weekStart={weekStart}
           />
         )}
         {page === 'pomodoro' && (
@@ -257,6 +279,7 @@ export default function SwimApp() {
             isOnline={isOnline} user={user} getPresetLabel={getPresetLabel}
             studyHistory={studyHistory}
             remoteDevice={remoteDevice} remoteStart={remoteStart} remotePausedAt={remotePausedAt} pausedByOffline={pausedByOffline}
+            cheatNotification={cheatNotification} setCheatNotification={setCheatNotification}
           />
         )}
         {page === 'performance' && (
@@ -284,6 +307,7 @@ export default function SwimApp() {
             showEditProfile={showEditProfile} setShowEditProfile={setShowEditProfile}
             showDeleteConfirm={showDeleteConfirm} setShowDeleteConfirm={setShowDeleteConfirm}
             handleLogout={handleLogout}
+            weekStart={weekStart} setWeekStart={setWeekStart}
             handleDeleteAccount={() => handleDeleteAccount({
               onError:   (msg) => showToast('error', msg),
               onSuccess: (msg) => { setShowDeleteConfirm(false); showToast('success', msg); }

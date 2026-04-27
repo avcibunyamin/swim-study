@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Settings, X, ChevronRight, Palette, LogOut, Edit3, KeyRound, Trash, ShieldCheck } from 'lucide-react';
+import { Settings, X, ChevronRight, Palette, Edit3, KeyRound, Trash, ShieldCheck } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useLanguage } from '../../i18n';
 import { themes } from '../../constants/themes';
 
 const isNative = Capacitor.isNativePlatform();
 
-export default function SettingsModal({ theme, themeKey, changeTheme, onClose, openEditProfile, openDeleteConfirm, handleLogout, isPasswordUser }) {
+export default function SettingsModal({ theme, themeKey, changeTheme, onClose, openEditProfile, openDeleteConfirm, handleLogout, isPasswordUser, weekStart, setWeekStart }) {
   const { t, lang, setLang } = useLanguage();
   const [showAccountMenu, setShowAccountMenu] = useState(false);
 
@@ -47,7 +47,15 @@ export default function SettingsModal({ theme, themeKey, changeTheme, onClose, o
             </div>
           </div>
 
-          <button onClick={handleLogout} className={`w-full py-3 ${theme.input} rounded-xl border ${theme.text}`}><LogOut size={16} className="inline mr-2" />{t('settings.logout')}</button>
+          <div className={`p-3 ${theme.input} rounded-xl border`}>
+            <span className="text-sm flex items-center gap-2 mb-2">{t('settings.weekStart')}</span>
+            <div className="flex gap-2">
+              {[{ v: 1, l: t('settings.weekStartMon') }, { v: 0, l: t('settings.weekStartSun') }].map(o => (
+                <button key={o.v} onClick={() => setWeekStart(o.v)} className={`flex-1 py-2 rounded-lg text-xs ${weekStart === o.v ? 'bg-teal-600 text-white' : `${theme.card} border ${theme.text}`}`}>{o.l}</button>
+              ))}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

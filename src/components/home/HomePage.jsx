@@ -58,11 +58,6 @@ const HomePage = memo(({
         <p className="text-teal-400 text-sm mt-1">{t('home.hello', { username: userData?.username })}</p>
       </div>
 
-      {!isOnline && (
-        <div className="bg-yellow-600 rounded-xl p-2 mb-4 text-white text-sm text-center flex items-center justify-center gap-2">
-          <WifiOff size={16} />{t('home.offline')}
-        </div>
-      )}
 
       {/* Rozet */}
       <div className="flex justify-center mb-4">

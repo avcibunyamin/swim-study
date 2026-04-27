@@ -4,23 +4,28 @@ import { useLanguage } from '../../i18n';
 import Logo from '../ui/Logo';
 import PlanModal from './PlanModal';
 
-const PlanPage = memo(({ theme, pagePadding, calDate, setCalDate, plans, savePlans, isOnline, showPlanModal, setShowPlanModal, selDate, setSelDate }) => {
+const PlanPage = memo(({ theme, pagePadding, calDate, setCalDate, plans, savePlans, isOnline, showPlanModal, setShowPlanModal, selDate, setSelDate, weekStart = 1 }) => {
   const { t, ta } = useLanguage();
   const year = calDate.getFullYear();
   const month = calDate.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  // Pazartesi = 0 olacak şekilde offset: (getDay()+6)%7  → Pz=6, Pt=0, Sa=1 ...
-  const firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
+  // weekStart=1 → Pazartesi başlangıç, weekStart=0 → Pazar başlangıç
+  const rawFirstDay = new Date(year, month, 1).getDay(); // 0=Paz,1=Pt,...
+  const firstDay = (rawFirstDay - weekStart + 7) % 7;
   const days = [...Array(firstDay).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
   const ds = d => `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
   const todayStr = new Date().toISOString().split('T')[0];
-  const calDays = ta('cal.days') || ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'];
+  // Gün başlıklarını weekStart'a göre döndür
+  const allCalDays = ta('cal.days') || ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'];
+  // cal.days Pt'den başlar (Mon=0), weekStart=0(Pazar) ise Pz'yi başa al
+  const calDays = weekStart === 1
+    ? allCalDays
+    : [...allCalDays.slice(6), ...allCalDays.slice(0, 6)]; // Pz başa
   const calMonths = ta('cal.months') || ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
 
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.text} ${pagePadding}`}>
       <div className="text-center py-2"><Logo size="sm" centered /></div>
-      {!isOnline && <div className="bg-yellow-600 rounded-xl p-2 mb-4 text-white text-sm text-center flex items-center justify-center gap-2"><WifiOff size={16} />{t('auth.offline')}</div>}
       <div className={`flex justify-between items-center ${theme.card} rounded-xl p-2 mb-3 border`}>
         <button onClick={() => setCalDate(new Date(year, month - 1))} className="p-2"><ChevronLeft size={20} className="text-teal-400" /></button>
         <span className="font-bold text-cyan-400">{calMonths[month]} {year}</span>
@@ -46,7 +51,7 @@ const PlanPage = memo(({ theme, pagePadding, calDate, setCalDate, plans, savePla
           );
         })}
       </div>
-      {showPlanModal && <PlanModal theme={theme} selDate={selDate} plans={plans} savePlans={savePlans} onClose={() => setShowPlanModal(false)} />}
+      {showPlanModal && <PlanModal theme={theme} selDate={selDate} plans={plans} savePlans={savePlans} onClose={() => setShowPlanModal(false)} weekStart={weekStart} />}
     </div>
   );
 });

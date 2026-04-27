@@ -16,7 +16,9 @@ class MyViewController: CAPBridgeViewController, WKScriptMessageHandler {
     }
 
     override func capacitorDidLoad() {
-        bridge?.registerPlugin(LiveActivityPlugin.self)
+        // Custom local plugin kayıtları
+        bridge?.registerPluginInstance(LiveActivityPlugin())
+
         bridge?.webView?.configuration.userContentController.add(self, name: "updateStatusBarBg")
         bridge?.webView?.configuration.userContentController.add(self, name: "updateStatusBarStyle")
         // WebView arka planını beyaz yap — status bar alanı bu rengi gösterir

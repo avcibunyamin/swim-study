@@ -2,26 +2,24 @@ import { Capacitor } from '@capacitor/core';
 
 const isNative = Capacitor.isNativePlatform();
 
-// iOS Live Activity Capacitor plugin köprüsü
-const LAPlugin = isNative
-  ? Capacitor.registerPlugin('LiveActivityPlugin')
-  : null;
+const LAPlugin = isNative ? Capacitor.registerPlugin('LiveActivityPlugin') : null;
 
-export const startLiveActivity = async ({ timeLeft, totalSecs, isOnBreak, isFreeMode, freeTime }) => {
+export const startLiveActivity = async ({ timeLeft, totalSecs, isOnBreak, isFreeMode, freeTime, isRunning = true, finishedType = 0 }) => {
   if (!LAPlugin) return;
   try {
-    await LAPlugin.start({ timeLeft, totalSecs: totalSecs ?? timeLeft, isOnBreak, isFreeMode, freeTime });
+    const res = await LAPlugin.start({ timeLeft, totalSecs: totalSecs ?? timeLeft, isOnBreak, isFreeMode, freeTime, isRunning, finishedType });
+    console.log('[LiveActivity] başlatıldı', res);
   } catch (e) {
-    console.debug('[LiveActivity] start error:', e);
+    console.warn('[LiveActivity] start HATA:', e);
   }
 };
 
-export const updateLiveActivity = async ({ timeLeft, totalSecs, isOnBreak, isFreeMode, freeTime }) => {
+export const updateLiveActivity = async ({ timeLeft, totalSecs, isOnBreak, isFreeMode, freeTime, isRunning = true, finishedType = 0 }) => {
   if (!LAPlugin) return;
   try {
-    await LAPlugin.update({ timeLeft, totalSecs: totalSecs ?? timeLeft, isOnBreak, isFreeMode, freeTime });
+    await LAPlugin.update({ timeLeft, totalSecs: totalSecs ?? timeLeft, isOnBreak, isFreeMode, freeTime, isRunning, finishedType });
   } catch (e) {
-    console.debug('[LiveActivity] update error:', e);
+    console.warn('[LiveActivity] update HATA:', e);
   }
 };
 
@@ -30,6 +28,6 @@ export const endLiveActivity = async () => {
   try {
     await LAPlugin.end({});
   } catch (e) {
-    console.debug('[LiveActivity] end error:', e);
+    console.warn('[LiveActivity] end HATA:', e);
   }
 };

@@ -7,7 +7,7 @@ import Logo from '../ui/Logo';
 import SettingsModal from './SettingsModal';
 import EditProfileModal from './EditProfileModal';
 
-export default function ProfilePage({ theme, pagePadding, navPosition, changeNavPosition, user, userData, setUserData, totalStudySecs, currentAchievement, currentStreak, longestStreak, showStudyTime, setShowStudyTime, themeKey, changeTheme, notifications, setNotifications, showSettings, setShowSettings, showEditProfile, setShowEditProfile, showDeleteConfirm, setShowDeleteConfirm, handleLogout, handleDeleteAccount, isOnline, deletePassword, setDeletePassword }) {
+export default function ProfilePage({ theme, pagePadding, navPosition, changeNavPosition, user, userData, setUserData, totalStudySecs, currentAchievement, currentStreak, longestStreak, showStudyTime, setShowStudyTime, themeKey, changeTheme, notifications, setNotifications, showSettings, setShowSettings, showEditProfile, setShowEditProfile, showDeleteConfirm, setShowDeleteConfirm, handleLogout, handleDeleteAccount, isOnline, deletePassword, setDeletePassword, weekStart, setWeekStart }) {
   const { t, ta } = useLanguage();
   const isPasswordUser = false;
   const achievementTitles = ta('achievementTitles') || [];
@@ -16,7 +16,6 @@ export default function ProfilePage({ theme, pagePadding, navPosition, changeNav
     <div className={`min-h-screen ${theme.bg} ${theme.text} ${pagePadding} relative`}>
       <button onClick={() => setShowSettings(true)} className={`absolute ${navPosition === 'top' ? 'top-16' : 'top-2'} ${navPosition === 'right' ? 'right-20' : 'right-4'} p-2 ${theme.input} rounded-xl border z-10`}><Settings size={20} className="text-teal-400" /></button>
       <div className="text-center py-2"><Logo size="sm" centered /></div>
-      {!isOnline && <div className="bg-yellow-600 rounded-xl p-2 mb-4 text-white text-sm text-center flex items-center justify-center gap-2"><WifiOff size={16} />{t('auth.offline')}</div>}
       <div className="flex flex-col items-center mb-6">
         <span className="text-6xl mb-2">{userData?.avatar || '🐟'}</span>
         <h2 className="text-xl font-bold">{userData?.full_name || userData?.display_name}</h2>
@@ -63,7 +62,7 @@ export default function ProfilePage({ theme, pagePadding, navPosition, changeNav
       </div>
 
 
-      {showSettings && <SettingsModal theme={theme} themeKey={themeKey} changeTheme={changeTheme} onClose={() => setShowSettings(false)} openEditProfile={() => { setShowSettings(false); setShowEditProfile(true); }} openDeleteConfirm={() => { setShowSettings(false); setShowDeleteConfirm(true); }} handleLogout={handleLogout} isPasswordUser={isPasswordUser} />}
+      {showSettings && <SettingsModal theme={theme} themeKey={themeKey} changeTheme={changeTheme} onClose={() => setShowSettings(false)} openEditProfile={() => { setShowSettings(false); setShowEditProfile(true); }} openDeleteConfirm={() => { setShowSettings(false); setShowDeleteConfirm(true); }} handleLogout={handleLogout} isPasswordUser={isPasswordUser} weekStart={weekStart} setWeekStart={setWeekStart} />}
       {showEditProfile && <EditProfileModal theme={theme} userData={userData} setUserData={setUserData} onClose={() => setShowEditProfile(false)} />}
 
       {showDeleteConfirm && (

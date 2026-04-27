@@ -62,7 +62,7 @@ export default {
   'stats.monthLabels': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 
   // --- Calendar ---
-  'cal.days': ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+  'cal.days': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
   'cal.months': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 
   // --- Plan ---
@@ -101,6 +101,12 @@ export default {
   'pomodoro.cancel': 'Cancel',
   'pomodoro.yes': 'Yes',
   'pomodoro.workInProgress': 'Work is in progress!',
+  'pomodoro.cheatDetected': '⚠️ Clock change detected, session stopped.',
+  'pomodoro.remoteActiveSession': 'Active session on another device',
+  'pomodoro.remoteDevice': 'is your active device',
+  'pomodoro.remoteStop': 'Stop the session on that device first to continue here',
+  'pomodoro.waitingConnection': 'Waiting for internet…',
+  'pomodoro.waitingConnectionDesc': 'Timer will resume from where it left off once connected',
 
   // --- Confirm (legacy keys) ---
   'confirm.goToBreak': 'Switch to break?',
@@ -170,8 +176,18 @@ export default {
 
 
   // --- Plan time ---
-  'plan.addTime': 'Add time',
-  'plan.time':    'Time',
+  'plan.addTime':         'Add time',
+  'plan.timePlaceholder': 'Tap to select a time',
+  'plan.time':       'Time',
+  'plan.repeat':            'Repeat',
+  'plan.repeatInfo':        'Will repeat for {n} weeks',
+  'plan.repeatWeeks':       'weeks',
+  'plan.repeatDeleteTitle': 'Delete plan',
+  'plan.repeatCompleteTitle': 'Complete plan',
+  'plan.repeatScope':       'This plan is added to {n} weeks',
+  'plan.repeatOnlyThis':    'Delete this week only',
+  'plan.repeatAll':         'Delete all {n} weeks',
+  'plan.allWeek':           'All Week',
 
   // --- Settings ---
   'settings.title': 'Settings',
@@ -190,6 +206,9 @@ export default {
   'settings.notifications': 'Notifications',
   'settings.logout': 'Log Out',
   'settings.language': 'Language',
+  'settings.weekStart':    'Week Start',
+  'settings.weekStartMon': 'Monday',
+  'settings.weekStartSun': 'Sunday',
   'settings.navPosition': 'Navigation Position',
   'settings.navBottom': 'Bottom',
   'settings.navTop': 'Top',
@@ -309,6 +328,10 @@ export default {
   'settings.exportData': 'Download My Data',
   'settings.exportDesc': 'Download all your data in JSON format',
   'settings.exporting': 'Preparing...',
+
+  // --- Notifications ---
+  'room.breakTime': '☕ Break time!',
+  'room.breakOver': '💪 Break is over, time to work!',
 
   // --- Error Boundary ---
   'error.title': 'An error occurred',

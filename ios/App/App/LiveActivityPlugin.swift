@@ -12,95 +12,108 @@ struct SwimTimerAttributes: ActivityAttributes {
         var freeTime: Int
         var endDate: Date
         var isRunning: Bool
+        var finishedType: Int // 0=normal 1=çalışma bitti 2=mola bitti
     }
 }
 
+// MARK: - Plugin
 @objc(LiveActivityPlugin)
 public class LiveActivityPlugin: CAPPlugin {
 
-    private var currentActivity: Any? = nil  // Activity<SwimTimerAttributes> — Any for pre-16.1 compat
+    // Sadece ID saklanır — Activity<T> referansı Any? olarak tutulmaz
+    private var currentActivityID: String? = nil
 
-    // MARK: - start
+    // MARK: start
     @objc func start(_ call: CAPPluginCall) {
-        guard #available(iOS 16.1, *) else {
-            call.reject("Live Activities require iOS 16.1+")
-            return
+        guard #available(iOS 16.2, *) else {
+            call.reject("Live Activities require iOS 16.2+"); return
         }
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
-            call.reject("Live Activities disabled by user")
+            print("[LiveActivity] areActivitiesEnabled: false — Ayarlardan açın")
+            call.reject("Live Activities disabled by user"); return
+        }
+
+        let state = buildState(call, isRunning: true)
+        print("[LiveActivity] start — timeLeft:\(state.timeLeft) isOnBreak:\(state.isOnBreak)")
+
+        // Önceki aktiviteyi kapat
+        if let id = currentActivityID,
+           let existing = Activity<SwimTimerAttributes>.activities.first(where: { $0.id == id }) {
+            Task {
+                let content = ActivityContent(state: state, staleDate: nil)
+                await existing.update(content)
+            }
+            call.resolve(["id": id])
             return
         }
 
-        let timeLeft   = call.getInt("timeLeft")   ?? 0
-        let totalSecs  = call.getInt("totalSecs")  ?? max(timeLeft, 1)
-        let isOnBreak  = call.getBool("isOnBreak")  ?? false
-        let isFreeMode = call.getBool("isFreeMode") ?? false
-        let freeTime   = call.getInt("freeTime")   ?? 0
-        let endDate    = Date().addingTimeInterval(TimeInterval(timeLeft))
-
-        let state = SwimTimerAttributes.ContentState(
-            timeLeft:   timeLeft,
-            totalSecs:  totalSecs,
-            isOnBreak:  isOnBreak,
-            isFreeMode: isFreeMode,
-            freeTime:   freeTime,
-            endDate:    endDate,
-            isRunning:  true
-        )
-
         do {
+            let content  = ActivityContent(state: state, staleDate: nil)
             let activity = try Activity<SwimTimerAttributes>.request(
                 attributes: SwimTimerAttributes(),
-                contentState: state,
-                pushType: nil
+                content: content
             )
-            currentActivity = activity
+            currentActivityID = activity.id
+            print("[LiveActivity] başlatıldı — id:\(activity.id)")
             call.resolve(["id": activity.id])
         } catch {
+            print("[LiveActivity] HATA: \(error)")
             call.reject("Live Activity başlatılamadı: \(error.localizedDescription)")
         }
     }
 
-    // MARK: - update
+    // MARK: update
     @objc func update(_ call: CAPPluginCall) {
-        guard #available(iOS 16.1, *) else { call.resolve(); return }
-        guard let activity = currentActivity as? Activity<SwimTimerAttributes> else {
+        guard #available(iOS 16.2, *) else { call.resolve(); return }
+        guard let id = currentActivityID,
+              let activity = Activity<SwimTimerAttributes>.activities.first(where: { $0.id == id }) else {
             call.resolve(); return
         }
-
-        let timeLeft   = call.getInt("timeLeft")   ?? 0
-        let totalSecs  = call.getInt("totalSecs")  ?? max(timeLeft, 1)
-        let isOnBreak  = call.getBool("isOnBreak")  ?? false
-        let isFreeMode = call.getBool("isFreeMode") ?? false
-        let freeTime   = call.getInt("freeTime")   ?? 0
-        let endDate    = Date().addingTimeInterval(TimeInterval(timeLeft))
-
-        let state = SwimTimerAttributes.ContentState(
-            timeLeft:   timeLeft,
-            totalSecs:  totalSecs,
-            isOnBreak:  isOnBreak,
-            isFreeMode: isFreeMode,
-            freeTime:   freeTime,
-            endDate:    endDate,
-            isRunning:  true
-        )
-
+        let isRunning = call.getBool("isRunning") ?? true
+        let state = buildState(call, isRunning: isRunning)
         Task {
-            await activity.update(using: state)
+            let content = ActivityContent(state: state, staleDate: nil)
+            await activity.update(content)
             call.resolve()
         }
     }
 
-    // MARK: - end
+    // MARK: end
     @objc func end(_ call: CAPPluginCall) {
-        guard #available(iOS 16.1, *) else { call.resolve(); return }
-        guard let activity = currentActivity as? Activity<SwimTimerAttributes> else {
-            call.resolve(); return
+        guard #available(iOS 16.2, *) else { call.resolve(); return }
+        guard let id = currentActivityID,
+              let activity = Activity<SwimTimerAttributes>.activities.first(where: { $0.id == id }) else {
+            currentActivityID = nil; call.resolve(); return
         }
         Task {
             await activity.end(dismissalPolicy: .immediate)
-            self.currentActivity = nil
+            self.currentActivityID = nil
+            print("[LiveActivity] sonlandırıldı")
             call.resolve()
         }
+    }
+
+    // MARK: - Yardımcı
+    @available(iOS 16.2, *)
+    private func buildState(_ call: CAPPluginCall, isRunning: Bool) -> SwimTimerAttributes.ContentState {
+        let timeLeft     = call.getInt("timeLeft")     ?? 0
+        let totalSecs    = call.getInt("totalSecs")    ?? max(timeLeft, 1)
+        let isOnBreak    = call.getBool("isOnBreak")   ?? false
+        let isFreeMode   = call.getBool("isFreeMode")  ?? false
+        let freeTime     = call.getInt("freeTime")     ?? 0
+        let finishedType = call.getInt("finishedType") ?? 0
+        let endDate      = isRunning
+            ? Date().addingTimeInterval(TimeInterval(max(timeLeft, 1)))
+            : Date().addingTimeInterval(1)
+        return SwimTimerAttributes.ContentState(
+            timeLeft:     timeLeft,
+            totalSecs:    totalSecs,
+            isOnBreak:    isOnBreak,
+            isFreeMode:   isFreeMode,
+            freeTime:     freeTime,
+            endDate:      endDate,
+            isRunning:    isRunning,
+            finishedType: finishedType
+        )
     }
 }

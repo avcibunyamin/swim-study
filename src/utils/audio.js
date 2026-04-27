@@ -1,5 +1,6 @@
 // Kalıcı AudioContext — iOS/Android'de her seferinde yeni context oluşturmak ses vermez
 let _ctx = null;
+let _audioUnlocked = false;
 
 const getCtx = () => {
   if (!_ctx) {
@@ -11,20 +12,26 @@ const getCtx = () => {
 /**
  * İlk kullanıcı etkileşiminde (touch/click) çağrılmalı.
  * iOS ve bazı Android tarayıcıları, AudioContext'i kullanıcı jesti olmadan başlatmaz.
- * App.jsx'teki onTouchStart/onClick handler'larına eklendi.
+ * Sadece ilk çağrıda çalışır, sonraki çağrılar sessizce atlanır.
  */
 export const unlockAudio = () => {
+  if (_audioUnlocked) return;
   try {
     const ctx = getCtx();
-    if (ctx.state === 'suspended') {
-      ctx.resume().catch(() => {});
-    }
-    // Sessiz bir buffer çalarak context'i aktive et (iOS için zorunlu)
-    const buf = ctx.createBuffer(1, 1, 22050);
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.connect(ctx.destination);
-    src.start(0);
+    const resume = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve();
+    // Sessiz gain node ile click artefaktı olmadan context'i aktive et
+    resume.then(() => {
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, ctx.currentTime);
+      g.connect(ctx.destination);
+      const buf = ctx.createBuffer(1, ctx.sampleRate * 0.1, ctx.sampleRate);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(g);
+      src.start(0);
+      src.stop(ctx.currentTime + 0.1);
+      _audioUnlocked = true;
+    }).catch(() => {});
   } catch (e) {
     // Sessizce geç
   }

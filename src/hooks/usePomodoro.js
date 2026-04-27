@@ -3,7 +3,7 @@ import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { playBell } from '../utils/audio';
-import { serverNow } from '../utils/serverTime';
+import { serverNow, MAX_DAY_SECS } from '../utils/serverTime';
 import { startLiveActivity, updateLiveActivity, endLiveActivity } from '../utils/liveActivity';
 
 const isNative = Capacitor.isNativePlatform();
@@ -17,16 +17,20 @@ export default function usePomodoro({
   setTotalStudySecs, setStudyHistory,
   notifications, t
 }) {
-  const [workMins, setWorkMins]       = useState(25);
-  const [breakMins, setBreakMins]     = useState(5);
-  const [timeLeft, setTimeLeft]       = useState(25 * 60);
+  const [workMins, setWorkMins]       = useState(() => Number(localStorage.getItem('swim_work_mins'))  || 25);
+  const [breakMins, setBreakMins]     = useState(() => Number(localStorage.getItem('swim_break_mins')) || 5);
+  const [isFreeMode, setIsFreeMode]   = useState(() => localStorage.getItem('swim_free_mode') === '1');
+  const [timeLeft, setTimeLeft]       = useState(() => {
+    const w = Number(localStorage.getItem('swim_work_mins')) || 25;
+    return w * 60;
+  });
   const [isRunning, setIsRunning]     = useState(false);
   const [isOnBreak, setIsOnBreak]     = useState(false);
-  const [isFreeMode, setIsFreeMode]   = useState(false);
   const [freeTime, setFreeTime]       = useState(0);
   const [sessionWorked, setSessionWorked] = useState(0);
   const [sound, setSound]             = useState(null);
   const audioRef                      = useRef(null);
+  const [cheatNotification, setCheatNotification] = useState(null);
 
   const timerStartedAtRef             = useRef(null);
   const pausedSessionWorkedRef        = useRef(0);
@@ -47,15 +51,42 @@ export default function usePomodoro({
   const isFreeModeRef = useRef(isFreeMode);
   useEffect(() => { isFreeModeRef.current = isFreeMode; }, [isFreeMode]);
 
-  // ─── Çalışma süresini localStorage'a kaydet ───────────────────────────────
+  // ─── Çalışma süresini localStorage'a kaydet (gece yarısı bölme destekli) ──
   const saveStudyTime = useCallback(async (secs) => {
     if (!user || secs < 1) return;
-    const today = new Date().toISOString().split('T')[0];
+    const now     = new Date();
+    const dateStr = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+    // Oturum başlangıcını hesapla
+    const startAt = new Date(now.getTime() - secs * 1000);
+
+    // Gece yarısı geçildi mi?
+    const startDay = dateStr(startAt);
+    const endDay   = dateStr(now);
+
+    const chunks = [];
+    if (startDay === endDay) {
+      // Aynı gün — hepsi tek parça
+      chunks.push({ date: startDay, secs });
+    } else {
+      // Gece yarısını geç — gün başlangıcını bul
+      const midnight = new Date(now);
+      midnight.setHours(0, 0, 0, 0);
+      const secsAfterMidnight  = Math.floor((now - midnight) / 1000);
+      const secsBeforeMidnight = secs - secsAfterMidnight;
+      if (secsBeforeMidnight > 0) chunks.push({ date: startDay, secs: secsBeforeMidnight });
+      if (secsAfterMidnight  > 0) chunks.push({ date: endDay,   secs: secsAfterMidnight  });
+    }
+
     setStudyHistory(prev => {
-      const existing = prev.find(h => h.date === today);
-      const filtered = prev.filter(h => h.date !== today);
-      return [...filtered, { date: today, secs: (existing?.secs || 0) + secs }]
-        .sort((a, b) => b.date.localeCompare(a.date));
+      let updated = [...prev];
+      for (const { date, secs: s } of chunks) {
+        const existing = updated.find(h => h.date === date);
+        updated = updated.filter(h => h.date !== date);
+        const newSecs = Math.min((existing?.secs || 0) + s, MAX_DAY_SECS); // günlük 16 saat cap
+        updated.push({ date, secs: newSecs });
+      }
+      return updated.sort((a, b) => b.date.localeCompare(a.date));
     });
   }, [user?.id, setStudyHistory]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -74,8 +105,26 @@ export default function usePomodoro({
     pausedSessionWorkedRef.current = sessionWorked;
     const initialSessionWorked = sessionWorked;
 
+    // Anti-cheat: tick sayacı
+    let tickCount = 0;
+    let lastTickAt = serverNow();
+
     const i = setInterval(async () => {
-      const elapsed = Math.floor((serverNow() - localStartedAt) / 1000);
+      tickCount++;
+      const now     = serverNow();
+      const tickGap = now - lastTickAt; // son tikten bu yana geçen süre (ms)
+      lastTickAt    = now;
+
+      // Eğer bir tik aralığı 3 saniyeden fazla atladıysa saat ileri alınmış olabilir
+      // (normal: ~1000ms, tolerans: 3000ms)
+      if (tickGap > 3000) {
+        // Oturumu dondur, kullanıcıya haber ver
+        setIsRunning(false);
+        setCheatNotification(t('pomodoro.cheatDetected'));
+        return;
+      }
+
+      const elapsed = tickCount; // wall-clock yerine tik sayısını kullan
 
       if (isFreeMode) {
         const newFreeTime      = initialFreeTime + elapsed;
@@ -90,20 +139,21 @@ export default function usePomodoro({
         } else {
           clearInterval(i);
           playBell(notifications);
-          if (notifications && 'Notification' in window && Notification.permission === 'granted') {
-            new Notification('SWIM', { body: isOnBreak ? t('room.breakOver') : t('room.breakTime') });
-          }
           if (!isOnBreak) {
             const finalSessionWorked = initialSessionWorked + initialTimeLeft;
             if (finalSessionWorked > 0) {
               await saveStudyTime(finalSessionWorked);
               setTotalStudySecs(prev => prev + finalSessionWorked);
             }
+            // "Çalışma bitti" göster, sonra molaya geç
+            if (isNative) updateLiveActivity({ timeLeft: 0, totalSecs: workMins*60, isOnBreak: false, isFreeMode: false, freeTime: 0, isRunning: false, finishedType: 1 });
             setIsOnBreak(true);
             setTimeLeft(breakMins * 60);
             setSessionWorked(0);
             pausedSessionWorkedRef.current = 0;
           } else {
+            // "Mola bitti" göster
+            if (isNative) updateLiveActivity({ timeLeft: 0, totalSecs: breakMins*60, isOnBreak: true, isFreeMode: false, freeTime: 0, isRunning: false, finishedType: 2 });
             setIsRunning(false);
             setIsOnBreak(false);
             setTimeLeft(workMins * 60);
@@ -121,15 +171,25 @@ export default function usePomodoro({
   useEffect(() => {
     if (!isNative) return;
     if (isRunning) {
+      // Başlat veya devam et
       startLiveActivity({
-        timeLeft:   isFreeMode ? 0 : timeLeft,
-        totalSecs:  isFreeMode ? 0 : (isOnBreak ? breakMins * 60 : workMins * 60),
+        timeLeft:  isFreeMode ? 0 : timeLeft,
+        totalSecs: isFreeMode ? 0 : (isOnBreak ? breakMins * 60 : workMins * 60),
         isOnBreak,
         isFreeMode,
         freeTime,
+        isRunning: true,
       });
     } else {
-      endLiveActivity();
+      // Duraklatıldı — widget'ı kaldırma, donuk göster
+      updateLiveActivity({
+        timeLeft,
+        totalSecs: isOnBreak ? breakMins * 60 : workMins * 60,
+        isOnBreak,
+        isFreeMode,
+        freeTime,
+        isRunning: false,
+      });
     }
   }, [isRunning]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -142,6 +202,7 @@ export default function usePomodoro({
       isOnBreak,
       isFreeMode,
       freeTime,
+      isRunning: true,
     });
   }, [isOnBreak, isFreeMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -149,7 +210,7 @@ export default function usePomodoro({
   useEffect(() => {
     if (!isNative || !isRunning || !isFreeMode) return;
     if (freeTime % 30 !== 0 || freeTime === 0) return;
-    updateLiveActivity({ timeLeft: 0, totalSecs: 0, isOnBreak: false, isFreeMode: true, freeTime });
+    updateLiveActivity({ timeLeft: 0, totalSecs: 0, isOnBreak: false, isFreeMode: true, freeTime, isRunning: true });
   }, [freeTime]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Native timer servisi ─────────────────────────────────────────────────
@@ -171,89 +232,13 @@ export default function usePomodoro({
     return () => clearInterval(i);
   }, [isRunning, timeLeft, isFreeMode, freeTime, isOnBreak]);
 
-  // ─── Native bildirim zamanlaması ──────────────────────────────────────────
+  // ─── Eski timer bildirimlerini uygulama açılışında temizle ─────────────────
   useEffect(() => {
     if (!isNative) return;
-    if (isRunning && !isFreeMode && timeLeft > 0 && notifications) {
-      const fireAt = new Date(Date.now() + timeLeft * 1000);
-      LocalNotifications.schedule({
-        notifications: [{
-          id: TIMER_NOTIF_ID,
-          title: 'SWIM',
-          body: isOnBreak ? t('room.breakOver') : t('room.breakTime'),
-          schedule: { at: fireAt },
-          sound: 'default'
-        }]
-      }).catch(() => {});
-    } else {
-      LocalNotifications.cancel({ notifications: [{ id: TIMER_NOTIF_ID }] }).catch(() => {});
-    }
-    return () => {
-      LocalNotifications.cancel({ notifications: [{ id: TIMER_NOTIF_ID }] }).catch(() => {});
-    };
-  }, [isRunning, isFreeMode, isOnBreak, notifications]);
-
-  // ─── Arka plan kalıcı bildirimi (uygulama minimize olunca) ───────────────
-  useEffect(() => {
-    if (!isNative) return;
-
-    const showBgNotif = async () => {
-      const tl       = timeLeftRef.current;
-      const onBreak  = isOnBreakRef.current;
-      const freeMode = isFreeModeRef.current;
-      const mins     = Math.floor(tl / 60);
-      const secs     = tl % 60;
-      const timeStr  = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-
-      const title = onBreak ? '☕ Mola sürüyor' : '🏊 Çalışma seansı aktif';
-      const body  = freeMode
-        ? 'Serbest mod — sayaç çalışıyor'
-        : onBreak
-          ? `Mola bitimine ${timeStr} kaldı`
-          : `${timeStr} kaldı — odaklanmaya devam et!`;
-
-      await LocalNotifications.cancel({ notifications: [{ id: BG_NOTIF_ID }] }).catch(() => {});
-      await LocalNotifications.schedule({
-        notifications: [{
-          id:        BG_NOTIF_ID,
-          title,
-          body,
-          ongoing:   true,   // Android: notification bar'dan kaydırılamaz
-          autoCancel: false,
-          schedule:  { at: new Date(Date.now() + 400) },
-          sound:     null,
-        }]
-      }).catch(() => {});
-    };
-
-    const cancelBgNotif = () => {
-      LocalNotifications.cancel({ notifications: [{ id: BG_NOTIF_ID }] }).catch(() => {});
-    };
-
-    let sub;
-    (async () => {
-      sub = await CapApp.addListener('appStateChange', ({ isActive }) => {
-        if (!isActive && isRunningRef2.current) {
-          showBgNotif();
-        } else if (isActive) {
-          cancelBgNotif();
-        }
-      });
-    })();
-
-    return () => {
-      sub?.remove?.();
-      cancelBgNotif();
-    };
+    LocalNotifications.cancel({
+      notifications: [{ id: TIMER_NOTIF_ID }, { id: BG_NOTIF_ID }]
+    }).catch(() => {});
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Timer durduğunda arka plan bildirimini kaldır
-  useEffect(() => {
-    if (!isNative) return;
-    if (!isRunning) {
-      LocalNotifications.cancel({ notifications: [{ id: BG_NOTIF_ID }] }).catch(() => {});
-    }
-  }, [isRunning]);
 
   // ─── Timer snapshot → localStorage ───────────────────────────────────────
   useEffect(() => {
@@ -268,7 +253,7 @@ export default function usePomodoro({
       savedAt:       serverNow(),
     };
     try { localStorage.setItem(TIMER_SNAP_KEY, JSON.stringify(snap)); } catch {}
-  }, [isRunning, isOnBreak, isFreeMode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isRunning, isOnBreak, isFreeMode, workMins, breakMins]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Timer snapshot'tan geri yükle ────────────────────────────────────────
   const restoredForUserRef = useRef(null);
@@ -290,6 +275,12 @@ export default function usePomodoro({
         restoredForUserRef.current = user.id;
         setWorkMins(snap.workMins);
         setBreakMins(snap.breakMins);
+
+        // Aktif session yoksa timeLeft'i de snap'teki workMins'e göre ayarla
+        if (!snap.isRunning && !snap.isOnBreak && !snap.sessionWorked && !snap.isFreeMode) {
+          setTimeLeft(snap.workMins * 60);
+          return;
+        }
 
         if (snap.isFreeMode && (snap.isRunning || snap.freeTime > 0)) {
           setIsFreeMode(true);
@@ -341,8 +332,13 @@ export default function usePomodoro({
   const selectPreset = useCallback((w, b, free) => {
     if (isRunning) return;
     setIsFreeMode(free);
+    localStorage.setItem('swim_free_mode', free ? '1' : '0');
     if (free) setFreeTime(0);
-    else { setWorkMins(w); setBreakMins(b); setTimeLeft(w * 60); }
+    else {
+      setWorkMins(w); setBreakMins(b); setTimeLeft(w * 60);
+      localStorage.setItem('swim_work_mins',  String(w));
+      localStorage.setItem('swim_break_mins', String(b));
+    }
     setIsOnBreak(false);
     setSessionWorked(0);
     pausedSessionWorkedRef.current = 0;
@@ -384,13 +380,23 @@ export default function usePomodoro({
         await saveStudyTime(workedSecs);
         setTotalStudySecs(prev => prev + workedSecs);
       }
+      // "Çalışma bitti" göster sonra kapat
+      if (isNative) {
+        updateLiveActivity({ timeLeft: 0, totalSecs: workMins*60, isOnBreak: false, isFreeMode, freeTime, isRunning: false, finishedType: 1 });
+        setTimeout(() => endLiveActivity(), 4000);
+      }
     }
   }, [sessionWorked, breakMins, workMins, isFreeMode, saveStudyTime, setTotalStudySecs]);
 
   const handleSliderChange = useCallback((type, value) => {
     if (isRunning) return;
-    if (type === 'work') { setWorkMins(value); setTimeLeft(value * 60); }
-    else { setBreakMins(value); }
+    if (type === 'work') {
+      setWorkMins(value); setTimeLeft(value * 60);
+      localStorage.setItem('swim_work_mins', String(value));
+    } else {
+      setBreakMins(value);
+      localStorage.setItem('swim_break_mins', String(value));
+    }
   }, [isRunning]);
 
   return {
@@ -403,6 +409,7 @@ export default function usePomodoro({
     saveStudyTime,
     remoteDevice: null, remoteStart: null, remotePausedAt: null, pausedByOffline: false,
     selectPreset, handleStartStop, handleSkipToBreak,
-    handleFinish, confirmAction, handleSliderChange
+    handleFinish, confirmAction, handleSliderChange,
+    cheatNotification, setCheatNotification,
   };
 }

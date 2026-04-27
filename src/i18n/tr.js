@@ -62,7 +62,7 @@ export default {
   'stats.monthLabels': ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'],
 
   // --- Calendar ---
-  'cal.days': ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'],
+  'cal.days': ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
   'cal.months': ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
 
   // --- Plan ---
@@ -101,6 +101,12 @@ export default {
   'pomodoro.cancel': 'Vazgeç',
   'pomodoro.yes': 'Evet',
   'pomodoro.workInProgress': 'Çalışma devam ediyor!',
+  'pomodoro.cheatDetected': '⚠️ Saat değişikliği tespit edildi, oturum durduruldu.',
+  'pomodoro.remoteActiveSession': 'Başka cihazda aktif oturum',
+  'pomodoro.remoteDevice': 'cihazında çalışıyorsun',
+  'pomodoro.remoteStop': 'Devam etmek için diğer cihazda önce durdur',
+  'pomodoro.waitingConnection': 'İnternet bekleniyor…',
+  'pomodoro.waitingConnectionDesc': 'Bağlantı gelince timer kaldığı yerden devam eder',
 
   // --- Confirm (legacy keys) ---
   'confirm.goToBreak': 'Molaya geç?',
@@ -169,8 +175,18 @@ export default {
   'profile.save': 'Kaydet',
 
   // --- Plan time ---
-  'plan.addTime':   'Saat ekle',
-  'plan.time':      'Saat',
+  'plan.addTime':         'Saat ekle',
+  'plan.timePlaceholder': 'Saat seçmek için tıklayın',
+  'plan.time':            'Saat',
+  'plan.repeat':            'Tekrarlı',
+  'plan.repeatInfo':        '{n} hafta boyunca tekrarlanacak',
+  'plan.repeatWeeks':       'hafta',
+  'plan.repeatDeleteTitle': 'Planı sil',
+  'plan.repeatCompleteTitle': 'Planı tamamla',
+  'plan.repeatScope':       'Bu plan {n} haftaya eklenmiş',
+  'plan.repeatOnlyThis':    'Sadece bu haftayı sil',
+  'plan.repeatAll':         'Tüm {n} haftayı sil',
+  'plan.allWeek':           'Tüm Hafta',
 
   // --- Settings ---
   'settings.title': 'Ayarlar',
@@ -189,6 +205,9 @@ export default {
   'settings.notifications': 'Bildirimler',
   'settings.logout': 'Çıkış Yap',
   'settings.language': 'Dil',
+  'settings.weekStart':    'Hafta Başlangıcı',
+  'settings.weekStartMon': 'Pazartesi',
+  'settings.weekStartSun': 'Pazar',
   'settings.navPosition': 'Navigasyon Pozisyonu',
   'settings.navBottom': 'Alt',
   'settings.navTop': 'Üst',
@@ -308,6 +327,10 @@ export default {
   'settings.exportData': 'Verilerimi İndir',
   'settings.exportDesc': 'Tüm verilerinizi JSON formatında indirin',
   'settings.exporting': 'Hazırlanıyor...',
+
+  // --- Notifications ---
+  'room.breakTime': '☕ Mola zamanı!',
+  'room.breakOver': '💪 Mola bitti, çalışma zamanı!',
 
   // --- Error Boundary ---
   'error.title': 'Bir hata oluştu',
