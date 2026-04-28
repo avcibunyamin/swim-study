@@ -375,7 +375,10 @@ struct SwimLockScreenView: View {
                     }
                     Spacer()
                     Group {
-                        if state.isFreeMode {
+                        if state.isFreeMode && state.isRunning {
+                            // Serbest mod: endDate = geçmiş başlangıç → yukarı sayan canlı timer
+                            Text(timerInterval: state.endDate...state.endDate.addingTimeInterval(86400), countsDown: false)
+                        } else if state.isFreeMode {
                             Text(fmtTime(state.freeTime))
                         } else if state.isRunning {
                             Text(timerInterval:Date()...state.endDate, countsDown:true)
@@ -443,7 +446,8 @@ struct SwimTimerLiveActivity: Widget {
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     Group {
-                        if state.isFreeMode { Text(fmtTime(state.freeTime)) }
+                        if state.isFreeMode && state.isRunning { Text(timerInterval: state.endDate...state.endDate.addingTimeInterval(86400), countsDown: false) }
+                        else if state.isFreeMode { Text(fmtTime(state.freeTime)) }
                         else if state.isRunning { Text(timerInterval:Date()...state.endDate, countsDown:true) }
                         else { Text(fmtTime(state.timeLeft)) }
                     }
@@ -460,7 +464,8 @@ struct SwimTimerLiveActivity: Widget {
                 Text(icon).font(.body)
             } compactTrailing: {
                 Group {
-                    if state.isFreeMode { Text(fmtTime(state.freeTime)) }
+                    if state.isFreeMode && state.isRunning { Text(timerInterval: state.endDate...state.endDate.addingTimeInterval(86400), countsDown: false) }
+                    else if state.isFreeMode { Text(fmtTime(state.freeTime)) }
                     else if state.isRunning { Text(timerInterval:Date()...state.endDate, countsDown:true) }
                     else { Text(fmtTime(state.timeLeft)) }
                 }

@@ -102,9 +102,16 @@ public class LiveActivityPlugin: CAPPlugin {
         let isFreeMode   = call.getBool("isFreeMode")  ?? false
         let freeTime     = call.getInt("freeTime")     ?? 0
         let finishedType = call.getInt("finishedType") ?? 0
-        let endDate      = isRunning
-            ? Date().addingTimeInterval(TimeInterval(max(timeLeft, 1)))
-            : Date().addingTimeInterval(1)
+        let endDate: Date
+        if isFreeMode && isRunning {
+            // Serbest mod: oturum başlangıcını (şimdi - freeTime) tut
+            // Widget bu geçmiş tarihe bakarak canlı yukarı sayar
+            endDate = Date().addingTimeInterval(-TimeInterval(freeTime))
+        } else if isRunning {
+            endDate = Date().addingTimeInterval(TimeInterval(max(timeLeft, 1)))
+        } else {
+            endDate = Date().addingTimeInterval(1)
+        }
         return SwimTimerAttributes.ContentState(
             timeLeft:     timeLeft,
             totalSecs:    totalSecs,
