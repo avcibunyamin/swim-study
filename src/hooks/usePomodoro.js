@@ -105,26 +105,10 @@ export default function usePomodoro({
     pausedSessionWorkedRef.current = sessionWorked;
     const initialSessionWorked = sessionWorked;
 
-    // Anti-cheat: tick sayacı
-    let tickCount = 0;
-    let lastTickAt = serverNow();
-
     const i = setInterval(async () => {
-      tickCount++;
-      const now     = serverNow();
-      const tickGap = now - lastTickAt; // son tikten bu yana geçen süre (ms)
-      lastTickAt    = now;
-
-      // Eğer bir tik aralığı 3 saniyeden fazla atladıysa saat ileri alınmış olabilir
-      // (normal: ~1000ms, tolerans: 3000ms)
-      if (tickGap > 3000) {
-        // Oturumu dondur, kullanıcıya haber ver
-        setIsRunning(false);
-        setCheatNotification(t('pomodoro.cheatDetected'));
-        return;
-      }
-
-      const elapsed = tickCount; // wall-clock yerine tik sayısını kullan
+      // Gerçek geçen süreyi duvar saatiyle ölç — arka planda yavaşlayan
+      // setInterval tiklarının neden olduğu drift'i önler
+      const elapsed = Math.floor((serverNow() - localStartedAt) / 1000);
 
       if (isFreeMode) {
         const newFreeTime      = initialFreeTime + elapsed;
