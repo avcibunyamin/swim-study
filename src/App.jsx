@@ -35,9 +35,7 @@ import Toast from './components/ui/Toast';
 
 const isNative = Capacitor.isNativePlatform();
 
-if (isNative) {
-  try { LocalNotifications.requestPermissions(); } catch (e) { console.debug('Notification permission error:', e); }
-}
+// Bildirim izni artık kullanıcı bell butonunu açınca isteniyor (PomodoroPage)
 
 const VALID_PAGES = ['home', 'plan', 'pomodoro', 'performance', 'profile'];
 
@@ -275,6 +273,7 @@ export default function SwimApp() {
             handleSliderChange={handleSliderChange}
             showConfirm={showConfirm} setShowConfirm={setShowConfirm}
             confirmAction={confirmAction}
+            notifications={notifications} setNotifications={setNotifications}
             sound={sound} setSound={setSound} audioRef={audioRef}
             isOnline={isOnline} user={user} getPresetLabel={getPresetLabel}
             studyHistory={studyHistory}

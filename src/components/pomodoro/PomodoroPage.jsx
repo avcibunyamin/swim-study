@@ -1,5 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
-import { Play, Pause, FastForward, Square, Volume2, CloudRain, Waves, TreePine, WifiOff, Smartphone } from 'lucide-react';
+import { Play, Pause, FastForward, Square, Volume2, CloudRain, Waves, TreePine, WifiOff, Smartphone, Bell, BellOff } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { useLanguage } from '../../i18n';
 import { fmt, fmtSecs } from '../../utils/formatters';
 import { serverNow } from '../../utils/serverTime';
@@ -8,9 +10,12 @@ import DragSlider from '../ui/DragSlider';
 import AquariumTimer from '../ui/AquariumTimer';
 
 
+const isNativeApp = Capacitor.isNativePlatform();
+
 const PomodoroPage = memo(({
   theme, pagePadding,
   notification, setNotification,
+  notifications, setNotifications,
   workMins, breakMins, timeLeft,
   isRunning, isOnBreak, isFreeMode,
   freeTime, sessionWorked,
@@ -23,6 +28,21 @@ const PomodoroPage = memo(({
   cheatNotification, setCheatNotification,
 }) => {
   const { t } = useLanguage();
+
+  const toggleBell = async () => {
+    const newVal = !notifications;
+    if (newVal && isNativeApp) {
+      try {
+        const perm = await LocalNotifications.checkPermissions();
+        if (perm.display !== 'granted') {
+          await LocalNotifications.requestPermissions();
+        }
+      } catch (_) {}
+    }
+    setNotifications(newVal);
+    localStorage.setItem('swim_notifications', String(newVal));
+  };
+
   const circ     = 2 * Math.PI * 100;
   const totalSecs  = isOnBreak ? breakMins * 60 : workMins * 60;
   const progress   = isFreeMode ? 0 : isOnBreak
@@ -78,7 +98,19 @@ const PomodoroPage = memo(({
 
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.text} ${pagePadding}`}>
-      <div className="text-center py-2"><Logo size="sm" centered /></div>
+      <div className="flex items-center justify-between py-2 px-1">
+        <div className="w-8" />
+        <Logo size="sm" />
+        <button
+          onClick={toggleBell}
+          title={notifications ? t('pomodoro.bellOn') : t('pomodoro.bellOff')}
+          className={`w-8 h-8 flex items-center justify-center rounded-xl transition-colors ${
+            notifications ? 'text-teal-400' : theme.textMuted
+          }`}
+        >
+          {notifications ? <Bell size={18} /> : <BellOff size={18} />}
+        </button>
+      </div>
 
 
       {cheatNotification && (
