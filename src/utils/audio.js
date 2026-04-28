@@ -61,13 +61,31 @@ const _doPlay = (ctx) => {
  */
 export const playBell = (notifications = true) => {
   if (!notifications) return;
+
+  const tryPlay = (ctx) => {
+    if (ctx.state === 'running') {
+      _doPlay(ctx);
+      return;
+    }
+    // suspended (sessiz modu veya arkaplan sonrası) → resume et
+    ctx.resume().then(() => _doPlay(ctx)).catch(() => {
+      // resume başarısız → context'i sıfırla ve yeniden dene
+      try { ctx.close(); } catch (_) {}
+      _ctx = null;
+      _audioUnlocked = false;
+      try { _doPlay(getCtx()); } catch (_) {}
+    });
+  };
+
   try {
     const ctx = getCtx();
-    if (ctx.state === 'suspended') {
-      // Mobil için kritik: suspended context'i önce resume et
-      ctx.resume().then(() => _doPlay(ctx)).catch(() => {});
+    // Kapalıysa yeniden oluştur
+    if (ctx.state === 'closed') {
+      _ctx = null;
+      _audioUnlocked = false;
+      tryPlay(getCtx());
     } else {
-      _doPlay(ctx);
+      tryPlay(ctx);
     }
   } catch (e) {
     console.debug('playBell skipped:', e.message);
