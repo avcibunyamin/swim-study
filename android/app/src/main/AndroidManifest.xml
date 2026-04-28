@@ -26,6 +26,11 @@
             android:foregroundServiceType="specialUse"
             android:exported="false" />
 
+        <service
+            android:name=".LiveActivityService"
+            android:foregroundServiceType="specialUse"
+            android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
