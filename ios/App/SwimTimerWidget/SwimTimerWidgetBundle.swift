@@ -291,13 +291,6 @@ struct AquariumBgView: View {
                         endPoint:  CGPoint(x:w*0.65, y:h*1.0)
                     )
                 )
-                // Su parlaması (waterShimmer — radialGradient üst-sol)
-                let shimmer = CGFloat(0.07 + 0.07 * sin(t * 1.65))
-                ctx.fill(
-                    Path(ellipseIn: CGRect(x: w*0.02, y: -h*0.10, width: w*0.65, height: h*0.65)),
-                    with: .color(.white.opacity(Double(shimmer)))
-                )
-
                 // Zemin + yosun
                 drawFloor(ctx, w:w, h:h)
                 drawSeaweed(ctx, t:t, w:w, h:h)
