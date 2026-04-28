@@ -1,6 +1,7 @@
 import UIKit
 import Capacitor
 import WebKit
+import AVFoundation
 
 class MyViewController: CAPBridgeViewController, WKScriptMessageHandler {
 
@@ -16,6 +17,14 @@ class MyViewController: CAPBridgeViewController, WKScriptMessageHandler {
     }
 
     override func capacitorDidLoad() {
+        // Sessiz mod bypass — WebView AudioContext sessiz anahtarını görmezden gelsin
+        try? AVAudioSession.sharedInstance().setCategory(
+            .playback,
+            mode: .default,
+            options: .mixWithOthers   // diğer müzikleri/podcastleri durdurmaz
+        )
+        try? AVAudioSession.sharedInstance().setActive(true)
+
         // Custom local plugin kayıtları
         bridge?.registerPluginInstance(LiveActivityPlugin())
 

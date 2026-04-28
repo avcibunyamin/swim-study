@@ -65,15 +65,30 @@ public class LiveActivityPlugin: CAPPlugin {
     // MARK: update
     @objc func update(_ call: CAPPluginCall) {
         guard #available(iOS 16.2, *) else { call.resolve(); return }
-        guard let id = currentActivityID,
-              let activity = Activity<SwimTimerAttributes>.activities.first(where: { $0.id == id }) else {
-            call.resolve(); return
-        }
+
         let isRunning = call.getBool("isRunning") ?? true
+
+        // Activity kaybolmuşsa (kullanıcı kapattı / iOS sonlandırdı):
+        // çalışıyorsa yeniden oluştur, duraklatılmışsa sessizce geç
+        let existing: Activity<SwimTimerAttributes>? = {
+            guard let id = currentActivityID else { return nil }
+            return Activity<SwimTimerAttributes>.activities.first(where: { $0.id == id })
+        }()
+
+        if existing == nil {
+            if isRunning {
+                currentActivityID = nil
+                start(call)   // yeniden başlat
+            } else {
+                call.resolve()
+            }
+            return
+        }
+
         let state = buildState(call, isRunning: isRunning)
         Task {
             let content = ActivityContent(state: state, staleDate: nil)
-            await activity.update(content)
+            await existing!.update(content)
             call.resolve()
         }
     }
