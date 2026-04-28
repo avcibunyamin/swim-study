@@ -369,7 +369,6 @@ struct SwimLockScreenView: View {
                     Spacer()
                     Group {
                         if state.isFreeMode && state.isRunning {
-                            // Serbest mod: endDate = geçmiş başlangıç → yukarı sayan canlı timer
                             Text(timerInterval: state.endDate...state.endDate.addingTimeInterval(86400), countsDown: false)
                         } else if state.isFreeMode {
                             Text(fmtTime(state.freeTime))
@@ -381,6 +380,8 @@ struct SwimLockScreenView: View {
                     }
                     .font(.system(size:42, weight:.bold, design:.monospaced))
                     .foregroundColor(accent)
+                    .multilineTextAlignment(.trailing)
+                    .frame(minWidth:100, alignment:.trailing)
                 }
                 .padding(.horizontal,18).padding(.top,16)
 
