@@ -226,31 +226,6 @@ export default function usePomodoro({
     }).catch(() => {});
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ─── Timer bitiş bildirimi planla/iptal et ────────────────────────────────
-  // Uygulama arka planda / ekran kilitliyken de bildirim sesi çalsın
-  useEffect(() => {
-    if (!isNative || isFreeMode) return;
-
-    if (isRunning && notifications) {
-      const endAt = new Date(Date.now() + timeLeft * 1000);
-      const title = isOnBreak ? '☕ Mola bitti!' : '✅ Çalışma bitti!';
-      const body  = isOnBreak ? t('pomodoro.workDoneNotif') : t('pomodoro.breakDoneNotif');
-      LocalNotifications.schedule({
-        notifications: [{
-          id:       TIMER_NOTIF_ID,
-          title,
-          body,
-          schedule: { at: endAt, allowWhileIdle: true },
-          sound:    'default',
-          smallIcon: 'ic_stat_swim',
-        }]
-      }).catch(() => {});
-    } else {
-      LocalNotifications.cancel({
-        notifications: [{ id: TIMER_NOTIF_ID }]
-      }).catch(() => {});
-    }
-  }, [isRunning, isOnBreak, notifications]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Timer snapshot → localStorage ───────────────────────────────────────
   useEffect(() => {
