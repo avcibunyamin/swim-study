@@ -273,7 +273,7 @@ private func drawFloor(_ ctx: GraphicsContext, w: CGFloat, h: CGFloat) {
 // MARK: - Tam akvaryum arka planı
 struct AquariumBgView: View {
     var body: some View {
-        TimelineView(.animation) { tl in
+        TimelineView(.periodic(from: Date(), by: 1/15.0)) { tl in
             let t = tl.date.timeIntervalSince1970
             Canvas { ctx, size in
                 let w = size.width; let h = size.height
@@ -372,8 +372,8 @@ struct SwimLockScreenView: View {
                             Text(timerInterval: state.endDate...state.endDate.addingTimeInterval(86400), countsDown: false)
                         } else if state.isFreeMode {
                             Text(fmtTime(state.freeTime))
-                        } else if state.isRunning {
-                            Text(timerInterval:Date()...state.endDate, countsDown:true)
+                        } else if state.isRunning && state.endDate > Date() {
+                            Text(timerInterval: Date()...state.endDate, countsDown: true)
                         } else {
                             Text(fmtTime(state.timeLeft))
                         }
@@ -442,7 +442,7 @@ struct SwimTimerLiveActivity: Widget {
                     Group {
                         if state.isFreeMode && state.isRunning { Text(timerInterval: state.endDate...state.endDate.addingTimeInterval(86400), countsDown: false) }
                         else if state.isFreeMode { Text(fmtTime(state.freeTime)) }
-                        else if state.isRunning { Text(timerInterval:Date()...state.endDate, countsDown:true) }
+                        else if state.isRunning && state.endDate > Date() { Text(timerInterval: Date()...state.endDate, countsDown: true) }
                         else { Text(fmtTime(state.timeLeft)) }
                     }
                     .font(.title2.weight(.bold).monospacedDigit())
@@ -460,7 +460,7 @@ struct SwimTimerLiveActivity: Widget {
                 Group {
                     if state.isFreeMode && state.isRunning { Text(timerInterval: state.endDate...state.endDate.addingTimeInterval(86400), countsDown: false) }
                     else if state.isFreeMode { Text(fmtTime(state.freeTime)) }
-                    else if state.isRunning { Text(timerInterval:Date()...state.endDate, countsDown:true) }
+                    else if state.isRunning && state.endDate > Date() { Text(timerInterval: Date()...state.endDate, countsDown: true) }
                     else { Text(fmtTime(state.timeLeft)) }
                 }
                 .font(.caption2.weight(.bold).monospacedDigit()).foregroundColor(accent)
