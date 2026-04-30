@@ -10,6 +10,7 @@ const isNative = Capacitor.isNativePlatform();
 const TimerPlugin = isNative ? Capacitor.registerPlugin('TimerPlugin') : null;
 const TIMER_NOTIF_ID   = 9999;
 const BG_NOTIF_ID      = 9998;
+const SESSION_END_NOTIF_ID = 9997; // çalışma/mola sonu bildirimi
 const TIMER_SNAP_KEY   = 'swim_timer_snap';
 
 export default function usePomodoro({
@@ -122,6 +123,10 @@ export default function usePomodoro({
           if (!isOnBreak) setSessionWorked(initialSessionWorked + elapsed);
         } else {
           clearInterval(i);
+          // JS uyanık → planlanmış bildirimi iptal et, native bell çalsın (çift ses olmasın)
+          if (isNative) {
+            LocalNotifications.cancel({ notifications: [{ id: SESSION_END_NOTIF_ID }] }).catch(() => {});
+          }
           playBell(notifications);
           if (!isOnBreak) {
             const finalSessionWorked = initialSessionWorked + initialTimeLeft;
@@ -221,9 +226,43 @@ export default function usePomodoro({
   useEffect(() => {
     if (!isNative) return;
     LocalNotifications.cancel({
-      notifications: [{ id: TIMER_NOTIF_ID }, { id: BG_NOTIF_ID }]
+      notifications: [{ id: TIMER_NOTIF_ID }, { id: BG_NOTIF_ID }, { id: SESSION_END_NOTIF_ID }]
     }).catch(() => {});
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ─── Oturum bitiş bildirimi (arka plan ses) ──────────────────────────────
+  // Native plugin (BellPlugin) sadece uygulama önde iken çalışır; arka planda
+  // iOS audio session'ı durdurur. Bu yüzden oturum başlangıcında tam bitiş
+  // anına bir LocalNotification zamanlıyoruz. Sistem sessize saygı duyar.
+  // JS interval bitiş anında uyanırsa (uygulama önde) bildirimi iptal edip
+  // native bell çalıyor → çift ses olmaz.
+  useEffect(() => {
+    if (!isNative) return;
+    if (!isRunning || !notifications || isFreeMode) {
+      // Çalışma yoksa / bildirim kapalı / serbest mod → planlama yok
+      LocalNotifications.cancel({ notifications: [{ id: SESSION_END_NOTIF_ID }] }).catch(() => {});
+      return;
+    }
+
+    const endAt = new Date(serverNow() + timeLeftRef.current * 1000);
+    const title = isOnBreak ? (t('pomodoro.breakDoneNotif') || 'Mola bitti!') : (t('pomodoro.workDoneNotif') || 'Çalışma bitti!');
+    const body  = isOnBreak ? (t('pomodoro.breakDoneBody')  || 'Çalışmaya devam.') : (t('pomodoro.workDoneBody') || 'Mola zamanı.');
+
+    LocalNotifications.schedule({
+      notifications: [{
+        id: SESSION_END_NOTIF_ID,
+        title,
+        body,
+        schedule: { at: endAt },
+        sound: 'default',
+      }]
+    }).catch(() => {});
+
+    return () => {
+      // isRunning kapanınca / mola-iş geçişinde / unmount'ta iptal et
+      LocalNotifications.cancel({ notifications: [{ id: SESSION_END_NOTIF_ID }] }).catch(() => {});
+    };
+  }, [isRunning, isOnBreak, isFreeMode, notifications, workMins, breakMins]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
   // ─── Timer snapshot → localStorage ───────────────────────────────────────

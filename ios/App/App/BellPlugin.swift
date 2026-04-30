@@ -2,7 +2,8 @@ import Capacitor
 import AVFoundation
 
 // MARK: - Native Bell Plugin
-// Sessiz modu by-pass eder, .mixWithOthers ile WKWebView audio'sunu bozmaz.
+// .ambient kategorisi → sessiz modu DİKKATE ALIR (telefon sessizde ise çalmaz).
+// .mixWithOthers → WKWebView audio'sunu (Spotify, Apple Music vb.) bozmaz.
 // Web Audio API'deki C5-E5-G5 zilini AVAudioEngine ile aynen üretir.
 @objc(BellPlugin)
 public class BellPlugin: CAPPlugin {
@@ -13,10 +14,11 @@ public class BellPlugin: CAPPlugin {
     private var cachedBuffer: AVAudioPCMBuffer? = nil
 
     @objc func play(_ call: CAPPluginCall) {
-        // Audio session: .playback (sessiz modu by-pass) + .mixWithOthers (diğer ses akışlarını bozma)
+        // .ambient: silent switch'e saygı duyar, sessiz modda ses çıkmaz
+        // .mixWithOthers: diğer ses akışlarıyla karışır (müzik, podcast vs. bozmaz)
         do {
             try AVAudioSession.sharedInstance().setCategory(
-                .playback,
+                .ambient,
                 mode: .default,
                 options: [.mixWithOthers]
             )
