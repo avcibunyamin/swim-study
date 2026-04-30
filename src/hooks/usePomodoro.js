@@ -57,6 +57,15 @@ export default function usePomodoro({
   const isFreeModeRef = useRef(isFreeMode);
   useEffect(() => { isFreeModeRef.current = isFreeMode; }, [isFreeMode]);
 
+  // Bildirim için son durumu ref'lerde tut — appStateChange listener kapalı
+  // bir snapshot kullanır, prop/state değişikliklerinde güncel değer lazım.
+  const notificationsRef = useRef(notifications);
+  const breakMinsRef = useRef(breakMins);
+  const tRef = useRef(t);
+  useEffect(() => { notificationsRef.current = notifications; }, [notifications]);
+  useEffect(() => { breakMinsRef.current = breakMins; }, [breakMins]);
+  useEffect(() => { tRef.current = t; }, [t]);
+
   // ─── Çalışma süresini localStorage'a kaydet (gece yarısı bölme destekli) ──
   const saveStudyTime = useCallback(async (secs) => {
     if (!user || secs < 1) return;
@@ -155,9 +164,11 @@ export default function usePomodoro({
           }
         } else {
           clearInterval(i);
-          // JS uyanık → planlanmış bildirimi iptal et, native bell çalsın (çift ses olmasın)
+          // JS uyanık → planlanmış bildirimleri iptal et, native bell çalsın (çift ses olmasın)
           if (isNative) {
-            LocalNotifications.cancel({ notifications: [{ id: SESSION_END_NOTIF_ID }] }).catch(() => {});
+            LocalNotifications.cancel({
+              notifications: [{ id: SESSION_END_NOTIF_ID }, { id: SESSION_END_NOTIF_ID + 1 }]
+            }).catch(() => {});
           }
           playBell(notifications);
           if (!isOnBreak) {
@@ -290,45 +301,86 @@ export default function usePomodoro({
   useEffect(() => {
     if (!isNative) return;
     LocalNotifications.cancel({
-      notifications: [{ id: TIMER_NOTIF_ID }, { id: BG_NOTIF_ID }, { id: SESSION_END_NOTIF_ID }]
+      notifications: [
+        { id: TIMER_NOTIF_ID }, { id: BG_NOTIF_ID },
+        { id: SESSION_END_NOTIF_ID }, { id: SESSION_END_NOTIF_ID + 1 },
+      ]
     }).catch(() => {});
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ─── Oturum bitiş bildirimi (arka plan ses) ──────────────────────────────
-  // Native plugin (BellPlugin) sadece uygulama önde iken çalışır; arka planda
-  // iOS audio session'ı durdurur. Bu yüzden oturum başlangıcında tam bitiş
-  // anına bir LocalNotification zamanlıyoruz. Sistem sessize saygı duyar.
-  // JS interval bitiş anında uyanırsa (uygulama önde) bildirimi iptal edip
-  // native bell çalıyor → çift ses olmaz.
+  // ─── Arka plan bildirimi — SADECE app arka plana atılınca planla ─────────
+  // Uygulama önde + ekran açıkken hiç bildirim gelmesin (in-app yeşil toast var).
+  // Arka planda BellPlugin çalmadığı için, sadece uygulama dışındayken bildirim
+  // tetiklenir. Sistem sessize saygı duyar (sound: bell.wav).
   useEffect(() => {
     if (!isNative) return;
-    if (!isRunning || !notifications || isFreeMode) {
-      // Çalışma yoksa / bildirim kapalı / serbest mod → planlama yok
-      LocalNotifications.cancel({ notifications: [{ id: SESSION_END_NOTIF_ID }] }).catch(() => {});
-      return;
-    }
+    let listenerHandle = null;
+    let cancelledFlag = false;
 
-    const endAt = new Date(serverNow() + timeLeftRef.current * 1000);
-    const title = isOnBreak ? (t('pomodoro.breakDoneNotif') || 'Mola bitti!') : (t('pomodoro.workDoneNotif') || 'Çalışma bitti!');
-    const body  = isOnBreak ? (t('pomodoro.breakDoneBody')  || 'Çalışmaya devam.') : (t('pomodoro.workDoneBody') || 'Mola zamanı.');
-
-    // iOS: 'bell.wav' (App bundle'da), Android: 'bell' (res/raw/bell.wav)
     const soundFile = Capacitor.getPlatform() === 'ios' ? 'bell.wav' : 'bell';
-    LocalNotifications.schedule({
-      notifications: [{
+    const SESSION_END_NOTIF_ID_2 = SESSION_END_NOTIF_ID + 1; // mola sonu için ikinci slot
+
+    const scheduleEndNotifs = () => {
+      if (!isRunningRef2.current) return;
+      if (!notificationsRef.current) return;
+      if (isFreeModeRef.current) return;
+
+      const tt = tRef.current;
+      const now = serverNow();
+      const phaseEndMs = now + timeLeftRef.current * 1000;
+      const notifs = [];
+
+      // 1) Mevcut faz bitişi
+      const titleA = isOnBreakRef.current ? (tt && tt('pomodoro.breakDoneNotif')) || 'Mola bitti!' : (tt && tt('pomodoro.workDoneNotif')) || 'Çalışma bitti!';
+      const bodyA  = isOnBreakRef.current ? (tt && tt('pomodoro.breakDoneBody'))  || 'Çalışmaya devam.' : (tt && tt('pomodoro.workDoneBody')) || 'Mola zamanı.';
+      notifs.push({
         id: SESSION_END_NOTIF_ID,
-        title,
-        body,
-        schedule: { at: endAt },
+        title: titleA, body: bodyA,
+        schedule: { at: new Date(phaseEndMs) },
         sound: soundFile,
-      }]
-    }).catch(() => {});
+      });
+
+      // 2) Eğer şu an çalışmadaysak, arka planda otomatik geçecek molanın da
+      //    bitişi için ikinci bildirim. (3sn transition + breakMins)
+      if (!isOnBreakRef.current) {
+        const breakEndMs = phaseEndMs + 3000 + (breakMinsRef.current * 60 * 1000);
+        notifs.push({
+          id: SESSION_END_NOTIF_ID_2,
+          title: (tt && tt('pomodoro.breakDoneNotif')) || 'Mola bitti!',
+          body:  (tt && tt('pomodoro.breakDoneBody'))  || 'Çalışmaya devam.',
+          schedule: { at: new Date(breakEndMs) },
+          sound: soundFile,
+        });
+      }
+
+      LocalNotifications.schedule({ notifications: notifs }).catch(() => {});
+    };
+
+    const cancelEndNotifs = () => {
+      LocalNotifications.cancel({
+        notifications: [
+          { id: SESSION_END_NOTIF_ID },
+          { id: SESSION_END_NOTIF_ID_2 },
+        ]
+      }).catch(() => {});
+    };
+
+    (async () => {
+      const handle = await CapApp.addListener('appStateChange', ({ isActive }) => {
+        if (cancelledFlag) return;
+        if (isActive) cancelEndNotifs();   // foreground → her şeyi iptal et
+        else          scheduleEndNotifs(); // background → planla
+      });
+      if (cancelledFlag) handle.remove();
+      else listenerHandle = handle;
+    })();
 
     return () => {
-      // isRunning kapanınca / mola-iş geçişinde / unmount'ta iptal et
-      LocalNotifications.cancel({ notifications: [{ id: SESSION_END_NOTIF_ID }] }).catch(() => {});
+      cancelledFlag = true;
+      listenerHandle?.remove();
+      cancelEndNotifs();
     };
-  }, [isRunning, isOnBreak, isFreeMode, notifications, workMins, breakMins]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 
   // ─── Timer snapshot → localStorage ───────────────────────────────────────
