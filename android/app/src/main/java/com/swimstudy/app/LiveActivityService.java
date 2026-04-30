@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.content.res.ColorStateList;
 import android.view.View;
 import android.widget.RemoteViews;
 import androidx.core.app.NotificationCompat;
@@ -76,9 +77,12 @@ public class LiveActivityService extends Service {
         // ── İkon ve mod etiketi ──────────────────────────────────────────────
         String icon;
         String label;
-        if (finishedType != 0) {
-            icon  = finishedType == 2 ? "☕" : "🏊";
-            label = isOnBreak ? "Mola" : "Çalışıyor";
+        if (finishedType == 1) {
+            icon  = "✅";
+            label = "Çalışma bitti";
+        } else if (finishedType == 2) {
+            icon  = "⏰";
+            label = "Mola bitti";
         } else if (!isRunning) {
             icon  = "⏸";
             label = "Duraklatıldı";
@@ -93,11 +97,14 @@ public class LiveActivityService extends Service {
         views.setTextViewText(R.id.mode_label, label);
 
         // ── Renk: teal=çalışma, turuncu=mola, gri=duraklat ──────────────────
-        int accent = !isRunning        ? 0xFF8899AA
+        int accent = finishedType == 1 ? 0xFF2DD4BF
+                   : finishedType == 2 ? 0xFFF97316
+                   : !isRunning        ? 0xFF8899AA
                    : isOnBreak         ? 0xFFF97316
                    :                     0xFF2DD4BF;
         views.setTextColor(R.id.chronometer,  accent);
         views.setTextColor(R.id.timer_static, accent);
+        views.setTextColor(R.id.swim_label, accent);
 
         // ── Zamanlayıcı ──────────────────────────────────────────────────────
         if (isRunning && finishedType == 0) {
@@ -124,16 +131,13 @@ public class LiveActivityService extends Service {
             views.setViewVisibility(R.id.progress_bar, View.VISIBLE);
             int progress = (int)(1000.0 * (totalSecs - timeLeft) / totalSecs);
             views.setProgressBar(R.id.progress_bar, 1000, Math.max(0, Math.min(1000, progress)), false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                views.setColorStateList(R.id.progress_bar, "setProgressTintList", ColorStateList.valueOf(accent));
+            }
         }
 
-        // ── Bitti yazısı ─────────────────────────────────────────────────────
-        if (finishedType != 0) {
-            String msg = finishedType == 1 ? "✅ Çalışma bitti!" : "☕ Mola bitti!";
-            views.setTextViewText(R.id.finished_text, msg);
-            views.setViewVisibility(R.id.finished_text, View.VISIBLE);
-        } else {
-            views.setViewVisibility(R.id.finished_text, View.GONE);
-        }
+        // ── Bitti yazısı artık mode_label'da gösteriliyor, ayrı text gerekmez
+        views.setViewVisibility(R.id.finished_text, View.GONE);
 
         // ── Uygulamayı aç (bildirime tıklanınca) ─────────────────────────────
         Intent tap = new Intent(this, MainActivity.class);

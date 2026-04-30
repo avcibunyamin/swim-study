@@ -47,12 +47,14 @@
                     android:textSize="13sp" />
 
                 <TextView
+                    android:id="@+id/swim_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="SWIM"
                     android:textColor="#2DD4BF"
                     android:textStyle="bold"
-                    android:textSize="9sp" />
+                    android:textSize="9sp"
+                    android:letterSpacing="0.15" />
             </LinearLayout>
         </LinearLayout>
 
