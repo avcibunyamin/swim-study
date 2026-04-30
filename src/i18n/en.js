@@ -185,12 +185,12 @@ export default {
   'plan.time':       'Time',
   'plan.repeat':            'Repeat',
   'plan.repeatInfo':        'Will repeat for {n} weeks',
-  'plan.repeatWeeks':       'weeks',
+  'plan.repeatWeeks':       'days',
   'plan.repeatDeleteTitle': 'Delete plan',
   'plan.repeatCompleteTitle': 'Complete plan',
-  'plan.repeatScope':       'This plan is added to {n} weeks',
-  'plan.repeatOnlyThis':    'Delete this week only',
-  'plan.repeatAll':         'Delete all {n} weeks',
+  'plan.repeatScope':       'This plan is added to {n} days',
+  'plan.repeatOnlyThis':    'Delete this day only',
+  'plan.repeatAll':         'Delete all {n} days',
   'plan.allWeek':           'All Week',
 
   // --- Settings ---

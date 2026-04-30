@@ -125,8 +125,8 @@ export default function usePomodoro({
           playBell(notifications);
           if (!isOnBreak) {
             const finalSessionWorked = initialSessionWorked + initialTimeLeft;
-            // Molayı hemen başlat — Firestore yazma işlemini bekleme (10sn sapma kaynağı)
-            if (isNative) updateLiveActivity({ timeLeft: 0, totalSecs: workMins*60, isOnBreak: false, isFreeMode: false, freeTime: 0, isRunning: false, finishedType: 1 });
+            // Molayı hemen başlat — Live Activity isOnBreak effect tarafından güncellenir
+            // (ara finishedType: 1 güncellemesi kaldırıldı — iOS onu "bitti" sayıp kapatıyordu)
             setIsOnBreak(true);
             setTimeLeft(breakMins * 60);
             setSessionWorked(0);
@@ -138,8 +138,7 @@ export default function usePomodoro({
               });
             }
           } else {
-            // "Mola bitti" göster
-            if (isNative) updateLiveActivity({ timeLeft: 0, totalSecs: breakMins*60, isOnBreak: true, isFreeMode: false, freeTime: 0, isRunning: false, finishedType: 2 });
+            // Mola bitti — isRunning effect Live Activity'yi günceller
             setIsRunning(false);
             setIsOnBreak(false);
             setTimeLeft(workMins * 60);

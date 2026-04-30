@@ -184,12 +184,12 @@ export default {
   'plan.time':            'Saat',
   'plan.repeat':            'Tekrarlı',
   'plan.repeatInfo':        '{n} hafta boyunca tekrarlanacak',
-  'plan.repeatWeeks':       'hafta',
+  'plan.repeatWeeks':       'gün',
   'plan.repeatDeleteTitle': 'Planı sil',
   'plan.repeatCompleteTitle': 'Planı tamamla',
-  'plan.repeatScope':       'Bu plan {n} haftaya eklenmiş',
-  'plan.repeatOnlyThis':    'Sadece bu haftayı sil',
-  'plan.repeatAll':         'Tüm {n} haftayı sil',
+  'plan.repeatScope':       'Bu plan {n} güne eklenmiş',
+  'plan.repeatOnlyThis':    'Sadece bu günü sil',
+  'plan.repeatAll':         'Tüm {n} günü sil',
   'plan.allWeek':           'Tüm Hafta',
 
   // --- Settings ---

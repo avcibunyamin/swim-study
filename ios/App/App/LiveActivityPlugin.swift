@@ -22,6 +22,8 @@ public class LiveActivityPlugin: CAPPlugin {
 
     // Sadece ID saklanır — Activity<T> referansı Any? olarak tutulmaz
     private var currentActivityID: String? = nil
+    // Güncellemeleri sırayla işle — concurrent Task race condition'ını önler
+    private var pendingUpdateTask: Task<Void, Never>? = nil
 
     // MARK: start
     @objc func start(_ call: CAPPluginCall) {
@@ -36,10 +38,12 @@ public class LiveActivityPlugin: CAPPlugin {
         let state = buildState(call, isRunning: true)
         print("[LiveActivity] start — timeLeft:\(state.timeLeft) isOnBreak:\(state.isOnBreak)")
 
-        // Önceki aktiviteyi kapat
+        // Mevcut aktiviteyi güncelle
         if let id = currentActivityID,
            let existing = Activity<SwimTimerAttributes>.activities.first(where: { $0.id == id }) {
-            Task {
+            let prev = pendingUpdateTask
+            pendingUpdateTask = Task {
+                await prev?.value
                 let content = ActivityContent(state: state, staleDate: nil)
                 await existing.update(content)
             }
@@ -86,7 +90,10 @@ public class LiveActivityPlugin: CAPPlugin {
         }
 
         let state = buildState(call, isRunning: isRunning)
-        Task {
+        // Önceki Task tamamlanmadan yeni güncelleme uygulanmaz
+        let prev = pendingUpdateTask
+        pendingUpdateTask = Task {
+            await prev?.value
             let content = ActivityContent(state: state, staleDate: nil)
             await existing!.update(content)
             call.resolve()
@@ -100,7 +107,9 @@ public class LiveActivityPlugin: CAPPlugin {
               let activity = Activity<SwimTimerAttributes>.activities.first(where: { $0.id == id }) else {
             currentActivityID = nil; call.resolve(); return
         }
-        Task {
+        let prev = pendingUpdateTask
+        pendingUpdateTask = Task {
+            await prev?.value
             await activity.end(dismissalPolicy: .immediate)
             self.currentActivityID = nil
             print("[LiveActivity] sonlandırıldı")

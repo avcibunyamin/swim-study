@@ -89,9 +89,10 @@ export default function PlanModal({ theme, selDate, plans, savePlans, onClose, w
     if (repeat && repeatDays.length > 0) {
 
       // Seçili günden itibaren repeatWeeks hafta boyunca seçili günlere plan ekle
+      // Not: repeatWeeks * 7 - 1 gün = tam olarak repeatWeeks haftalık pencere
       const start = new Date(selDate + 'T00:00:00');
       const end   = new Date(start);
-      end.setDate(end.getDate() + (repeatWeeks - 1) * 7);
+      end.setDate(end.getDate() + repeatWeeks * 7 - 1);
 
       const cur = new Date(start);
       while (cur <= end) {
