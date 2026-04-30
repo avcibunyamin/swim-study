@@ -23,6 +23,7 @@
 		C9E7971E2F859AA800B47F97 /* LiveActivityPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E7971C2F859AA800B47F97 /* LiveActivityPlugin.swift */; };
 		C9E7972A2F859AA800B47F97 /* BellPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = C9E7972B2F859AA800B47F97 /* BellPlugin.m */; };
 		C9E7972C2F859AA800B47F97 /* BellPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E7972D2F859AA800B47F97 /* BellPlugin.swift */; };
+		C9E7972E2F859AA800B47F97 /* bell.wav in Resources */ = {isa = PBXBuildFile; fileRef = C9E7972F2F859AA800B47F97 /* bell.wav */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,7 @@
 		C9E7971C2F859AA800B47F97 /* LiveActivityPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityPlugin.swift; sourceTree = "<group>"; };
 		C9E7972B2F859AA800B47F97 /* BellPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BellPlugin.m; sourceTree = "<group>"; };
 		C9E7972D2F859AA800B47F97 /* BellPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BellPlugin.swift; sourceTree = "<group>"; };
+		C9E7972F2F859AA800B47F97 /* bell.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bell.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -134,6 +136,7 @@
 				C9E7971C2F859AA800B47F97 /* LiveActivityPlugin.swift */,
 				C9E7972B2F859AA800B47F97 /* BellPlugin.m */,
 				C9E7972D2F859AA800B47F97 /* BellPlugin.swift */,
+				C9E7972F2F859AA800B47F97 /* bell.wav */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				A1B2C3D42026032000ABCDEF /* MyViewController.swift */,
@@ -265,6 +268,7 @@
 				50379B232058CBB4000EE86E /* capacitor.config.json in Resources */,
 				504EC30D1FED79650016851F /* Main.storyboard in Resources */,
 				2FAD9763203C412B000D30F8 /* config.xml in Resources */,
+				C9E7972E2F859AA800B47F97 /* bell.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

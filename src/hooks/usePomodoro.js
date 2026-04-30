@@ -312,13 +312,15 @@ export default function usePomodoro({
     const title = isOnBreak ? (t('pomodoro.breakDoneNotif') || 'Mola bitti!') : (t('pomodoro.workDoneNotif') || 'Çalışma bitti!');
     const body  = isOnBreak ? (t('pomodoro.breakDoneBody')  || 'Çalışmaya devam.') : (t('pomodoro.workDoneBody') || 'Mola zamanı.');
 
+    // iOS: 'bell.wav' (App bundle'da), Android: 'bell' (res/raw/bell.wav)
+    const soundFile = Capacitor.getPlatform() === 'ios' ? 'bell.wav' : 'bell';
     LocalNotifications.schedule({
       notifications: [{
         id: SESSION_END_NOTIF_ID,
         title,
         body,
         schedule: { at: endAt },
-        sound: 'default',
+        sound: soundFile,
       }]
     }).catch(() => {});
 
