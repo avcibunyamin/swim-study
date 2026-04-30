@@ -18,6 +18,7 @@ class MyViewController: CAPBridgeViewController, WKScriptMessageHandler {
     override func capacitorDidLoad() {
         // Custom local plugin kayıtları
         bridge?.registerPluginInstance(LiveActivityPlugin())
+        bridge?.registerPluginInstance(BellPlugin())
 
         bridge?.webView?.configuration.userContentController.add(self, name: "updateStatusBarBg")
         bridge?.webView?.configuration.userContentController.add(self, name: "updateStatusBarStyle")

@@ -1,3 +1,10 @@
+import { Capacitor } from '@capacitor/core';
+
+const isNative = Capacitor.isNativePlatform();
+const isIOS = isNative && Capacitor.getPlatform() === 'ios';
+// iOS native bell plugin — sessiz modu by-pass eder ve WKWebView audio'sunu bozmaz
+const BellNative = isIOS ? Capacitor.registerPlugin('BellPlugin') : null;
+
 // Kalıcı AudioContext — iOS/Android'de her seferinde yeni context oluşturmak ses vermez
 let _ctx = null;
 let _audioUnlocked = false;
@@ -55,13 +62,7 @@ const _doPlay = (ctx) => {
   p(783.99, ctx.currentTime + 0.3, 0.5);
 };
 
-/**
- * Zil sesi çal.
- * @param {boolean} notifications - false ise çalmaz (kullanıcı bildirimleri kapattıysa)
- */
-export const playBell = (notifications = true) => {
-  if (!notifications) return;
-
+const _playBellWeb = () => {
   const tryPlay = (ctx) => {
     if (ctx.state === 'running') {
       _doPlay(ctx);
@@ -79,7 +80,6 @@ export const playBell = (notifications = true) => {
 
   try {
     const ctx = getCtx();
-    // Kapalıysa yeniden oluştur
     if (ctx.state === 'closed') {
       _ctx = null;
       _audioUnlocked = false;
@@ -90,4 +90,24 @@ export const playBell = (notifications = true) => {
   } catch (e) {
     console.debug('playBell skipped:', e.message);
   }
+};
+
+/**
+ * Zil sesi çal.
+ * iOS'ta native AVAudioEngine kullanır — sessiz modu by-pass eder, banner yok.
+ * Diğer platformlarda Web Audio API fallback.
+ * @param {boolean} notifications - false ise çalmaz
+ */
+export const playBell = (notifications = true) => {
+  if (!notifications) return;
+
+  // iOS'ta native plugin'i tercih et — sessiz modda da çalar
+  if (BellNative) {
+    BellNative.play().catch((e) => {
+      console.debug('Native bell failed, fallback to web audio:', e?.message);
+      _playBellWeb();
+    });
+    return;
+  }
+  _playBellWeb();
 };

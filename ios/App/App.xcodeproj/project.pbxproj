@@ -21,6 +21,8 @@
 		C9E797132F84DBCD00B47F97 /* SwimTimerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C9E796FF2F84DBCC00B47F97 /* SwimTimerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C9E7971D2F859AA800B47F97 /* LiveActivityPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = C9E7971B2F859AA800B47F97 /* LiveActivityPlugin.m */; };
 		C9E7971E2F859AA800B47F97 /* LiveActivityPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E7971C2F859AA800B47F97 /* LiveActivityPlugin.swift */; };
+		C9E7972A2F859AA800B47F97 /* BellPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = C9E7972B2F859AA800B47F97 /* BellPlugin.m */; };
+		C9E7972C2F859AA800B47F97 /* BellPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E7972D2F859AA800B47F97 /* BellPlugin.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +67,8 @@
 		C9E797032F84DBCC00B47F97 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		C9E7971B2F859AA800B47F97 /* LiveActivityPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LiveActivityPlugin.m; sourceTree = "<group>"; };
 		C9E7971C2F859AA800B47F97 /* LiveActivityPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityPlugin.swift; sourceTree = "<group>"; };
+		C9E7972B2F859AA800B47F97 /* BellPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BellPlugin.m; sourceTree = "<group>"; };
+		C9E7972D2F859AA800B47F97 /* BellPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BellPlugin.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -128,6 +132,8 @@
 			children = (
 				C9E7971B2F859AA800B47F97 /* LiveActivityPlugin.m */,
 				C9E7971C2F859AA800B47F97 /* LiveActivityPlugin.swift */,
+				C9E7972B2F859AA800B47F97 /* BellPlugin.m */,
+				C9E7972D2F859AA800B47F97 /* BellPlugin.swift */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				A1B2C3D42026032000ABCDEF /* MyViewController.swift */,
@@ -298,6 +304,8 @@
 			files = (
 				C9E7971D2F859AA800B47F97 /* LiveActivityPlugin.m in Sources */,
 				C9E7971E2F859AA800B47F97 /* LiveActivityPlugin.swift in Sources */,
+				C9E7972A2F859AA800B47F97 /* BellPlugin.m in Sources */,
+				C9E7972C2F859AA800B47F97 /* BellPlugin.swift in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				A1B2C3D52026032000ABCDEF /* MyViewController.swift in Sources */,
 			);
