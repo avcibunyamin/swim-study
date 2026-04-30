@@ -1,4 +1,5 @@
 export default {
+  'lang.code': 'tr',
   // --- Data arrays ---
   quotes: [
     { text: "Başarı, her gün tekrarlanan küçük çabaların toplamıdır.", author: "Robert Collier" },
@@ -214,6 +215,9 @@ export default {
   'settings.weekStart':    'Hafta Başlangıcı',
   'settings.weekStartMon': 'Pazartesi',
   'settings.weekStartSun': 'Pazar',
+  'settings.healthTips': 'Sağlık Tavsiyeleri',
+  'settings.on':  'Açık',
+  'settings.off': 'Kapalı',
   'settings.navPosition': 'Navigasyon Pozisyonu',
   'settings.navBottom': 'Alt',
   'settings.navTop': 'Üst',

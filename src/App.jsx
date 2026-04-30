@@ -78,17 +78,22 @@ export default function SwimApp() {
     showStudyTime, setShowStudyTime,
     currentStreak, longestStreak,
     theme: themeKey, setTheme: setThemeKey, notifications, setNotifications,
+    healthTips, setHealthTips,
     handleLogout: authLogout, handleDeleteAccount, changeTheme,
     createLocalUser,
   } = authHook;
 
   const themeObj = themes[themeKey] || themes.dark;
 
+  // Toast helper — pomodoro hook için ileriye taşındı
+  const showToastRef = useRef(null);
+
   // Pomodoro hook
   const pomodoroHook = usePomodoro({
     user, isOnline,
     setTotalStudySecs, setStudyHistory, refreshStudyHistory,
-    notifications, t
+    notifications, healthTips, t,
+    showToast: (...args) => showToastRef.current?.(...args),
   });
   const {
     workMins, setWorkMins, breakMins, setBreakMins,
@@ -149,6 +154,8 @@ export default function SwimApp() {
   // Toast helper
   const handleCloseToast = useCallback(() => setToast(null), []);
   const showToast = useCallback((type, message, title) => { setToast({ type, message, title }); }, []);
+  // showToast'ı pomodoro hook'una geçirmek için ref güncel tut
+  useEffect(() => { showToastRef.current = showToast; }, [showToast]);
 
   // Klavye (iOS/Android)
   useEffect(() => {
@@ -302,6 +309,7 @@ export default function SwimApp() {
             showStudyTime={showStudyTime} setShowStudyTime={setShowStudyTime}
             themeKey={themeKey} changeTheme={(th) => changeTheme(th)}
             notifications={notifications} setNotifications={setNotifications}
+            healthTips={healthTips} setHealthTips={setHealthTips}
             showSettings={showSettings} setShowSettings={setShowSettings}
             showEditProfile={showEditProfile} setShowEditProfile={setShowEditProfile}
             showDeleteConfirm={showDeleteConfirm} setShowDeleteConfirm={setShowDeleteConfirm}

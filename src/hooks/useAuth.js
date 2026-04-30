@@ -133,6 +133,7 @@ export default function useAuth() {
   const [longestStreak, setLongestStreak] = useState(0);
   const [theme, setTheme]             = useState('dark');
   const [notifications, setNotifications] = useState(true);
+  const [healthTips, setHealthTips] = useState(true);
 
   // Ref to always have latest plans for safe persistence
   const plansRef = useRef(plans);
@@ -164,6 +165,9 @@ export default function useAuth() {
 
     const notif = localStorage.getItem('swim_notifications');
     if (notif !== null) setNotifications(notif === 'true');
+
+    const tips = localStorage.getItem('swim_health_tips');
+    if (tips !== null) setHealthTips(tips === 'true');
 
     setAuthLoading(false);
   }, []);
@@ -279,6 +283,7 @@ export default function useAuth() {
     showStudyTime, setShowStudyTime,
     currentStreak, longestStreak,
     theme, setTheme, notifications, setNotifications,
+    healthTips, setHealthTips,
     handleLogout, handleDeleteAccount, changeTheme, retryLoad,
     sessionInvalidated: false,
     createLocalUser,

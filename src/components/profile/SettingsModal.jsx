@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Settings, X, ChevronRight, Palette, Edit3, KeyRound, Trash, ShieldCheck } from 'lucide-react';
+import { Settings, X, ChevronRight, Palette, Edit3, KeyRound, Trash, ShieldCheck, Heart } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useLanguage } from '../../i18n';
 import { themes } from '../../constants/themes';
 
 const isNative = Capacitor.isNativePlatform();
 
-export default function SettingsModal({ theme, themeKey, changeTheme, onClose, openEditProfile, openDeleteConfirm, handleLogout, isPasswordUser, weekStart, setWeekStart }) {
+export default function SettingsModal({ theme, themeKey, changeTheme, onClose, openEditProfile, openDeleteConfirm, handleLogout, isPasswordUser, weekStart, setWeekStart, healthTips, setHealthTips }) {
   const { t, lang, setLang } = useLanguage();
   const [showAccountMenu, setShowAccountMenu] = useState(false);
 
@@ -55,6 +55,26 @@ export default function SettingsModal({ theme, themeKey, changeTheme, onClose, o
               ))}
             </div>
           </div>
+
+          {/* Sağlık tavsiyeleri toggle */}
+          {typeof setHealthTips === 'function' && (
+            <button
+              onClick={() => {
+                const next = !healthTips;
+                setHealthTips(next);
+                try { localStorage.setItem('swim_health_tips', String(next)); } catch (_) {}
+              }}
+              className={`w-full p-3 ${theme.input} rounded-xl border flex justify-between items-center`}
+            >
+              <span className="text-sm flex items-center gap-2">
+                <Heart size={16} className={healthTips ? 'text-pink-400' : theme.textMuted} />
+                {t('settings.healthTips')}
+              </span>
+              <span className={`text-xs px-3 py-1 rounded-full ${healthTips ? 'bg-teal-600 text-white' : `${theme.card} ${theme.textMuted}`}`}>
+                {healthTips ? t('settings.on') : t('settings.off')}
+              </span>
+            </button>
+          )}
 
         </div>
       </div>

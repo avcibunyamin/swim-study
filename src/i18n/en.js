@@ -1,4 +1,5 @@
 export default {
+  'lang.code': 'en',
   // --- Data arrays ---
   quotes: [
     { text: "Success is the sum of small efforts repeated day in and day out.", author: "Robert Collier" },
@@ -215,6 +216,9 @@ export default {
   'settings.weekStart':    'Week Start',
   'settings.weekStartMon': 'Monday',
   'settings.weekStartSun': 'Sunday',
+  'settings.healthTips': 'Health Tips',
+  'settings.on':  'On',
+  'settings.off': 'Off',
   'settings.navPosition': 'Navigation Position',
   'settings.navBottom': 'Bottom',
   'settings.navTop': 'Top',

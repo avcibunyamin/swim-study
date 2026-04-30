@@ -5,6 +5,8 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { playBell } from '../utils/audio';
 import { serverNow, MAX_DAY_SECS } from '../utils/serverTime';
 import { startLiveActivity, updateLiveActivity, endLiveActivity } from '../utils/liveActivity';
+import { getMotivationQuote } from '../constants/quotes';
+import { getDueHealthTip } from '../constants/healthTips';
 
 const isNative = Capacitor.isNativePlatform();
 const TimerPlugin = isNative ? Capacitor.registerPlugin('TimerPlugin') : null;
@@ -16,7 +18,8 @@ const TIMER_SNAP_KEY   = 'swim_timer_snap';
 export default function usePomodoro({
   user, isOnline,
   setTotalStudySecs, setStudyHistory,
-  notifications, t
+  notifications, healthTips = true, t,
+  showToast,
 }) {
   const [workMins, setWorkMins]       = useState(() => Number(localStorage.getItem('swim_work_mins'))  || 25);
   const [breakMins, setBreakMins]     = useState(() => Number(localStorage.getItem('swim_break_mins')) || 5);
@@ -37,6 +40,8 @@ export default function usePomodoro({
   const pausedSessionWorkedRef        = useRef(0);
   const timeLeftRef                   = useRef(timeLeft);
   const freeTimeRef                   = useRef(freeTime);
+  const lastHealthTipsRef             = useRef({}); // { eyes: secs, water: secs, ... }
+  const transitionTimeoutRef          = useRef(null); // bitince mola/iş'e geçişi delay etmek için
   useEffect(() => { timeLeftRef.current = timeLeft; }, [timeLeft]);
   useEffect(() => { freeTimeRef.current = freeTime; }, [freeTime]);
 
@@ -106,6 +111,8 @@ export default function usePomodoro({
     pausedSessionWorkedRef.current = sessionWorked;
     const initialSessionWorked = sessionWorked;
 
+    let cancelled = false;
+
     const i = setInterval(async () => {
       // Gerçek geçen süreyi duvar saatiyle ölç — arka planda yavaşlayan
       // setInterval tiklarının neden olduğu drift'i önler
@@ -115,12 +122,37 @@ export default function usePomodoro({
         const newFreeTime      = initialFreeTime + elapsed;
         const newSessionWorked = isOnBreak ? initialSessionWorked : initialSessionWorked + elapsed;
         setFreeTime(newFreeTime);
-        if (!isOnBreak) setSessionWorked(newSessionWorked);
+        if (!isOnBreak) {
+          setSessionWorked(newSessionWorked);
+          // Sağlık tavsiyesi (sadece çalışmada, mola değil)
+          if (healthTips && showToast) {
+            const tip = getDueHealthTip(newSessionWorked, lastHealthTipsRef.current);
+            if (tip) {
+              const lang = (t && t('lang.code')) || 'tr';
+              const txt = tip[lang === 'en' ? 'en' : 'tr'];
+              showToast('info', txt.body, txt.title);
+              lastHealthTipsRef.current = { ...lastHealthTipsRef.current, [tip.id]: newSessionWorked };
+            }
+          }
+        }
       } else {
         const remaining = initialTimeLeft - elapsed;
         if (remaining > 0) {
           setTimeLeft(remaining);
-          if (!isOnBreak) setSessionWorked(initialSessionWorked + elapsed);
+          if (!isOnBreak) {
+            const newWorked = initialSessionWorked + elapsed;
+            setSessionWorked(newWorked);
+            // Sağlık tavsiyesi (sadece çalışmada)
+            if (healthTips && showToast) {
+              const tip = getDueHealthTip(newWorked, lastHealthTipsRef.current);
+              if (tip) {
+                const lang = (t && t('lang.code')) || 'tr';
+                const txt = tip[lang === 'en' ? 'en' : 'tr'];
+                showToast('info', txt.body, txt.title);
+                lastHealthTipsRef.current = { ...lastHealthTipsRef.current, [tip.id]: newWorked };
+              }
+            }
+          }
         } else {
           clearInterval(i);
           // JS uyanık → planlanmış bildirimi iptal et, native bell çalsın (çift ses olmasın)
@@ -130,32 +162,64 @@ export default function usePomodoro({
           playBell(notifications);
           if (!isOnBreak) {
             const finalSessionWorked = initialSessionWorked + initialTimeLeft;
-            // Molayı hemen başlat — Live Activity isOnBreak effect tarafından güncellenir
-            // (ara finishedType: 1 güncellemesi kaldırıldı — iOS onu "bitti" sayıp kapatıyordu)
-            setIsOnBreak(true);
-            setTimeLeft(breakMins * 60);
-            setSessionWorked(0);
-            pausedSessionWorkedRef.current = 0;
+            // Live Activity'de "Çalışma bitti!" göster (3sn)
+            if (isNative) {
+              updateLiveActivity({ timeLeft: 0, totalSecs: workMins*60, isOnBreak: false, isFreeMode: false, freeTime: 0, isRunning: false, finishedType: 1 });
+            }
+            // Motivasyon toast'u — çalışılan süreye göre
+            if (showToast) {
+              const lang = (t && t('lang.code')) || 'tr';
+              const quote = getMotivationQuote(finalSessionWorked, lang === 'en' ? 'en' : 'tr');
+              const title = (t && t('pomodoro.workDoneNotif')) || 'Çalışma bitti! 🎉';
+              showToast('success', quote, title);
+            }
             // Çalışma süresini arka planda kaydet (non-blocking)
             if (finalSessionWorked > 0) {
               saveStudyTime(finalSessionWorked).then(() => {
                 setTotalStudySecs(prev => prev + finalSessionWorked);
               });
             }
+            lastHealthTipsRef.current = {}; // sağlık tavsiyesi sayaçlarını sıfırla
+            // 3 saniye sonra molaya geç (Live Activity'deki "bitti!" mesajını görmek için)
+            transitionTimeoutRef.current = setTimeout(() => {
+              if (cancelled) return;
+              setIsOnBreak(true);
+              setTimeLeft(breakMins * 60);
+              setSessionWorked(0);
+              pausedSessionWorkedRef.current = 0;
+            }, 3000);
           } else {
-            // Mola bitti — isRunning effect Live Activity'yi günceller
-            setIsRunning(false);
-            setIsOnBreak(false);
-            setTimeLeft(workMins * 60);
+            // Mola bitti — Live Activity'de "Mola bitti!" göster (3sn)
+            if (isNative) {
+              updateLiveActivity({ timeLeft: 0, totalSecs: breakMins*60, isOnBreak: true, isFreeMode: false, freeTime: 0, isRunning: false, finishedType: 2 });
+            }
+            if (showToast) {
+              const title = (t && t('pomodoro.breakDoneNotif')) || 'Mola bitti! 💪';
+              const body  = (t && t('pomodoro.breakDoneBody'))  || 'Çalışmaya devam.';
+              showToast('info', body, title);
+            }
+            transitionTimeoutRef.current = setTimeout(() => {
+              if (cancelled) return;
+              setIsRunning(false);
+              setIsOnBreak(false);
+              setTimeLeft(workMins * 60);
+            }, 3000);
           }
           timerStartedAtRef.current = null;
         }
       }
     }, 1000);
 
-    return () => clearInterval(i);
+    return () => {
+      cancelled = true;
+      clearInterval(i);
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+        transitionTimeoutRef.current = null;
+      }
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRunning, isOnBreak, isFreeMode, workMins, breakMins, notifications, user?.id]);
+  }, [isRunning, isOnBreak, isFreeMode, workMins, breakMins, notifications, healthTips, user?.id]);
 
   // ─── iOS Live Activity ────────────────────────────────────────────────────
   useEffect(() => {
