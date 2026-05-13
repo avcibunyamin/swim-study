@@ -22,11 +22,6 @@
         </activity>
 
         <service
-            android:name=".TimerService"
-            android:foregroundServiceType="specialUse"
-            android:exported="false" />
-
-        <service
             android:name=".LiveActivityService"
             android:foregroundServiceType="specialUse"
             android:exported="false" />

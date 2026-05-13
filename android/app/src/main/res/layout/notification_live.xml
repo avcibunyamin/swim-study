@@ -1,110 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Compact view — temiz, şık -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#050F2A"
-    android:orientation="vertical"
+    android:background="#0A1228"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp">
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
 
-    <!-- Üst satır: ikon+etiket  |  zamanlayıcı -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!-- Sol: emoji -->
+    <TextView
+        android:id="@+id/icon_emoji"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:text="🏊"
+        android:textSize="26sp" />
 
-        <!-- Sol: emoji + mod etiketi -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+    <!-- Orta: mod + SWIM -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginStart="12dp">
 
-            <TextView
-                android:id="@+id/icon_emoji"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🏊"
-                android:textSize="26sp" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginStart="8dp">
-
-                <TextView
-                    android:id="@+id/mode_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Çalışıyor"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/swim_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="SWIM"
-                    android:textColor="#2DD4BF"
-                    android:textStyle="bold"
-                    android:textSize="9sp"
-                    android:letterSpacing="0.15" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Sağ: Chronometer (çalışıyor) -->
-        <Chronometer
-            android:id="@+id/chronometer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#2DD4BF"
-            android:textSize="34sp"
-            android:textStyle="bold"
-            android:fontFamily="monospace"
-            android:visibility="visible" />
-
-        <!-- Sağ: statik metin (duraklatıldı / bitti) -->
         <TextView
-            android:id="@+id/timer_static"
+            android:id="@+id/mode_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#8899AA"
-            android:textSize="34sp"
+            android:text="Çalışıyor"
+            android:textColor="#E2E8F0"
             android:textStyle="bold"
-            android:fontFamily="monospace"
-            android:visibility="gone" />
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/swim_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="≋ SWIM"
+            android:textColor="#2DD4BF"
+            android:textStyle="bold"
+            android:textSize="10sp"
+            android:letterSpacing="0.2" />
     </LinearLayout>
 
-    <!-- İlerleme çubuğu (çalışma/mola modunda) -->
+    <!-- Sağ: timer -->
+    <Chronometer
+        android:id="@+id/chronometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#2DD4BF"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        android:fontFamily="monospace"
+        android:includeFontPadding="false"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/timer_static"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#8899AA"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        android:fontFamily="monospace"
+        android:includeFontPadding="false"
+        android:visibility="gone" />
+
+    <!-- Gizli (uyumluluk) -->
     <ProgressBar
         android:id="@+id/progress_bar"
         style="@android:style/Widget.ProgressBar.Horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="4dp"
-        android:layout_marginTop="6dp"
-        android:progressTint="#2DD4BF"
-        android:progressBackgroundTint="#0D2D40"
-        android:max="1000"
-        android:progress="0"
-        android:visibility="visible" />
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
 
-    <!-- Bitti yazısı -->
     <TextView
         android:id="@+id/finished_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="4dp"
-        android:text=""
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        android:textSize="13sp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:visibility="gone" />
 
 </LinearLayout>

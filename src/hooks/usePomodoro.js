@@ -9,7 +9,6 @@ import { getMotivationQuote } from '../constants/quotes';
 import { getDueHealthTip } from '../constants/healthTips';
 
 const isNative = Capacitor.isNativePlatform();
-const TimerPlugin = isNative ? Capacitor.registerPlugin('TimerPlugin') : null;
 const TIMER_NOTIF_ID   = 9999;
 const BG_NOTIF_ID      = 9998;
 const SESSION_END_NOTIF_ID = 9997; // çalışma/mola sonu bildirimi
@@ -258,10 +257,10 @@ export default function usePomodoro({
     }
   }, [isRunning]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Work → Break geçişinde Live Activity'yi güncelle
+  // Work → Break veya mod geçişinde base'i sıfırla (start çağır)
   useEffect(() => {
     if (!isNative || !isRunning) return;
-    updateLiveActivity({
+    startLiveActivity({
       timeLeft:  isFreeMode ? 0 : timeLeft,
       totalSecs: isFreeMode ? 0 : (isOnBreak ? breakMins * 60 : workMins * 60),
       isOnBreak,
@@ -278,24 +277,7 @@ export default function usePomodoro({
     updateLiveActivity({ timeLeft: 0, totalSecs: 0, isOnBreak: false, isFreeMode: true, freeTime, isRunning: true });
   }, [freeTime]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ─── Native timer servisi ─────────────────────────────────────────────────
-  useEffect(() => {
-    if (!isNative || !TimerPlugin) return;
-    if (isRunning) {
-      TimerPlugin.startTimer({ timeLeft, isFreeMode, freeTime, isOnBreak }).catch(() => {});
-    } else {
-      TimerPlugin.stopTimer().catch(() => {});
-    }
-    return () => { TimerPlugin.stopTimer().catch(() => {}); };
-  }, [isRunning]);
-
-  useEffect(() => {
-    if (!isNative || !TimerPlugin || !isRunning) return;
-    const i = setInterval(() => {
-      TimerPlugin.updateTimer({ timeLeft, isFreeMode, freeTime, isOnBreak }).catch(() => {});
-    }, 10000);
-    return () => clearInterval(i);
-  }, [isRunning, timeLeft, isFreeMode, freeTime, isOnBreak]);
+  // TimerPlugin kaldırıldı — LiveActivityService aynı işi yapıyor
 
   // ─── Eski timer bildirimlerini uygulama açılışında temizle ─────────────────
   useEffect(() => {
@@ -523,10 +505,9 @@ export default function usePomodoro({
         await saveStudyTime(workedSecs);
         setTotalStudySecs(prev => prev + workedSecs);
       }
-      // "Çalışma bitti" göster sonra kapat
+      // "Çalışma bitti" göster — bildirim kapanmaz, isRunning effect devralır
       if (isNative) {
         updateLiveActivity({ timeLeft: 0, totalSecs: workMins*60, isOnBreak: false, isFreeMode, freeTime, isRunning: false, finishedType: 1 });
-        setTimeout(() => endLiveActivity(), 4000);
       }
     }
   }, [sessionWorked, breakMins, workMins, isFreeMode, saveStudyTime, setTotalStudySecs]);

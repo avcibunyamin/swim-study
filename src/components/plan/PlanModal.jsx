@@ -277,7 +277,7 @@ export default function PlanModal({ theme, selDate, plans, savePlans, onClose, w
               </div>
 
               {/* Hafta sayısı seçici — yatay scroll */}
-              <p className="text-[10px] text-violet-300 mb-1.5">{t('plan.repeatWeeks')}</p>
+              <p className="text-[10px] text-violet-300 mb-1.5">Kaç hafta tekrarlansın?</p>
               <div className="flex overflow-x-auto gap-2 pb-1 snap-x snap-mandatory" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 {Array.from({ length: REPEAT_WEEKS_MAX - 1 }, (_, i) => i + 2).map(w => (
                   <button

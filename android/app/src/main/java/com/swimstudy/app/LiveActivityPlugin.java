@@ -20,6 +20,11 @@ public class LiveActivityPlugin extends Plugin {
         i.putExtra("freeTime",     call.getInt("freeTime",            0));
         i.putExtra("isRunning",    call.getBoolean("isRunning",    true));
         i.putExtra("finishedType", call.getInt("finishedType",        0));
+        // Mutlak zaman referansları (senkronizasyon için)
+        Double endTimeMs   = call.getDouble("endTimeMs",   0.0);
+        Double startTimeMs = call.getDouble("startTimeMs", 0.0);
+        i.putExtra("endTimeMs",   endTimeMs.longValue());
+        i.putExtra("startTimeMs", startTimeMs.longValue());
         return i;
     }
 

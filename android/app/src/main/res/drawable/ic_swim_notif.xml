@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dalga ikonu — bildirim çubuğunda beyaz/şeffaf görünür -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M2,12 Q4,9 6,12 Q8,15 10,12 Q12,9 14,12 Q16,15 18,12 Q20,9 22,12"
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:fillType="nonZero"/>
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M2,17 Q4,14 6,17 Q8,20 10,17 Q12,14 14,17 Q16,20 18,17 Q20,14 22,17"
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:fillType="nonZero"/>
+</vector>

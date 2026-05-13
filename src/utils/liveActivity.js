@@ -7,7 +7,14 @@ const LAPlugin = isNative ? Capacitor.registerPlugin('LiveActivityPlugin') : nul
 export const startLiveActivity = async ({ timeLeft, totalSecs, isOnBreak, isFreeMode, freeTime, isRunning = true, finishedType = 0 }) => {
   if (!LAPlugin) return;
   try {
-    const res = await LAPlugin.start({ timeLeft, totalSecs: totalSecs ?? timeLeft, isOnBreak, isFreeMode, freeTime, isRunning, finishedType });
+    // Mutlak bitiş zamanı — JS ve Android aynı noktayı referans alır
+    const endTimeMs = isFreeMode ? 0 : Date.now() + timeLeft * 1000;
+    const startTimeMs = isFreeMode ? Date.now() - freeTime * 1000 : 0;
+    const res = await LAPlugin.start({
+      timeLeft, totalSecs: totalSecs ?? timeLeft,
+      isOnBreak, isFreeMode, freeTime, isRunning, finishedType,
+      endTimeMs, startTimeMs
+    });
     console.log('[LiveActivity] başlatıldı', res);
   } catch (e) {
     console.warn('[LiveActivity] start HATA:', e);
