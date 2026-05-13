@@ -46,12 +46,10 @@ public class LiveActivityService extends Service {
 
         switch (action) {
             case ACTION_START:
-                startForeground(NOTIF_ID, buildNotification());
-                break;
             case ACTION_UPDATE:
-                NotificationManager nm =
-                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                if (nm != null) nm.notify(NOTIF_ID, buildNotification());
+                // Her iki durumda da startForeground çağır — servis zaten
+                // çalışıyorsa bu sadece bildirimi günceller, crash olmaz.
+                startForeground(NOTIF_ID, buildNotification());
                 break;
             case ACTION_END:
                 stopForeground(true);
