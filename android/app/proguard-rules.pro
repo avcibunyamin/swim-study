@@ -1,4 +1,20 @@
 # Add project specific ProGuard rules here.
+
+# ── Capacitor core ──────────────────────────────────────────────────────────
+-keep class com.getcapacitor.** { *; }
+-keep @com.getcapacitor.annotation.CapacitorPlugin class * { *; }
+
+# ── Uygulama plugin & servis sınıfları ──────────────────────────────────────
+-keep class com.swimstudy.app.** { *; }
+
+# ── WebView ↔ JS köprüsü ────────────────────────────────────────────────────
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+
+# ── Hata ayıklama için satır numaralarını koru ───────────────────────────────
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
 # You can control the set of applied configuration files using the
 # proguardFiles setting in build.gradle.
 #
