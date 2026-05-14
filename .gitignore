@@ -1,6 +1,11 @@
 # Dependencies
 node_modules/
 
+# Keystore — asla commit etme!
+*.jks
+*.keystore
+android/keystore.properties
+
 # Build
 dist/
 

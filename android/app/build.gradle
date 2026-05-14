@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+// Keystore bilgilerini keystore.properties'ten oku
+def keystorePropsFile = rootProject.file("keystore.properties")
+def keystoreProps = new Properties()
+if (keystorePropsFile.exists()) {
+    keystoreProps.load(new FileInputStream(keystorePropsFile))
+}
+
 android {
     namespace = "com.swimstudy.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,10 +23,20 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            storeFile     file(keystoreProps['storeFile'])
+            storePassword keystoreProps['storePassword']
+            keyAlias      keystoreProps['keyAlias']
+            keyPassword   keystoreProps['keyPassword']
+        }
+    }
+
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            signingConfig    signingConfigs.release
+            minifyEnabled    true
+            shrinkResources  true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
