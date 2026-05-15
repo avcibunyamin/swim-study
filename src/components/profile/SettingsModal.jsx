@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, X, ChevronRight, Palette, Edit3, KeyRound, Trash, ShieldCheck, Heart } from 'lucide-react';
+import { Settings, X, ChevronRight, Palette, Edit3, KeyRound, Trash, ShieldCheck, Heart, Globe, Check } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useLanguage } from '../../i18n';
 import { themes } from '../../constants/themes';
@@ -9,6 +9,28 @@ const isNative = Capacitor.isNativePlatform();
 export default function SettingsModal({ theme, themeKey, changeTheme, onClose, openEditProfile, openDeleteConfirm, handleLogout, isPasswordUser, weekStart, setWeekStart, healthTips, setHealthTips }) {
   const { t, lang, setLang } = useLanguage();
   const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [showLangPicker, setShowLangPicker] = useState(false);
+
+  const LANGUAGES = [
+    { id: 'tr', flag: '🇹🇷', name: 'Türkçe'    },
+    { id: 'en', flag: '🇬🇧', name: 'English'    },
+    { id: 'es', flag: '🇪🇸', name: 'Español'    },
+    { id: 'fr', flag: '🇫🇷', name: 'Français'   },
+    { id: 'de', flag: '🇩🇪', name: 'Deutsch'    },
+    { id: 'pt', flag: '🇧🇷', name: 'Português'  },
+    { id: 'ja', flag: '🇯🇵', name: '日本語'      },
+    { id: 'ko', flag: '🇰🇷', name: '한국어'      },
+    { id: 'zh', flag: '🇨🇳', name: '中文'        },
+    { id: 'ru', flag: '🇷🇺', name: 'Русский'    },
+  ];
+
+  const currentLang = LANGUAGES.find(l => l.id === lang) || LANGUAGES[1];
+
+  const selectLang = (id) => {
+    setLang(id);
+    localStorage.setItem('swim_language', id);
+    setShowLangPicker(false);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -38,31 +60,20 @@ export default function SettingsModal({ theme, themeKey, changeTheme, onClose, o
             </div>
           </div>
 
-          <div className={`p-3 ${theme.input} rounded-xl border`}>
-            <span className="text-sm flex items-center gap-2 mb-2">{t('settings.language')}</span>
-            <div className="grid grid-cols-3 gap-1.5">
-              {[
-                { id: 'tr', l: '🇹🇷 Türkçe'    },
-                { id: 'en', l: '🇬🇧 English'    },
-                { id: 'es', l: '🇪🇸 Español'    },
-                { id: 'fr', l: '🇫🇷 Français'   },
-                { id: 'de', l: '🇩🇪 Deutsch'    },
-                { id: 'pt', l: '🇧🇷 Português'  },
-                { id: 'ja', l: '🇯🇵 日本語'      },
-                { id: 'ko', l: '🇰🇷 한국어'      },
-                { id: 'zh', l: '🇨🇳 中文'        },
-                { id: 'ru', l: '🇷🇺 Русский'    },
-              ].map(l => (
-                <button
-                  key={l.id}
-                  onClick={() => { setLang(l.id); localStorage.setItem('swim_language', l.id); }}
-                  className={`py-2 rounded-lg text-xs font-medium transition-colors ${lang === l.id ? 'bg-teal-600 text-white' : `${theme.card} border ${theme.text}`}`}
-                >
-                  {l.l}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Dil seçici butonu */}
+          <button
+            onClick={() => setShowLangPicker(true)}
+            className={`w-full p-3 ${theme.input} rounded-xl border flex justify-between items-center`}
+          >
+            <span className="text-sm flex items-center gap-2">
+              <Globe size={16} className="text-teal-400" />
+              {t('settings.language')}
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="text-sm">{currentLang.flag} {currentLang.name}</span>
+              <ChevronRight size={16} className={theme.textMuted} />
+            </span>
+          </button>
 
           <div className={`p-3 ${theme.input} rounded-xl border`}>
             <span className="text-sm flex items-center gap-2 mb-2">{t('settings.weekStart')}</span>
@@ -95,6 +106,36 @@ export default function SettingsModal({ theme, themeKey, changeTheme, onClose, o
 
         </div>
       </div>
+
+      {/* Dil seçici — bottom sheet */}
+      {showLangPicker && (
+        <div className="fixed inset-0 bg-black/80 z-60 flex items-end justify-center" onClick={() => setShowLangPicker(false)}>
+          <div className={`${theme.modal} rounded-t-2xl w-full max-w-md border border-slate-600 border-b-0`} onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center p-4 border-b border-slate-700">
+              <h4 className="font-bold text-sm flex items-center gap-2">
+                <Globe size={16} className="text-teal-400" />
+                {t('settings.language')}
+              </h4>
+              <button onClick={() => setShowLangPicker(false)}><X size={18} /></button>
+            </div>
+            <div className="overflow-y-auto max-h-[60vh] pb-6">
+              {LANGUAGES.map(l => (
+                <button
+                  key={l.id}
+                  onClick={() => selectLang(l.id)}
+                  className={`w-full flex items-center justify-between px-5 py-3.5 transition-colors ${lang === l.id ? 'bg-teal-600/20' : 'hover:opacity-80'}`}
+                >
+                  <span className="flex items-center gap-3 text-sm">
+                    <span className="text-xl">{l.flag}</span>
+                    <span className={lang === l.id ? 'text-teal-400 font-semibold' : theme.text}>{l.name}</span>
+                  </span>
+                  {lang === l.id && <Check size={16} className="text-teal-400" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
