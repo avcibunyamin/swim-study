@@ -40,9 +40,26 @@ export default function SettingsModal({ theme, themeKey, changeTheme, onClose, o
 
           <div className={`p-3 ${theme.input} rounded-xl border`}>
             <span className="text-sm flex items-center gap-2 mb-2">{t('settings.language')}</span>
-            <div className="flex gap-2">
-              {[{ id: 'tr', l: 'Türkçe' }, { id: 'en', l: 'English' }].map(l => (
-                <button key={l.id} onClick={() => setLang(l.id)} className={`flex-1 py-2 rounded-lg text-xs ${lang === l.id ? 'bg-teal-600 text-white' : `${theme.card} border ${theme.text}`}`}>{l.l}</button>
+            <div className="grid grid-cols-3 gap-1.5">
+              {[
+                { id: 'tr', l: '🇹🇷 Türkçe'    },
+                { id: 'en', l: '🇬🇧 English'    },
+                { id: 'es', l: '🇪🇸 Español'    },
+                { id: 'fr', l: '🇫🇷 Français'   },
+                { id: 'de', l: '🇩🇪 Deutsch'    },
+                { id: 'pt', l: '🇧🇷 Português'  },
+                { id: 'ja', l: '🇯🇵 日本語'      },
+                { id: 'ko', l: '🇰🇷 한국어'      },
+                { id: 'zh', l: '🇨🇳 中文'        },
+                { id: 'ru', l: '🇷🇺 Русский'    },
+              ].map(l => (
+                <button
+                  key={l.id}
+                  onClick={() => { setLang(l.id); localStorage.setItem('swim_language', l.id); }}
+                  className={`py-2 rounded-lg text-xs font-medium transition-colors ${lang === l.id ? 'bg-teal-600 text-white' : `${theme.card} border ${theme.text}`}`}
+                >
+                  {l.l}
+                </button>
               ))}
             </div>
           </div>

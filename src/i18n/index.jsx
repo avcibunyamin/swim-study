@@ -1,8 +1,16 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import tr from './tr';
 import en from './en';
+import es from './es';
+import fr from './fr';
+import de from './de';
+import pt from './pt';
+import ja from './ja';
+import ko from './ko';
+import zh from './zh';
+import ru from './ru';
 
-const translations = { tr, en };
+const translations = { tr, en, es, fr, de, pt, ja, ko, zh, ru };
 const LanguageContext = createContext();
 
 function interpolate(template, vars) {
@@ -14,12 +22,12 @@ export function LanguageProvider({ children, initialLang = 'tr' }) {
   const [lang, setLang] = useState(initialLang);
 
   const t = useCallback((key, vars) => {
-    const val = translations[lang]?.[key] ?? translations.tr[key] ?? key;
+    const val = translations[lang]?.[key] ?? translations.en[key] ?? translations.tr[key] ?? key;
     return vars ? interpolate(val, vars) : val;
   }, [lang]);
 
   const ta = useCallback((key) => {
-    return translations[lang]?.[key] ?? translations.tr[key] ?? [];
+    return translations[lang]?.[key] ?? translations.en[key] ?? translations.tr[key] ?? [];
   }, [lang]);
 
   return (
