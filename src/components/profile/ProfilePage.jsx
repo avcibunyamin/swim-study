@@ -8,7 +8,7 @@ import SettingsModal from './SettingsModal';
 import EditProfileModal from './EditProfileModal';
 
 export default function ProfilePage({ theme, pagePadding, navPosition, changeNavPosition, user, userData, setUserData, totalStudySecs, currentAchievement, currentStreak, longestStreak, showStudyTime, setShowStudyTime, themeKey, changeTheme, notifications, setNotifications, healthTips, setHealthTips, showSettings, setShowSettings, showEditProfile, setShowEditProfile, showDeleteConfirm, setShowDeleteConfirm, handleLogout, handleDeleteAccount, isOnline, deletePassword, setDeletePassword, weekStart, setWeekStart }) {
-  const { t, ta } = useLanguage();
+  const { t, ta, lang } = useLanguage();
   const isPasswordUser = false;
   const achievementTitles = ta('achievementTitles') || [];
 
@@ -46,21 +46,22 @@ export default function ProfilePage({ theme, pagePadding, navPosition, changeNav
 
       <div className={`${theme.card} rounded-xl p-4 mb-4 border`}>
         <h3 className="font-bold text-teal-400 mb-3 flex items-center gap-2"><Trophy size={18} />{t('profile.titles')}</h3>
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {achievements.filter(a => a.hours > 0).map((a, idx) => {
             const earned = totalStudySecs / 3600 >= a.hours;
             const title = achievementTitles[idx + 1] || a.title;
             return (
-              <div key={a.hours} className={`text-center p-2 rounded-lg ${earned ? `bg-gradient-to-br ${a.color}` : `${theme.input} opacity-40 border`}`}>
+              <div key={a.hours} className={`flex items-center gap-2 p-2.5 rounded-lg ${earned ? `bg-gradient-to-br ${a.color}` : `${theme.input} opacity-40 border`}`}>
                 <span className="text-2xl">{a.icon}</span>
-                <p className="text-[9px] mt-1 font-bold">{title}</p>
-                <p className="text-[8px] opacity-80">{a.hours}{t('time.h')}</p>
+                <div>
+                  <p className="text-xs font-bold">{title}</p>
+                  <p className="text-[10px] opacity-80">{a.hours}{t('time.h')}</p>
+                </div>
               </div>
             );
           })}
         </div>
       </div>
-
 
       {showSettings && <SettingsModal theme={theme} themeKey={themeKey} changeTheme={changeTheme} onClose={() => setShowSettings(false)} openEditProfile={() => { setShowSettings(false); setShowEditProfile(true); }} openDeleteConfirm={() => { setShowSettings(false); setShowDeleteConfirm(true); }} handleLogout={handleLogout} isPasswordUser={isPasswordUser} weekStart={weekStart} setWeekStart={setWeekStart} healthTips={healthTips} setHealthTips={setHealthTips} />}
       {showEditProfile && <EditProfileModal theme={theme} userData={userData} setUserData={setUserData} onClose={() => setShowEditProfile(false)} />}

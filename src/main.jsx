@@ -4,7 +4,7 @@ import App from './App.jsx'
 import { LanguageProvider } from './i18n'
 import './index.css'
 
-const SUPPORTED_LANGS = ['tr', 'en', 'es', 'fr', 'de', 'pt', 'ja', 'ko', 'zh', 'ru'];
+const SUPPORTED_LANGS = ['tr', 'en', 'es', 'fr', 'de', 'pt', 'ja', 'ko', 'zh', 'ru', 'hi'];
 const browserLang = navigator.language?.slice(0, 2);
 const savedLang = localStorage.getItem('swim_language')
   || (SUPPORTED_LANGS.includes(browserLang) ? browserLang : 'en');

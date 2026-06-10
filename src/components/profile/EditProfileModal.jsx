@@ -66,13 +66,13 @@ export default function EditProfileModal({ theme, userData, setUserData, onClose
           {/* Avatar */}
           <div>
             <label className={`text-sm ${theme.textMuted} block mb-2`}>Emoji</label>
-            <div className="grid grid-cols-8 gap-1.5 max-h-44 overflow-y-auto">
+            <div className="grid grid-cols-6 gap-2 max-h-52 overflow-y-auto">
               {avatarOptions.map(emoji => (
                 <button
                   key={emoji}
                   type="button"
                   onClick={() => setEditAvatar(emoji)}
-                  className={`text-2xl p-1.5 rounded-xl transition-all ${
+                  className={`text-2xl p-2 rounded-xl transition-all flex items-center justify-center aspect-square ${
                     editAvatar === emoji
                       ? 'bg-teal-600 scale-110'
                       : `${theme.input} border`

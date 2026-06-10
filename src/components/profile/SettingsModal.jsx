@@ -22,6 +22,7 @@ export default function SettingsModal({ theme, themeKey, changeTheme, onClose, o
     { id: 'ko', flag: '🇰🇷', name: '한국어'      },
     { id: 'zh', flag: '🇨🇳', name: '中文'        },
     { id: 'ru', flag: '🇷🇺', name: 'Русский'    },
+    { id: 'hi', flag: '🇮🇳', name: 'हिन्दी'     },
   ];
 
   const currentLang = LANGUAGES.find(l => l.id === lang) || LANGUAGES[1];

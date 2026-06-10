@@ -9,8 +9,9 @@ import ja from './ja';
 import ko from './ko';
 import zh from './zh';
 import ru from './ru';
+import hi from './hi';
 
-const translations = { tr, en, es, fr, de, pt, ja, ko, zh, ru };
+const translations = { tr, en, es, fr, de, pt, ja, ko, zh, ru, hi };
 const LanguageContext = createContext();
 
 function interpolate(template, vars) {
