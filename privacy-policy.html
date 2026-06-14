@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SWIM - Gizlilik Politikasi / Privacy Policy</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.7; padding: 2rem 1rem; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { color: #5eead4; font-size: 2rem; margin-bottom: 0.5rem; }
+    h2 { color: #67e8f9; font-size: 1.3rem; margin-top: 2rem; margin-bottom: 0.5rem; border-bottom: 1px solid #334155; padding-bottom: 0.3rem; }
+    h3 { color: #94a3b8; font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.3rem; }
+    p, li { color: #cbd5e1; margin-bottom: 0.5rem; }
+    ul { padding-left: 1.5rem; }
+    .lang-switch { text-align: right; margin-bottom: 1rem; }
+    .lang-switch a { color: #5eead4; text-decoration: none; padding: 0.3rem 0.8rem; border: 1px solid #5eead4; border-radius: 6px; font-size: 0.9rem; }
+    .lang-switch a:hover { background: #5eead4; color: #0f172a; }
+    .section { margin-bottom: 1rem; }
+    .date { color: #64748b; font-size: 0.9rem; margin-bottom: 2rem; }
+    .contact { background: #1e293b; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+    hr { border: none; border-top: 1px solid #334155; margin: 3rem 0; }
+    #en { display: none; }
+  </style>
+  <script>
+    function showLang(lang) {
+      document.getElementById('tr').style.display = lang === 'tr' ? 'block' : 'none';
+      document.getElementById('en').style.display = lang === 'en' ? 'block' : 'none';
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="lang-switch">
+      <a href="#" onclick="showLang('tr'); return false;">Turkce</a>
+      <a href="#" onclick="showLang('en'); return false;">English</a>
+    </div>
+
+    <!-- TURKCE -->
+    <div id="tr">
+      <h1>SWIM - Gizlilik Politikasi</h1>
+      <p class="date">Son guncelleme: Mart 2026</p>
+
+      <div class="section">
+        <p>SWIM ("Study With Me") uygulamasi, kullanicilarinin gizliligine saygi duyar. Bu politika, uygulamamizi kullanirken hangi verilerin toplandigini ve nasil kullanildigini aciklar.</p>
+      </div>
+
+      <h2>1. Veri Sorumlusu</h2>
+      <p>Verilerinizin islenmesinden SWIM uygulamasi gelistiricisi sorumludur.</p>
+      <div class="contact">
+        <p><strong>E-posta:</strong> swimstudyapp@gmail.com</p>
+      </div>
+
+      <h2>2. Toplanan Veriler</h2>
+      <p>Uygulamamiz asagidaki verileri toplar:</p>
+      <ul>
+        <li><strong>Hesap bilgileri:</strong> E-posta adresi, kullanici adi, tam ad (kayit sirasinda)</li>
+        <li><strong>Profil bilgileri:</strong> Avatar secimi, hakkinda metni, durum bilgisi</li>
+        <li><strong>Calisma verileri:</strong> Toplam calisma suresi, gunluk calisma gecmisi, calisma planlari</li>
+        <li><strong>Sosyal veriler:</strong> Arkadas listesi, calisma odasi bilgileri, mesajlar (en fazla 50 mesaj)</li>
+        <li><strong>Teknik veriler:</strong> Cevrimici durumu, son gorulme zamani</li>
+      </ul>
+
+      <h2>3. Verilerin Kullanim Amaci</h2>
+      <ul>
+        <li>Hesap olusturma ve kimlik dogrulama</li>
+        <li>Calisma surelerinin takibi ve istatistiklerin gosterimi</li>
+        <li>Arkadaslarla birlikte calisma odalari olusturma</li>
+        <li>Uygulama ici mesajlasma</li>
+        <li>Kullanici deneyimini iyilestirme</li>
+      </ul>
+
+      <h2>4. Hukuki Dayanak</h2>
+      <p>Verileriniz asagidaki hukuki dayanaklara gore islenir:</p>
+      <ul>
+        <li><strong>Acik riza:</strong> Hesap olusturma ve kayit sirasinda onayiniz</li>
+        <li><strong>Sozlesmenin ifasi:</strong> Uygulama hizmetlerinin sunulmasi</li>
+        <li><strong>Mesru menfaat:</strong> Uygulamanin guvenliginin ve performansinin saglanmasi</li>
+      </ul>
+
+      <h2>5. Veri Saklama ve Guvenlik</h2>
+      <ul>
+        <li>Verileriniz Google Firebase (Firestore, Authentication) altyapisinda guvenli sekilde saklanir.</li>
+        <li>Sifreler Firebase Authentication tarafindan sifrelenerek korunur.</li>
+        <li>Tum veri iletimi HTTPS/TLS ile sifrelenmistir.</li>
+        <li>Verileriniz ucuncu taraflarla paylasilmaz veya satilmaz.</li>
+        <li>Calisma gecmisi en fazla 1 yil sureyle saklanir.</li>
+        <li>Mesajlar en fazla 50 adet ile sinirlidir ve otomatik temizlenir.</li>
+      </ul>
+
+      <h2>6. Ucuncu Taraf Hizmetleri</h2>
+      <p>Uygulamamiz asagidaki ucuncu taraf hizmetlerini kullanir:</p>
+      <ul>
+        <li><strong>Google Firebase:</strong> Kimlik dogrulama (Authentication), veritabani (Firestore), cevrimdisi veri esitleme</li>
+        <li><strong>Capacitor:</strong> Mobil cihaz ozellikleri (bildirimler, titresim, durum cubugu) icin yerel koprolu cerceve</li>
+      </ul>
+      <p>Bu hizmetlerin kendi gizlilik politikalari bulunmaktadir. Analitik veya reklam SDK'si kullanilmamaktadir.</p>
+
+      <h2>7. KVKK Kapsaminda Haklariniz</h2>
+      <p>6698 sayili Kisisel Verilerin Korunmasi Kanunu kapsaminda asagidaki haklara sahipsiniz:</p>
+      <ul>
+        <li>Kisisel verilerinizin islenip islenmedigini ogrenme</li>
+        <li>Kisisel verileriniz islenmisse buna iliskin bilgi talep etme</li>
+        <li>Kisisel verilerinizin islenme amacini ve bunlarin amacina uygun kullanilip kullanilmadigini ogrenme</li>
+        <li>Yurt icinde veya yurt disinda kisisel verilerinizin aktarildigi ucuncu kisileri bilme</li>
+        <li>Kisisel verilerinizin eksik veya yanlis islenmis olmasi halinde bunlarin duzeltilmesini isteme</li>
+        <li>Kisisel verilerinizin silinmesini veya yok edilmesini isteme</li>
+        <li>Islenen verilerin munhasiran otomatik sistemler vasitasiyla analiz edilmesi suretiyle aleyhinize bir sonucun ortaya cikmasina itiraz etme</li>
+        <li>Kisisel verilerinizin kanuna aykiri olarak islenmesi sebebiyle zarara ugramaniz halinde zararin giderilmesini talep etme</li>
+      </ul>
+
+      <h2>8. GDPR Kapsaminda Haklariniz</h2>
+      <p>Avrupa Birligi Genel Veri Koruma Tuzugu (GDPR) kapsaminda:</p>
+      <ul>
+        <li><strong>Erisim hakki:</strong> Islenen kisisel verilerinize erisim talep edebilirsiniz</li>
+        <li><strong>Duzeltme hakki:</strong> Yanlis veya eksik verilerinizin duzeltilmesini isteyebilirsiniz</li>
+        <li><strong>Silme hakki:</strong> Kisisel verilerinizin silinmesini talep edebilirsiniz (Profil > Ayarlar > Hesabi Sil)</li>
+        <li><strong>Tasima hakki:</strong> Verilerinizi yapilandirilmis formatta (JSON) indirebilirsiniz (Profil > Ayarlar > Verilerimi Indir)</li>
+        <li><strong>Itiraz hakki:</strong> Veri islemeye itiraz edebilirsiniz</li>
+        <li><strong>Islemeyi kisitlama hakki:</strong> Belirli kosullarda veri islemenin kisitlanmasini talep edebilirsiniz</li>
+      </ul>
+
+      <h2>9. Kullanici Haklari ve Veri Kontrolu</h2>
+      <ul>
+        <li>Hesabinizi ve tum verilerinizi istediginiz zaman silebilirsiniz (Profil > Ayarlar > Hesabi Sil).</li>
+        <li>Tum verilerinizi JSON formatinda indirebilirsiniz (Profil > Ayarlar > Verilerimi Indir).</li>
+        <li>Profilinizi gizli moda alarak diger kullanicilardan gizlenebilirsiniz.</li>
+        <li>Calisma surenizin gorunurlugunu ayarlayabilirsiniz.</li>
+      </ul>
+
+      <h2>10. Cerezler ve Yerel Depolama</h2>
+      <p>Uygulama, tema tercihi, dil secimi ve bildirim ayarlari gibi kullanici tercihlerini cihazinizda yerel olarak saklar. Ucuncu taraf cerezleri veya izleme araclari kullanilmaz.</p>
+
+      <h2>11. Cocuklarin Gizliligi</h2>
+      <p>Uygulamamiz 13 yas alti cocuklara yonelik degildir. Kayit sirasinda 13 yasindan buyuk oldugunuza dair onay alinmaktadir. Bilerek 13 yas alti kullanicilardan veri toplamayiz. Boyle bir durum tespit edilirse ilgili veriler derhal silinir.</p>
+
+      <h2>12. Degisiklikler</h2>
+      <p>Bu gizlilik politikasi zaman zaman guncellenebilir. Onemli degisiklikler uygulama icinden bildirilecektir.</p>
+
+      <h2>13. Iletisim</h2>
+      <div class="contact">
+        <p>Gizlilik politikasi veya veri haklariniz hakkinda sorulariniz icin:</p>
+        <p><strong>E-posta:</strong> swimstudyapp@gmail.com</p>
+      </div>
+    </div>
+
+    <!-- ENGLISH -->
+    <div id="en">
+      <h1>SWIM - Privacy Policy</h1>
+      <p class="date">Last updated: March 2026</p>
+
+      <div class="section">
+        <p>SWIM ("Study With Me") respects the privacy of its users. This policy explains what data is collected when you use our application and how it is used.</p>
+      </div>
+
+      <h2>1. Data Controller</h2>
+      <p>The developer of the SWIM application is responsible for processing your data.</p>
+      <div class="contact">
+        <p><strong>Email:</strong> swimstudyapp@gmail.com</p>
+      </div>
+
+      <h2>2. Data We Collect</h2>
+      <p>Our application collects the following data:</p>
+      <ul>
+        <li><strong>Account information:</strong> Email address, username, full name (during registration)</li>
+        <li><strong>Profile information:</strong> Avatar selection, about text, status</li>
+        <li><strong>Study data:</strong> Total study time, daily study history, study plans</li>
+        <li><strong>Social data:</strong> Friend list, study room information, messages (maximum 50 messages)</li>
+        <li><strong>Technical data:</strong> Online status, last seen time</li>
+      </ul>
+
+      <h2>3. How We Use Your Data</h2>
+      <ul>
+        <li>Account creation and authentication</li>
+        <li>Tracking study times and displaying statistics</li>
+        <li>Creating study rooms with friends</li>
+        <li>In-app messaging</li>
+        <li>Improving user experience</li>
+      </ul>
+
+      <h2>4. Legal Basis</h2>
+      <p>Your data is processed based on the following legal grounds:</p>
+      <ul>
+        <li><strong>Consent:</strong> Your approval during account creation and registration</li>
+        <li><strong>Performance of contract:</strong> Providing application services</li>
+        <li><strong>Legitimate interest:</strong> Ensuring security and performance of the application</li>
+      </ul>
+
+      <h2>5. Data Storage and Security</h2>
+      <ul>
+        <li>Your data is securely stored on Google Firebase (Firestore, Authentication) infrastructure.</li>
+        <li>Passwords are encrypted and protected by Firebase Authentication.</li>
+        <li>All data transmission is encrypted via HTTPS/TLS.</li>
+        <li>Your data is not shared with or sold to third parties.</li>
+        <li>Study history is stored for a maximum of 1 year.</li>
+        <li>Messages are limited to 50 per conversation and automatically cleaned up.</li>
+      </ul>
+
+      <h2>6. Third-Party Services</h2>
+      <p>Our application uses the following third-party services:</p>
+      <ul>
+        <li><strong>Google Firebase:</strong> Authentication, database (Firestore), offline data synchronization</li>
+        <li><strong>Capacitor:</strong> Native bridge framework for mobile device features (notifications, haptics, status bar)</li>
+      </ul>
+      <p>These services have their own privacy policies. No analytics or advertising SDKs are used.</p>
+
+      <h2>7. Your Rights Under KVKK (Turkish Data Protection Law)</h2>
+      <p>Under the Turkish Personal Data Protection Law No. 6698, you have the right to:</p>
+      <ul>
+        <li>Learn whether your personal data is being processed</li>
+        <li>Request information about processed data</li>
+        <li>Learn the purpose of processing and whether data is used accordingly</li>
+        <li>Know third parties to whom your data is transferred domestically or abroad</li>
+        <li>Request correction of incomplete or incorrect data</li>
+        <li>Request deletion or destruction of your personal data</li>
+        <li>Object to outcomes arising solely from automated data analysis</li>
+        <li>Claim compensation for damages caused by unlawful data processing</li>
+      </ul>
+
+      <h2>8. Your Rights Under GDPR</h2>
+      <p>Under the EU General Data Protection Regulation (GDPR):</p>
+      <ul>
+        <li><strong>Right of access:</strong> You can request access to your processed personal data</li>
+        <li><strong>Right to rectification:</strong> You can request correction of incorrect or incomplete data</li>
+        <li><strong>Right to erasure:</strong> You can request deletion of your personal data (Profile > Settings > Delete Account)</li>
+        <li><strong>Right to data portability:</strong> You can download your data in structured format (JSON) (Profile > Settings > Download My Data)</li>
+        <li><strong>Right to object:</strong> You can object to data processing</li>
+        <li><strong>Right to restrict processing:</strong> You can request restriction of data processing under certain conditions</li>
+      </ul>
+
+      <h2>9. User Rights and Data Control</h2>
+      <ul>
+        <li>You can delete your account and all your data at any time (Profile > Settings > Delete Account).</li>
+        <li>You can download all your data in JSON format (Profile > Settings > Download My Data).</li>
+        <li>You can hide from other users by setting your profile to hidden mode.</li>
+        <li>You can control the visibility of your study time.</li>
+      </ul>
+
+      <h2>10. Cookies and Local Storage</h2>
+      <p>The application stores user preferences such as theme, language, and notification settings locally on your device. No third-party cookies or tracking tools are used.</p>
+
+      <h2>11. Children's Privacy</h2>
+      <p>Our application is not intended for children under 13. Age confirmation (13+) is required during registration. We do not knowingly collect data from users under 13 years of age. If such a case is detected, the related data will be immediately deleted.</p>
+
+      <h2>12. Changes</h2>
+      <p>This privacy policy may be updated from time to time. Significant changes will be notified through the application.</p>
+
+      <h2>13. Contact</h2>
+      <div class="contact">
+        <p>For questions about this privacy policy or your data rights:</p>
+        <p><strong>Email:</strong> swimstudyapp@gmail.com</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
