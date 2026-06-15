@@ -1,4 +1,4 @@
-package com.swimstudy.app;
+package com.huntersoftware.swim;
 
 import android.app.Notification;
 import android.app.NotificationChannel;

@@ -1,4 +1,4 @@
-package com.swimstudy.app;
+package com.huntersoftware.swim;
 
 import android.Manifest;
 import android.app.AlertDialog;

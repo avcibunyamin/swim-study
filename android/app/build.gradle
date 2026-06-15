@@ -8,10 +8,10 @@ if (keystorePropsFile.exists()) {
 }
 
 android {
-    namespace = "com.swimstudy.app"
+    namespace = "com.huntersoftware.swim"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.swimstudy.app"
+        applicationId "com.huntersoftware.swim"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

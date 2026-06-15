@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">SWIM</string>
     <string name="title_activity_main">SWIM</string>
-    <string name="package_name">com.swimstudy.app</string>
-    <string name="custom_url_scheme">com.swimstudy.app</string>
+    <string name="package_name">com.huntersoftware.swim</string>
+    <string name="custom_url_scheme">com.huntersoftware.swim</string>
 </resources>

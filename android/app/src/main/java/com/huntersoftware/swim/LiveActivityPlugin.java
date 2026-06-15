@@ -1,4 +1,4 @@
-package com.swimstudy.app;
+package com.huntersoftware.swim;
 
 import android.content.Intent;
 import android.os.Build;
