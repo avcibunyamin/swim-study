@@ -158,6 +158,12 @@ export default {
   'streak.longest': '최장 연속',
   'streak.days': '일',
   'streak.none': '아직 연속 기록이 없습니다 — 오늘부터 시작하세요! 🔥',
+  'heatmap.title': '학습 지도',
+  'heatmap.activeDays': '{n}일 활동',
+  'heatmap.noStudy': '학습 없음',
+  'heatmap.yearTotal': '지난 1년',
+  'heatmap.less': '적음',
+  'heatmap.more': '많음',
 
   // --- Profile ---
   'profile.titles': '칭호',

@@ -158,6 +158,12 @@ export default {
   'streak.longest': 'Longest Streak',
   'streak.days':    'days',
   'streak.none':    'No streak yet — start today! 🔥',
+  'heatmap.title': 'Activity Map',
+  'heatmap.activeDays': '{n} active days',
+  'heatmap.noStudy': 'no study',
+  'heatmap.yearTotal': 'Last year',
+  'heatmap.less': 'less',
+  'heatmap.more': 'more',
 
   // --- Profile ---
   'profile.titles': 'Titles',

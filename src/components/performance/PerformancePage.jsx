@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Clock, Target, Flame, Trophy } from 'lucide-
 import { useLanguage } from '../../i18n';
 import { fmtShort } from '../../utils/formatters';
 import Logo from '../ui/Logo';
+import StudyHeatmap from './StudyHeatmap';
 
 const PerformancePage = memo(({
   theme, pagePadding,
@@ -12,6 +13,7 @@ const PerformancePage = memo(({
   statsPeriod, setStatsPeriod,
   statsOffset, setStatsOffset,
   stats,
+  studyHistory, weekStart,
 }) => {
   const { t } = useLanguage();
   const maxSecs = Math.max(...(stats.chartData || []).map(d => d.secs), 1);
@@ -39,6 +41,9 @@ const PerformancePage = memo(({
           </div>
         )}
       </div>
+
+      {/* Çalışma ısı haritası */}
+      <StudyHeatmap theme={theme} studyHistory={studyHistory} weekStart={weekStart} />
 
       {/* Rozet ilerleme */}
       {nextAchievement && (

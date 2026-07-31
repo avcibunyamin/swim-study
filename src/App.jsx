@@ -293,6 +293,7 @@ export default function SwimApp() {
             statsPeriod={statsPeriod} setStatsPeriod={setStatsPeriod}
             statsOffset={statsOffset} setStatsOffset={setStatsOffset}
             stats={getStatsData}
+            studyHistory={studyHistory} weekStart={weekStart}
           />
         )}
         {page === 'profile' && (

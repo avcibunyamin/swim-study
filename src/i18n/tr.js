@@ -158,6 +158,12 @@ export default {
   'streak.longest': 'En Uzun Seri',
   'streak.days':    'gün',
   'streak.none':    'Henüz seri yok — bugün başla! 🔥',
+  'heatmap.title': 'Çalışma Haritası',
+  'heatmap.activeDays': '{n} aktif gün',
+  'heatmap.noStudy': 'çalışma yok',
+  'heatmap.yearTotal': 'Son 1 yıl',
+  'heatmap.less': 'az',
+  'heatmap.more': 'çok',
 
   // --- Profile ---
   'profile.titles': 'Unvanlar',

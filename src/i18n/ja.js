@@ -158,6 +158,12 @@ export default {
   'streak.longest': '最長ストリーク',
   'streak.days': '日',
   'streak.none': 'まだストリークなし — 今日から始めよう！ 🔥',
+  'heatmap.title': '学習マップ',
+  'heatmap.activeDays': '{n}日 活動',
+  'heatmap.noStudy': '学習なし',
+  'heatmap.yearTotal': '過去1年',
+  'heatmap.less': '少',
+  'heatmap.more': '多',
 
   // --- Profile ---
   'profile.titles': '称号',

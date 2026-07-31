@@ -158,6 +158,12 @@ export default {
   'streak.longest': '最长连续',
   'streak.days': '天',
   'streak.none': '还没有连续记录 — 从今天开始吧！ 🔥',
+  'heatmap.title': '学习热图',
+  'heatmap.activeDays': '{n} 天活跃',
+  'heatmap.noStudy': '无学习',
+  'heatmap.yearTotal': '过去一年',
+  'heatmap.less': '少',
+  'heatmap.more': '多',
 
   // --- Profile ---
   'profile.titles': '头衔',

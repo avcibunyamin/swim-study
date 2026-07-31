@@ -158,6 +158,12 @@ export default {
   'streak.longest': 'Наибольшая серия',
   'streak.days': 'дней',
   'streak.none': 'Серии пока нет — начни сегодня! 🔥',
+  'heatmap.title': 'Карта активности',
+  'heatmap.activeDays': 'Активных дней: {n}',
+  'heatmap.noStudy': 'нет занятий',
+  'heatmap.yearTotal': 'За год',
+  'heatmap.less': 'меньше',
+  'heatmap.more': 'больше',
 
   // --- Profile ---
   'profile.titles': 'Звания',

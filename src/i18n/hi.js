@@ -158,6 +158,12 @@ export default {
   'streak.longest': 'सबसे लंबी लय',
   'streak.days': 'दिन',
   'streak.none': 'अभी तक कोई लय नहीं — आज से शुरू करें! 🔥',
+  'heatmap.title': 'गतिविधि मानचित्र',
+  'heatmap.activeDays': '{n} सक्रिय दिन',
+  'heatmap.noStudy': 'कोई अध्ययन नहीं',
+  'heatmap.yearTotal': 'पिछला वर्ष',
+  'heatmap.less': 'कम',
+  'heatmap.more': 'अधिक',
 
   // --- Profile ---
   'profile.titles': 'उपाधियाँ',

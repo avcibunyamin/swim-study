@@ -158,6 +158,12 @@ export default {
   'streak.longest': 'Längste Serie',
   'streak.days': 'Tage',
   'streak.none': 'Noch keine Serie — fange heute an! 🔥',
+  'heatmap.title': 'Aktivitätskarte',
+  'heatmap.activeDays': '{n} aktive Tage',
+  'heatmap.noStudy': 'kein Lernen',
+  'heatmap.yearTotal': 'Letztes Jahr',
+  'heatmap.less': 'weniger',
+  'heatmap.more': 'mehr',
 
   // --- Profile ---
   'profile.titles': 'Titel',
