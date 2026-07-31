@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { avatarOptions } from '../../constants/avatarOptions';
 import { THEME_IDS } from '../../constants/themes';
+import { useLanguage } from '../../i18n';
 import Logo from '../ui/Logo';
 
 function generateUsername(fullName) {
@@ -9,13 +10,18 @@ function generateUsername(fullName) {
     .toLowerCase()
     .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
     .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
-    .replace(/[^a-z0-9]/g, '_')
+    // Latin dışı alfabeleri koru — [^a-z0-9] kullanılırsa 田中太郎, Иван,
+    // राहुल gibi isimler tamamen silinip herkes aynı fallback'e düşerdi.
+    // \p{M} şart: Devanagari sesli harf işaretleri (matra) harf değil
+    // birleşen işaret sayılır, dışlanırsa राहुल -> र_ह_ल olur.
+    .replace(/[^\p{L}\p{N}\p{M}]+/gu, '_')
     .replace(/_+/g, '_')
     .replace(/^_|_$/g, '')
-    .slice(0, 20) || 'kullanici';
+    .slice(0, 20) || 'user';
 }
 
 export default function AuthScreen({ onUserCreated }) {
+  const { t } = useLanguage();
   const [fullName, setFullName]   = useState('');
   const [avatar, setAvatar]       = useState('🐟');
   const [error, setError]         = useState('');
@@ -23,7 +29,7 @@ export default function AuthScreen({ onUserCreated }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const name = fullName.trim();
-    if (name.length < 2) { setError('En az 2 karakter gir'); return; }
+    if (name.length < 2) { setError(t('auth.nameTooShort')); return; }
 
     const savedTheme = localStorage.getItem('swim_theme') || 'dark';
     const profile = {
@@ -52,12 +58,12 @@ export default function AuthScreen({ onUserCreated }) {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Logo size="lg" centered />
-          <p className="text-teal-300 text-sm mt-2">Çalışmaya odaklan, hedeflerine ulaş</p>
+          <p className="text-teal-300 text-sm mt-2">{t('auth.tagline')}</p>
         </div>
 
         <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
           <h2 className="text-xl font-bold text-white text-center mb-6">
-            Başlamak için kendini tanıt 👋
+            {t('auth.introTitle')}
           </h2>
 
           {error && (
@@ -69,13 +75,13 @@ export default function AuthScreen({ onUserCreated }) {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Ad Soyad */}
             <div>
-              <label className="text-gray-400 text-sm block mb-1.5">Ad Soyad</label>
+              <label className="text-gray-400 text-sm block mb-1.5">{t('auth.fullName')}</label>
               <input
                 type="text"
                 value={fullName}
                 onChange={e => { setFullName(e.target.value); setError(''); }}
                 className="w-full bg-gray-800 rounded-xl p-3 text-white border border-gray-700 focus:border-teal-500 outline-none"
-                placeholder="Adın ve soyadın"
+                placeholder={t('auth.fullNamePlaceholder')}
                 maxLength={40}
                 autoFocus={!isNative}
                 required
@@ -84,14 +90,14 @@ export default function AuthScreen({ onUserCreated }) {
 
             {/* Emoji seçici */}
             <div>
-              <label className="text-gray-400 text-sm block mb-2">Emojini seç</label>
-              <div className="grid grid-cols-8 gap-1.5 max-h-44 overflow-y-auto pr-1">
+              <label className="text-gray-400 text-sm block mb-2">{t('auth.pickEmoji')}</label>
+              <div className="grid grid-cols-5 gap-2 max-h-52 overflow-y-auto">
                 {avatarOptions.map(emoji => (
                   <button
                     key={emoji}
                     type="button"
                     onClick={() => setAvatar(emoji)}
-                    className={`text-2xl p-1.5 rounded-xl transition-all ${
+                    className={`text-2xl p-2 rounded-xl transition-all flex items-center justify-center aspect-square ${
                       avatar === emoji
                         ? 'bg-teal-600 scale-110 shadow-lg shadow-teal-900'
                         : 'bg-gray-800 hover:bg-gray-700'
@@ -107,7 +113,7 @@ export default function AuthScreen({ onUserCreated }) {
             <div className="flex items-center gap-3 bg-gray-800 rounded-xl px-4 py-3">
               <span className="text-4xl">{avatar}</span>
               <p className="text-white font-bold text-base">
-                {fullName.trim() || 'Adın Soyadın'}
+                {fullName.trim() || t('auth.namePreview')}
               </p>
             </div>
 
@@ -115,7 +121,7 @@ export default function AuthScreen({ onUserCreated }) {
               type="submit"
               className="w-full py-3.5 bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl font-bold text-white text-base"
             >
-              Başla 🚀
+              {t('auth.start')}
             </button>
           </form>
         </div>

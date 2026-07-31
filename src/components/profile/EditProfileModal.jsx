@@ -66,7 +66,7 @@ export default function EditProfileModal({ theme, userData, setUserData, onClose
           {/* Avatar */}
           <div>
             <label className={`text-sm ${theme.textMuted} block mb-2`}>Emoji</label>
-            <div className="grid grid-cols-6 gap-2 max-h-52 overflow-y-auto">
+            <div className="grid grid-cols-5 gap-2 max-h-52 overflow-y-auto">
               {avatarOptions.map(emoji => (
                 <button
                   key={emoji}
