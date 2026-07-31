@@ -164,6 +164,9 @@ export default {
   'heatmap.yearTotal': 'Son 1 yıl',
   'heatmap.less': 'az',
   'heatmap.more': 'çok',
+  'summary.more': 'Önceki döneme göre %{pct} daha fazla çalıştın 🎉',
+  'summary.less': 'Önceki döneme göre %{pct} daha az çalıştın',
+  'summary.same': 'Önceki dönemle aynı seviyedesin',
 
   // --- Profile ---
   'profile.titles': 'Unvanlar',

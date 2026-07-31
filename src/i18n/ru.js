@@ -164,6 +164,9 @@ export default {
   'heatmap.yearTotal': 'За год',
   'heatmap.less': 'меньше',
   'heatmap.more': 'больше',
+  'summary.more': 'Вы занимались на {pct}% больше, чем в прошлом периоде 🎉',
+  'summary.less': 'Вы занимались на {pct}% меньше, чем в прошлом периоде',
+  'summary.same': 'Столько же, сколько в прошлом периоде',
 
   // --- Profile ---
   'profile.titles': 'Звания',

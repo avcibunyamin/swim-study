@@ -164,6 +164,9 @@ export default {
   'heatmap.yearTotal': 'Último ano',
   'heatmap.less': 'menos',
   'heatmap.more': 'mais',
+  'summary.more': 'Você estudou {pct}% mais que o período anterior 🎉',
+  'summary.less': 'Você estudou {pct}% menos que o período anterior',
+  'summary.same': 'Igual ao período anterior',
 
   // --- Profile ---
   'profile.titles': 'Títulos',

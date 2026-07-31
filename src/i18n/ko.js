@@ -164,6 +164,9 @@ export default {
   'heatmap.yearTotal': '지난 1년',
   'heatmap.less': '적음',
   'heatmap.more': '많음',
+  'summary.more': '이전 기간보다 {pct}% 더 공부했어요 🎉',
+  'summary.less': '이전 기간보다 {pct}% 덜 공부했어요',
+  'summary.same': '이전 기간과 동일해요',
 
   // --- Profile ---
   'profile.titles': '칭호',

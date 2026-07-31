@@ -164,6 +164,9 @@ export default {
   'heatmap.yearTotal': '过去一年',
   'heatmap.less': '少',
   'heatmap.more': '多',
+  'summary.more': '比上一周期多学习了 {pct}% 🎉',
+  'summary.less': '比上一周期少学习了 {pct}%',
+  'summary.same': '与上一周期持平',
 
   // --- Profile ---
   'profile.titles': '头衔',

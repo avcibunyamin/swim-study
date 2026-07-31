@@ -164,6 +164,9 @@ export default {
   'heatmap.yearTotal': 'पिछला वर्ष',
   'heatmap.less': 'कम',
   'heatmap.more': 'अधिक',
+  'summary.more': 'आपने पिछली अवधि से {pct}% अधिक अध्ययन किया 🎉',
+  'summary.less': 'आपने पिछली अवधि से {pct}% कम अध्ययन किया',
+  'summary.same': 'पिछली अवधि के समान',
 
   // --- Profile ---
   'profile.titles': 'उपाधियाँ',

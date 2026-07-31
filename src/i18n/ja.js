@@ -164,6 +164,9 @@ export default {
   'heatmap.yearTotal': '過去1年',
   'heatmap.less': '少',
   'heatmap.more': '多',
+  'summary.more': '前の期間より{pct}%多く学習しました 🎉',
+  'summary.less': '前の期間より{pct}%少なく学習しました',
+  'summary.same': '前の期間と同じです',
 
   // --- Profile ---
   'profile.titles': '称号',

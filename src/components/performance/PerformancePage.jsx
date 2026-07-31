@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { ChevronLeft, ChevronRight, Clock, Target, Flame, Trophy } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, Target, Flame, Trophy, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useLanguage } from '../../i18n';
 import { fmtShort } from '../../utils/formatters';
 import Logo from '../ui/Logo';
@@ -113,6 +113,24 @@ const PerformancePage = memo(({
             <p className={`text-[10px] ${theme.textMuted}`}>{t('home.total')}</p>
           </div>
         </div>
+
+        {/* Önceki dönemle karşılaştırma */}
+        {stats.deltaPct !== null && (
+          <div className={`${theme.input} rounded-xl px-3 py-2 mb-4 border flex items-center gap-2`}>
+            {stats.deltaPct > 0
+              ? <TrendingUp size={16} className="text-emerald-400 shrink-0" />
+              : stats.deltaPct < 0
+                ? <TrendingDown size={16} className="text-orange-400 shrink-0" />
+                : <Minus size={16} className={`${theme.textMuted} shrink-0`} />}
+            <span className="text-xs">
+              {stats.deltaPct > 0
+                ? t('summary.more', { pct: stats.deltaPct })
+                : stats.deltaPct < 0
+                  ? t('summary.less', { pct: Math.abs(stats.deltaPct) })
+                  : t('summary.same')}
+            </span>
+          </div>
+        )}
 
         {/* Sütun grafik */}
         <p className={`text-xs font-bold ${theme.textMuted} mb-2`}>{t('home.performance')}</p>
