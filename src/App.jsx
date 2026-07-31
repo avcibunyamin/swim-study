@@ -14,7 +14,6 @@ import { getAchievement, getNextAchievement } from './constants/achievements';
 // Utils
 import { fmt } from './utils/formatters';
 import { unlockAudio } from './utils/audio';
-import { syncServerTime } from './utils/serverTime';
 
 // Hooks
 import useAuth from './hooks/useAuth';
@@ -143,9 +142,6 @@ export default function SwimApp() {
   }, [navPosition]);
 
   // Sayfa kalıcılığı
-  // Uygulama açılışında NTP sync
-  useEffect(() => { syncServerTime(); }, []);
-
   useEffect(() => { localStorage.setItem('swim_page', page); }, [page]);
   useEffect(() => { if (!isNative) localStorage.setItem('swim_nav_position', navPosition); }, [navPosition]);
   useEffect(() => { localStorage.setItem('swim_week_start', String(weekStart)); }, [weekStart]);
