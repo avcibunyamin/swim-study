@@ -23,18 +23,24 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Release imzası yalnızca keystore.properties varsa tanımlanır.
+    // Yoksa debug build'ler keystore olmadan da çalışmaya devam eder.
     signingConfigs {
-        release {
-            storeFile     file(keystoreProps['storeFile'])
-            storePassword keystoreProps['storePassword']
-            keyAlias      keystoreProps['keyAlias']
-            keyPassword   keystoreProps['keyPassword']
+        if (keystorePropsFile.exists()) {
+            release {
+                storeFile     file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias      keystoreProps['keyAlias']
+                keyPassword   keystoreProps['keyPassword']
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig    signingConfigs.release
+            if (keystorePropsFile.exists()) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled    true
             shrinkResources  true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

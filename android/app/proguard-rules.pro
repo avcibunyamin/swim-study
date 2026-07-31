@@ -5,7 +5,7 @@
 -keep @com.getcapacitor.annotation.CapacitorPlugin class * { *; }
 
 # ── Uygulama plugin & servis sınıfları ──────────────────────────────────────
--keep class com.swimstudy.app.** { *; }
+-keep class com.huntersoftware.swim.** { *; }
 
 # ── WebView ↔ JS köprüsü ────────────────────────────────────────────────────
 -keepclassmembers class * {
