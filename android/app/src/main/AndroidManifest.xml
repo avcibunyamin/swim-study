@@ -42,4 +42,12 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- Pomodoro bitiş bildirimi dakikası dakikasına düşmeli.
+         Bu izinler olmadan Capacitor setAndAllowWhileIdle'a düşer ve Doze
+         modunda alarm 10-15 dk gecikebilir.
+         API ≤30: izin gerekmez. 31-32: SCHEDULE_EXACT_ALARM (otomatik verilir).
+         33+: USE_EXACT_ALARM — zamanlayıcı uygulamaları için normal izin. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 </manifest>
