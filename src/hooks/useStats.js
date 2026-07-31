@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useLanguage } from '../i18n';
+import { localDateStr } from '../utils/formatters';
 
 export default function useStats({ studyHistory }) {
   const { t, ta } = useLanguage();
@@ -19,7 +20,7 @@ export default function useStats({ studyHistory }) {
     if (statsPeriod === 'day') {
       const d = new Date();
       d.setDate(d.getDate() - statsOffset);
-      const ds = d.toISOString().split('T')[0];
+      const ds = localDateStr(d);
       const e  = entry(ds);
       chartData   = [{ label: d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }), secs: e?.secs || 0 }];
       periodLabel = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -31,7 +32,7 @@ export default function useStats({ studyHistory }) {
       for (let i = 0; i < 7; i++) {
         const d  = new Date(ws);
         d.setDate(d.getDate() + i);
-        const ds = d.toISOString().split('T')[0];
+        const ds = localDateStr(d);
         const e  = entry(ds);
         chartData.push({ label: dayLabels[i], secs: e?.secs || 0 });
         periodDates.push(ds);
@@ -40,13 +41,16 @@ export default function useStats({ studyHistory }) {
 
     } else if (statsPeriod === 'month') {
       const tm  = new Date();
+      tm.setDate(1); // ay geri alınırken 31'inden kısa aya taşmayı önle
       tm.setMonth(tm.getMonth() - statsOffset);
       const y   = tm.getFullYear();
       const m   = tm.getMonth();
       const dim = new Date(y, m + 1, 0).getDate();
       for (let w = 0; w < 4; w++) {
         let ws = 0;
-        for (let d = w * 7 + 1; d <= Math.min((w + 1) * 7, dim); d++) {
+        // Son kutu ayın kalanını da kapsar, yoksa 29-31. günler hiç sayılmaz
+        const end = w === 3 ? dim : Math.min((w + 1) * 7, dim);
+        for (let d = w * 7 + 1; d <= end; d++) {
           const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
           const e  = entry(ds);
           ws += e?.secs || 0;

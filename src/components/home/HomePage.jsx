@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import { Calendar, Trophy, Heart, Quote, Check, WifiOff, Clock } from 'lucide-react';
 import { useLanguage } from '../../i18n';
-import { fmtSecs } from '../../utils/formatters';
+import { fmtSecs, localDateStr } from '../../utils/formatters';
 import Logo from '../ui/Logo';
 
 const HomePage = memo(({
@@ -19,7 +19,7 @@ const HomePage = memo(({
       day: 'numeric', month: 'long', weekday: 'long',
     }).format(date);
   };
-  const today = new Date().toISOString().split('T')[0];
+  const today = localDateStr();
   const allPlans = plans || [];
 
   const futurePlans = allPlans
