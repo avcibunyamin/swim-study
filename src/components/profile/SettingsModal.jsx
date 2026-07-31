@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Settings, X, ChevronRight, Palette, Edit3, KeyRound, Trash, ShieldCheck, Heart, Globe, Check } from 'lucide-react';
+import { Settings, X, ChevronRight, Palette, Edit3, KeyRound, Trash, ShieldCheck, Heart, Globe, Check, Bell, BellOff } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useLanguage } from '../../i18n';
 import { themes } from '../../constants/themes';
+import { applyNotificationSetting } from '../../utils/notifications';
 
 const isNative = Capacitor.isNativePlatform();
 
-export default function SettingsModal({ theme, themeKey, changeTheme, onClose, openEditProfile, openDeleteConfirm, handleLogout, isPasswordUser, weekStart, setWeekStart, healthTips, setHealthTips }) {
+export default function SettingsModal({ theme, themeKey, changeTheme, onClose, openEditProfile, openDeleteConfirm, handleLogout, isPasswordUser, weekStart, setWeekStart, notifications, setNotifications, healthTips, setHealthTips }) {
   const { t, lang, setLang } = useLanguage();
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [showLangPicker, setShowLangPicker] = useState(false);
@@ -84,6 +85,28 @@ export default function SettingsModal({ theme, themeKey, changeTheme, onClose, o
               ))}
             </div>
           </div>
+
+          {/* Bildirimler toggle */}
+          {typeof setNotifications === 'function' && (
+            <button
+              onClick={async () => {
+                const next = !notifications;
+                await applyNotificationSetting(next);
+                setNotifications(next);
+              }}
+              className={`w-full p-3 ${theme.input} rounded-xl border flex justify-between items-center`}
+            >
+              <span className="text-sm flex items-center gap-2">
+                {notifications
+                  ? <Bell size={16} className="text-teal-400" />
+                  : <BellOff size={16} className={theme.textMuted} />}
+                {t('settings.notifications')}
+              </span>
+              <span className={`text-xs px-3 py-1 rounded-full ${notifications ? 'bg-teal-600 text-white' : `${theme.card} ${theme.textMuted}`}`}>
+                {notifications ? t('settings.on') : t('settings.off')}
+              </span>
+            </button>
+          )}
 
           {/* Sağlık tavsiyeleri toggle */}
           {typeof setHealthTips === 'function' && (

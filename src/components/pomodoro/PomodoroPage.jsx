@@ -1,10 +1,10 @@
 import React, { useState, useEffect, memo } from 'react';
 import { Play, Pause, FastForward, Square, Volume2, CloudRain, Waves, TreePine, WifiOff, Smartphone, Bell, BellOff } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
-import { LocalNotifications } from '@capacitor/local-notifications';
 import { useLanguage } from '../../i18n';
 import { fmt, fmtSecs } from '../../utils/formatters';
 import { serverNow } from '../../utils/serverTime';
+import { applyNotificationSetting } from '../../utils/notifications';
 import Logo from '../ui/Logo';
 import DragSlider from '../ui/DragSlider';
 import AquariumTimer from '../ui/AquariumTimer';
@@ -31,16 +31,8 @@ const PomodoroPage = memo(({
 
   const toggleBell = async () => {
     const newVal = !notifications;
-    if (newVal && isNativeApp) {
-      try {
-        const perm = await LocalNotifications.checkPermissions();
-        if (perm.display !== 'granted') {
-          await LocalNotifications.requestPermissions();
-        }
-      } catch (_) {}
-    }
+    await applyNotificationSetting(newVal);
     setNotifications(newVal);
-    localStorage.setItem('swim_notifications', String(newVal));
   };
 
   const circ     = 2 * Math.PI * 100;

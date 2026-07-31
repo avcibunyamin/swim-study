@@ -63,7 +63,7 @@ export default function ProfilePage({ theme, pagePadding, navPosition, changeNav
         </div>
       </div>
 
-      {showSettings && <SettingsModal theme={theme} themeKey={themeKey} changeTheme={changeTheme} onClose={() => setShowSettings(false)} openEditProfile={() => { setShowSettings(false); setShowEditProfile(true); }} openDeleteConfirm={() => { setShowSettings(false); setShowDeleteConfirm(true); }} handleLogout={handleLogout} isPasswordUser={isPasswordUser} weekStart={weekStart} setWeekStart={setWeekStart} healthTips={healthTips} setHealthTips={setHealthTips} />}
+      {showSettings && <SettingsModal theme={theme} themeKey={themeKey} changeTheme={changeTheme} onClose={() => setShowSettings(false)} openEditProfile={() => { setShowSettings(false); setShowEditProfile(true); }} openDeleteConfirm={() => { setShowSettings(false); setShowDeleteConfirm(true); }} handleLogout={handleLogout} isPasswordUser={isPasswordUser} weekStart={weekStart} setWeekStart={setWeekStart} notifications={notifications} setNotifications={setNotifications} healthTips={healthTips} setHealthTips={setHealthTips} />}
       {showEditProfile && <EditProfileModal theme={theme} userData={userData} setUserData={setUserData} onClose={() => setShowEditProfile(false)} />}
 
       {showDeleteConfirm && (
