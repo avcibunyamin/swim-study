@@ -167,6 +167,9 @@ export default {
   'summary.more': 'You studied {pct}% more than the previous period 🎉',
   'summary.less': 'You studied {pct}% less than the previous period',
   'summary.same': 'Same as the previous period',
+  'goal.title': 'Daily Goal',
+  'goal.off': 'Off',
+  'goal.reached': 'Daily goal reached! 🎯',
 
   // --- Profile ---
   'profile.titles': 'Titles',

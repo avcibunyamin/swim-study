@@ -167,6 +167,9 @@ export default {
   'summary.more': 'Você estudou {pct}% mais que o período anterior 🎉',
   'summary.less': 'Você estudou {pct}% menos que o período anterior',
   'summary.same': 'Igual ao período anterior',
+  'goal.title': 'Meta Diária',
+  'goal.off': 'Desligado',
+  'goal.reached': 'Meta diária alcançada! 🎯',
 
   // --- Profile ---
   'profile.titles': 'Títulos',

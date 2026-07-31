@@ -134,6 +134,7 @@ export default function useAuth() {
   const [theme, setTheme]             = useState('dark');
   const [notifications, setNotifications] = useState(true);
   const [healthTips, setHealthTips] = useState(true);
+  const [dailyGoalMins, setDailyGoalMins] = useState(0); // 0 = hedef kapalı
 
   // Ref to always have latest plans for safe persistence
   const plansRef = useRef(plans);
@@ -168,6 +169,9 @@ export default function useAuth() {
 
     const tips = localStorage.getItem('swim_health_tips');
     if (tips !== null) setHealthTips(tips === 'true');
+
+    const goal = parseInt(localStorage.getItem('swim_daily_goal') || '0', 10);
+    if (Number.isFinite(goal) && goal >= 0) setDailyGoalMins(goal);
 
     setAuthLoading(false);
   }, []);
@@ -284,6 +288,7 @@ export default function useAuth() {
     currentStreak, longestStreak,
     theme, setTheme, notifications, setNotifications,
     healthTips, setHealthTips,
+    dailyGoalMins, setDailyGoalMins,
     handleLogout, handleDeleteAccount, changeTheme, retryLoad,
     sessionInvalidated: false,
     createLocalUser,

@@ -167,6 +167,9 @@ export default {
   'summary.more': '前の期間より{pct}%多く学習しました 🎉',
   'summary.less': '前の期間より{pct}%少なく学習しました',
   'summary.same': '前の期間と同じです',
+  'goal.title': '1日の目標',
+  'goal.off': 'オフ',
+  'goal.reached': '今日の目標を達成しました！ 🎯',
 
   // --- Profile ---
   'profile.titles': '称号',

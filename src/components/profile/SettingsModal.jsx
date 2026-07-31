@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, X, ChevronRight, Palette, Edit3, KeyRound, Trash, ShieldCheck, Heart, Globe, Check, Bell, BellOff } from 'lucide-react';
+import { Settings, X, ChevronRight, Palette, Edit3, KeyRound, Trash, ShieldCheck, Heart, Globe, Check, Bell, BellOff, Target } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useLanguage } from '../../i18n';
 import { themes } from '../../constants/themes';
@@ -7,7 +7,7 @@ import { applyNotificationSetting } from '../../utils/notifications';
 
 const isNative = Capacitor.isNativePlatform();
 
-export default function SettingsModal({ theme, themeKey, changeTheme, onClose, openEditProfile, openDeleteConfirm, handleLogout, isPasswordUser, weekStart, setWeekStart, notifications, setNotifications, healthTips, setHealthTips }) {
+export default function SettingsModal({ theme, themeKey, changeTheme, onClose, openEditProfile, openDeleteConfirm, handleLogout, isPasswordUser, weekStart, setWeekStart, notifications, setNotifications, healthTips, setHealthTips, dailyGoalMins, setDailyGoalMins }) {
   const { t, lang, setLang } = useLanguage();
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [showLangPicker, setShowLangPicker] = useState(false);
@@ -85,6 +85,32 @@ export default function SettingsModal({ theme, themeKey, changeTheme, onClose, o
               ))}
             </div>
           </div>
+
+          {/* Günlük hedef */}
+          {typeof setDailyGoalMins === 'function' && (
+            <div className={`p-3 ${theme.input} rounded-xl border`}>
+              <span className="text-sm flex items-center gap-2 mb-2">
+                <Target size={16} className={dailyGoalMins ? 'text-teal-400' : theme.textMuted} />
+                {t('goal.title')}
+              </span>
+              <div className="flex gap-1.5">
+                {[0, 60, 120, 180, 240, 360].map(mins => (
+                  <button
+                    key={mins}
+                    onClick={() => {
+                      setDailyGoalMins(mins);
+                      try { localStorage.setItem('swim_daily_goal', String(mins)); } catch (_) {}
+                    }}
+                    className={`flex-1 py-2 rounded-lg text-xs ${
+                      dailyGoalMins === mins ? 'bg-teal-600 text-white' : `${theme.card} border ${theme.text}`
+                    }`}
+                  >
+                    {mins === 0 ? t('goal.off') : `${mins / 60}${t('time.h')}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Bildirimler toggle */}
           {typeof setNotifications === 'function' && (
