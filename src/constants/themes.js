@@ -27,7 +27,7 @@ export const themes = {
     key: 'light',
     bodyBg: '#eef4fb',
     statusBarColor: '#eef4fb',
-    bg: 'bg-gradient-to-br from-slate-100 via-sky-50 to-cyan-100',
+    bg: 'bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100',
     card: 'bg-white/70 backdrop-blur-xl border-white/60 shadow-lg shadow-slate-900/5',
     // Yoğun içerikli yüzeyler (ısı haritası gibi) için blur'suz varyant
     cardSolid: 'bg-white border-slate-200 shadow-lg shadow-slate-900/5',
@@ -42,16 +42,21 @@ export const themes = {
     nav: 'bg-white/70 backdrop-blur-2xl border-white/60 shadow-lg shadow-slate-900/5',
     modal: 'bg-white/85 backdrop-blur-2xl',
     slider: '#cbd5e1',
-    accent: 'text-teal-700',
-    accentSecondary: 'text-cyan-700',
-    accentBreak: 'text-emerald-700',
-    accentGrad: 'from-teal-600 to-cyan-600',
-    accentBg: 'bg-teal-600',
-    accentBgSecondary: 'bg-cyan-600',
-    accentRing: 'ring-teal-500',
-    accentBorder: 'border-teal-600/30',
-    accentBgSoft: 'bg-teal-50',
-    accentBorderSoft: 'border-teal-600/20',
+    // Lacivert. Turkuaz beyaz üstünde 1.86:1 veriyordu — AA eşiğinin (4.5)
+    // üçte biri, yani pratikte görünmüyordu. Bu tonlar 9-11:1 aralığında.
+    accent: 'text-blue-900',
+    accentSecondary: 'text-indigo-800',
+    accentBreak: 'text-emerald-800',
+    accentGrad: 'from-blue-900 to-indigo-700',
+    accentBg: 'bg-blue-900',
+    accentBgSecondary: 'bg-indigo-800',
+    accentRing: 'ring-blue-800',
+    accentBorder: 'border-blue-900/30',
+    accentBgSoft: 'bg-blue-50',
+    accentBorderSoft: 'border-blue-900/20',
+    // Isı haritası yoğunluk basamakları da temaya bağlı: aydınlıkta lacivert,
+    // koyu temalarda teal. Bileşende sabit kodlanırsa tema değişimi işlemez.
+    heatLevels: ['bg-blue-900/20', 'bg-blue-900/45', 'bg-blue-900/70', 'bg-blue-900'],
   },
 
   // Okyanus — eskiden slate-950/gray-950 idi, yani Gece temasından ayırt
@@ -82,6 +87,7 @@ export const themes = {
     accentBorder: 'border-teal-400/30',
     accentBgSoft: 'bg-teal-500/15',
     accentBorderSoft: 'border-teal-400/25',
+    heatLevels: ['bg-teal-500/25', 'bg-teal-500/50', 'bg-teal-500/75', 'bg-teal-500'],
   },
 
   // Gece — OLED ekranlarda siyah pikselin kapanması için saf siyah korunuyor.
@@ -110,5 +116,6 @@ export const themes = {
     accentBorder: 'border-teal-500/30',
     accentBgSoft: 'bg-teal-900/50',
     accentBorderSoft: 'border-teal-500/30',
+    heatLevels: ['bg-teal-500/25', 'bg-teal-500/50', 'bg-teal-500/75', 'bg-teal-500'],
   },
 };

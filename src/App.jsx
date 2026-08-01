@@ -182,6 +182,9 @@ export default function SwimApp() {
     const color = themeObj.bodyBg || '#000000';
     document.body.style.backgroundColor = color;
     document.documentElement.style.backgroundColor = color;
+    // index.css bu niteliğe bakarak vurgu paletini değiştirir; aydınlık temada
+    // turkuaz tonları laciverte çevrilir (beyaz üstünde okunmuyorlardı).
+    document.documentElement.setAttribute('data-theme', themeObj.key);
     if (isNative) {
       try { StatusBar.setStyle({ style: themeKey === 'light' ? Style.Dark : Style.Light }); } catch (e) {}
       try { window.webkit?.messageHandlers?.updateStatusBarStyle?.postMessage(themeKey === 'light' ? 'dark' : 'light'); } catch (e) {}
