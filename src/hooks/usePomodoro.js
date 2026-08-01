@@ -40,7 +40,6 @@ export default function usePomodoro({
   const timeLeftRef                   = useRef(timeLeft);
   const freeTimeRef                   = useRef(freeTime);
   const lastHealthTipsRef             = useRef({}); // { eyes: secs, water: secs, ... }
-  const transitionTimeoutRef          = useRef(null); // bitince mola/iş'e geçişi delay etmek için
   useEffect(() => { timeLeftRef.current = timeLeft; }, [timeLeft]);
   useEffect(() => { freeTimeRef.current = freeTime; }, [freeTime]);
 
@@ -190,14 +189,12 @@ export default function usePomodoro({
               });
             }
             lastHealthTipsRef.current = {}; // sağlık tavsiyesi sayaçlarını sıfırla
-            // 3 saniye sonra molaya geç (Live Activity'deki "bitti!" mesajını görmek için)
-            transitionTimeoutRef.current = setTimeout(() => {
-              if (cancelled) return;
-              setIsOnBreak(true);
-              setTimeLeft(breakMins * 60);
-              setSessionWorked(0);
-              pausedSessionWorkedRef.current = 0;
-            }, 3000);
+            // Molaya hemen geç. Araya gecikme konursa sayaç o süre boyunca donuk
+            // görünür ve mola gecikmeli başlar; "bitti" mesajını zaten toast veriyor.
+            setIsOnBreak(true);
+            setTimeLeft(breakMins * 60);
+            setSessionWorked(0);
+            pausedSessionWorkedRef.current = 0;
           } else {
             // Mola bitti — Live Activity'de "Mola bitti!" göster (3sn)
             if (isNative) {
@@ -208,12 +205,9 @@ export default function usePomodoro({
               const body  = (t && t('pomodoro.breakDoneBody'))  || 'Çalışmaya devam.';
               showToast('info', body, title);
             }
-            transitionTimeoutRef.current = setTimeout(() => {
-              if (cancelled) return;
-              setIsRunning(false);
-              setIsOnBreak(false);
-              setTimeLeft(workMins * 60);
-            }, 3000);
+            setIsRunning(false);
+            setIsOnBreak(false);
+            setTimeLeft(workMins * 60);
           }
           timerStartedAtRef.current = null;
         }
@@ -223,10 +217,6 @@ export default function usePomodoro({
     return () => {
       cancelled = true;
       clearInterval(i);
-      if (transitionTimeoutRef.current) {
-        clearTimeout(transitionTimeoutRef.current);
-        transitionTimeoutRef.current = null;
-      }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning, isOnBreak, isFreeMode, workMins, breakMins, notifications, healthTips, user?.id]);
@@ -323,9 +313,9 @@ export default function usePomodoro({
       });
 
       // 2) Eğer şu an çalışmadaysak, arka planda otomatik geçecek molanın da
-      //    bitişi için ikinci bildirim. (3sn transition + breakMins)
+      //    bitişi için ikinci bildirim. Mola çalışma biter bitmez başlar.
       if (!isOnBreakRef.current) {
-        const breakEndMs = phaseEndMs + 3000 + (breakMinsRef.current * 60 * 1000);
+        const breakEndMs = phaseEndMs + (breakMinsRef.current * 60 * 1000);
         notifs.push({
           id: SESSION_END_NOTIF_ID_2,
           title: (tt && tt('pomodoro.breakDoneNotif')) || 'Mola bitti!',
