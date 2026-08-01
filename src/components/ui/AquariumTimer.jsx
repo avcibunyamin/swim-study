@@ -153,9 +153,16 @@ const BUBBLE_KEYFRAMES = `
     45%  { transform: translateY(-28px) translateX(4px);  opacity: 0.50; }
     100% { transform: translateY(-70px) translateX(-3px); opacity: 0;    }
   }
+  /* Yosun salınımı. Dönüşün yanına hafif bir skew eklenir: uç, tabandan geç
+     kalır ve hareket katı bir sallanma yerine akıntıda bükülme gibi okunur.
+     İki varyant, aynı anda başlayıp senkron sallanmasınlar diye. */
   @keyframes swayWeed {
-    0%, 100% { transform: rotate(-9deg); }
-    50%      { transform: rotate(9deg);  }
+    0%, 100% { transform: rotate(-5deg) skewX(3deg);  }
+    50%      { transform: rotate(5deg)  skewX(-3deg); }
+  }
+  @keyframes swayWeedSoft {
+    0%, 100% { transform: rotate(-3deg) skewX(2deg);  }
+    50%      { transform: rotate(3deg)  skewX(-2deg); }
   }
   @keyframes waterShimmer {
     0%, 100% { opacity: 0.05; }
@@ -168,6 +175,54 @@ const BUBBLES = [
   { b: 18, l: '55%', sz: 4, delay: '1.7s', dur: '3.5s' },
   { b: 27, l: '45%', sz: 6, delay: '3.0s', dur: '5.2s' },
   { b: 14, l: '41%', sz: 3, delay: '4.2s', dur: '3.9s' },
+];
+
+// ─── Yosun ───────────────────────────────────────────────────────────────────
+// Emoji yerine SVG: 🌿 her platformda farklı çiziliyordu ve suyun içinde
+// yaprak gibi duruyordu. Bunlar tabanda geniş, uca doğru incelen ve hafif S
+// kıvrımı olan şeritler — akvaryum bitkisi siluetine yakın.
+//
+// Salınım saf CSS transform ile; her kare için JS çalışmıyor. transform-origin
+// tabanda olduğu için kök sabit kalır, hareket yukarı doğru artar.
+
+const FROND_PATHS = [
+  // Geniş, belirgin kıvrımlı
+  'M10,60 C6,46 13,36 9,24 C7,17 10,9 10,0 C12,9 14,17 12,25 C9,37 14,47 10,60 Z',
+  // İnce, daha dik
+  'M10,60 C8,47 12,38 10,27 C9,19 10,10 10,0 C11,10 12,19 11,28 C10,39 12,48 10,60 Z',
+];
+
+function Frond({ h, w, left, right, color, dur, delay, variant = 0, anim = 'swayWeed' }) {
+  return (
+    <svg
+      /* Şerit yolun x aralığı ~6-14; viewBox oraya kırpılmazsa çizim
+         genişliğin yalnızca %40'ını kaplar ve kıl gibi görünür. */
+      viewBox="5.5 0 9 60"
+      preserveAspectRatio="none"
+      width={w}
+      height={h}
+      style={{
+        position: 'absolute',
+        bottom: 4,
+        ...(left  !== undefined ? { left }  : {}),
+        ...(right !== undefined ? { right } : {}),
+        transformOrigin: 'bottom center',
+        animation: `${anim} ${dur} ease-in-out ${delay} infinite`,
+        overflow: 'visible',
+      }}
+    >
+      <path d={FROND_PATHS[variant]} fill={color} />
+    </svg>
+  );
+}
+
+// Arkadakiler daha koyu ve saydam: derinlik hissi için.
+const SEAWEED = [
+  { h: 34, w: 13, left:  '13%', color: 'rgba(6,95,70,0.85)',    dur: '5.2s', delay: '0s',   variant: 1, anim: 'swayWeedSoft' },
+  { h: 48, w: 18, left:  '19%', color: 'rgba(16,185,129,0.95)', dur: '3.9s', delay: '0.3s', variant: 0 },
+  { h: 27, w: 12, left:  '27%', color: 'rgba(52,211,153,0.85)', dur: '4.6s', delay: '1.1s', variant: 1 },
+  { h: 39, w: 15, right: '15%', color: 'rgba(6,95,70,0.85)',    dur: '4.9s', delay: '0.6s', variant: 0, anim: 'swayWeedSoft' },
+  { h: 25, w: 11, right: '23%', color: 'rgba(16,185,129,0.90)', dur: '3.5s', delay: '1.6s', variant: 1 },
 ];
 
 // ─── Ana bileşen ─────────────────────────────────────────────────────────────
@@ -199,23 +254,14 @@ export default function AquariumTimer({ children }) {
           animation: 'waterShimmer 3.8s ease-in-out infinite',
         }} />
 
-        {/* Yosun sol */}
+        {/* Taban — yosunların köklendiği kum şeridi */}
         <div style={{
-          position: 'absolute', bottom: 8, left: '20%',
-          fontSize: 17, lineHeight: 1,
-          transformOrigin: 'bottom center',
-          animation: 'swayWeed 3.4s ease-in-out infinite',
-          userSelect: 'none',
-        }}>🌿</div>
+          position: 'absolute', left: 0, right: 0, bottom: 0, height: 14,
+          background: 'linear-gradient(to top, rgba(8,47,73,0.75), transparent)',
+        }} />
 
-        {/* Yosun sağ */}
-        <div style={{
-          position: 'absolute', bottom: 8, right: '18%',
-          fontSize: 12, lineHeight: 1,
-          transformOrigin: 'bottom center',
-          animation: 'swayWeed 2.9s ease-in-out infinite reverse',
-          userSelect: 'none',
-        }}>🌿</div>
+        {/* Yosunlar */}
+        {SEAWEED.map((s, i) => <Frond key={i} {...s} />)}
 
         {/* Ana balık — teal */}
         <Fish
