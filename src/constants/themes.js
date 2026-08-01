@@ -29,6 +29,11 @@ export const themes = {
     statusBarColor: '#eef4fb',
     bg: 'bg-gradient-to-br from-slate-100 via-sky-50 to-cyan-100',
     card: 'bg-white/70 backdrop-blur-xl border-white/60 shadow-lg shadow-slate-900/5',
+    // Yoğun içerikli yüzeyler (ısı haritası gibi) için blur'suz varyant
+    cardSolid: 'bg-white border-slate-200 shadow-lg shadow-slate-900/5',
+    // Isı haritasının boş hücresi. theme.input KULLANILMAMALI: içindeki
+    // backdrop-blur 364 hücrede 364 compositor katmanı açar.
+    heatEmpty: 'bg-slate-200/70',
     text: 'text-slate-900',
     // slate-500 beyaz üstünde 4.76:1 veriyordu — AA eşiğini (4.5) kıl payı
     // geçiyor ve etiketlerin çoğu 10px. slate-600 ile 7.4:1'e çıkıyor.
@@ -57,6 +62,8 @@ export const themes = {
     statusBarColor: '#04121f',
     bg: 'bg-gradient-to-br from-[#04121f] via-[#062a3d] to-[#02141c]',
     card: 'bg-cyan-950/40 backdrop-blur-xl border-cyan-400/15 shadow-lg shadow-black/40',
+    cardSolid: 'bg-[#07202e] border-cyan-400/15 shadow-lg shadow-black/40',
+    heatEmpty: 'bg-cyan-400/10',
     text: 'text-cyan-50',
     // /45 zemin üstünde 3.59:1 veriyordu, AA eşiğinin (4.5) altında.
     // /70 ile ~5.4:1'e çıkıyor ve hâlâ ana metinden belirgin şekilde soluk.
@@ -85,6 +92,8 @@ export const themes = {
     statusBarColor: '#000000',
     bg: 'bg-black',
     card: 'bg-zinc-900/60 backdrop-blur-xl border-white/10',
+    cardSolid: 'bg-zinc-900 border-white/10',
+    heatEmpty: 'bg-zinc-800',
     text: 'text-gray-100',
     textMuted: 'text-gray-500',
     input: 'bg-zinc-900/70 backdrop-blur-md border-white/10',

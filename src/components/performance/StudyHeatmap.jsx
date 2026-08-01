@@ -4,6 +4,8 @@ import { useLanguage } from '../../i18n';
 import { localDateStr, fmtShort } from '../../utils/formatters';
 
 const WEEKS = 52;
+const CELL  = 12; // px
+const GAP   = 3;  // px
 
 // Günlük süreyi 0-4 arası yoğunluk seviyesine çevir
 function levelOf(secs) {
@@ -29,7 +31,10 @@ const StudyHeatmap = ({ theme, studyHistory, weekStart }) => {
 
   const monthLabels = ta('stats.monthLabels');
 
-  const { columns, total, activeDays } = useMemo(() => {
+  // 364 hücre tek seferde mount ediliyor; hesabı olabildiğince ucuz tut.
+  // Hücreler düz bir dizi olarak üretilir ve CSS grid'e sütun sütun akıtılır —
+  // her hafta için ayrı sarmalayıcı div açmak 52 fazladan düğüm demekti.
+  const { cells, months, total, activeDays } = useMemo(() => {
     const byDate = new Map((studyHistory || []).map(h => [h.date, h.secs]));
 
     const today = new Date();
@@ -39,40 +44,62 @@ const StudyHeatmap = ({ theme, studyHistory, weekStart }) => {
     // Satır indeksi: haftanın ilk günü ayara göre değişir (Pzt=1 / Paz=0)
     const rowOf = d => (d.getDay() - weekStart + 7) % 7;
 
-    // Izgara, içinde bulunulan haftanın başından 52 hafta geriye uzanır
     const gridStart = new Date(today);
     gridStart.setDate(today.getDate() - rowOf(today) - (WEEKS - 1) * 7);
 
-    const cols = [];
+    const cells  = [];
+    const months = [];
     let total = 0;
     let activeDays = 0;
+    let lastMonth = -1;
 
     for (let w = 0; w < WEEKS; w++) {
-      const days = [];
       for (let r = 0; r < 7; r++) {
         const d = new Date(gridStart);
         d.setDate(gridStart.getDate() + w * 7 + r);
         const key  = localDateStr(d);
         const secs = byDate.get(key) || 0;
         const future = key > todayKey;
-        if (!future && secs > 0) { total += secs; activeDays++; }
-        days.push({ key, secs, future, month: d.getMonth(), dayOfMonth: d.getDate() });
-      }
-      cols.push(days);
-    }
-    return { columns: cols, total, activeDays };
-  }, [studyHistory, weekStart]);
 
-  // Açılışta en sağa (bugüne) kaydır
+        if (!future && secs > 0) { total += secs; activeDays++; }
+
+        // Ay etiketi yalnızca ay değiştiğinde, sütunun ilk gününde üretilir.
+        // Önceden her sütun için boş bir div render ediliyordu (52 düğüm),
+        // şimdi yılda ~12 etiket var.
+        if (r === 0 && d.getMonth() !== lastMonth) {
+          lastMonth = d.getMonth();
+          months.push({ col: w + 1, label: monthLabels[lastMonth] });
+        }
+
+        cells.push({ key, lvl: future ? -1 : levelOf(secs) });
+      }
+    }
+    return { cells, months, total, activeDays };
+  }, [studyHistory, weekStart, monthLabels]);
+
+  // Açılışta en sağa (bugüne) kaydır. rAF içinde yapılır; render sırasında
+  // scrollWidth okumak zorunlu senkron layout tetikler ve ilk kareyi geciktirir.
   useEffect(() => {
     const el = scrollRef.current;
-    if (el) el.scrollLeft = el.scrollWidth;
-  }, [columns]);
+    if (!el) return;
+    const id = requestAnimationFrame(() => { el.scrollLeft = el.scrollWidth; });
+    return () => cancelAnimationFrame(id);
+  }, [cells]);
+
+  const gridStyle = {
+    display: 'grid',
+    gridAutoFlow: 'column',
+    gridTemplateRows: `repeat(7, ${CELL}px)`,
+    gridAutoColumns: `${CELL}px`,
+    gap: `${GAP}px`,
+  };
 
   return (
-    <div className={`${theme.card} rounded-2xl p-4 mb-4 border`}>
+    // Bu kartta bilerek backdrop-blur yok: 364 hücrelik yoğun bir yüzeyi
+    // bulanıklaştırmak her kaydırmada yeniden kompozisyon maliyeti çıkarıyor.
+    <div className={`${theme.cardSolid || theme.card} rounded-2xl p-4 mb-4 border`}>
       <div className="flex justify-between items-center mb-3">
-        <h3 className="font-bold text-teal-400 flex items-center gap-2">
+        <h3 className={`font-bold ${theme.accent} flex items-center gap-2`}>
           <CalendarDays size={18} />{t('heatmap.title')}
         </h3>
         <span className={`text-[11px] ${theme.textMuted}`}>
@@ -82,41 +109,38 @@ const StudyHeatmap = ({ theme, studyHistory, weekStart }) => {
 
       <div ref={scrollRef} className="overflow-x-auto pb-1">
         <div className="inline-block min-w-full">
-          {/* Ay etiketleri */}
-          <div className="flex gap-[3px] mb-1">
-            {columns.map((days, i) => {
-              const prev = columns[i - 1];
-              const isNewMonth = i === 0 || prev[0].month !== days[0].month;
-              return (
-                <div key={i} className="w-[12px] shrink-0">
-                  {isNewMonth && (
-                    <span className={`text-[9px] ${theme.textMuted} whitespace-nowrap`}>
-                      {monthLabels[days[0].month]}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+          {/* Ay etiketleri — sütun numarasına göre hizalanır */}
+          <div
+            className="mb-1"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: `repeat(${WEEKS}, ${CELL}px)`,
+              gap: `${GAP}px`,
+              height: '12px',
+            }}
+          >
+            {months.map(m => (
+              <span
+                key={m.col}
+                className={`text-[9px] ${theme.textMuted} whitespace-nowrap`}
+                style={{ gridColumn: m.col }}
+              >
+                {m.label}
+              </span>
+            ))}
           </div>
 
-          {/* Izgara */}
-          <div className="flex gap-[3px]">
-            {columns.map((days, i) => (
-              <div key={i} className="flex flex-col gap-[3px] shrink-0">
-                {days.map(d => {
-                  if (d.future) {
-                    return <div key={d.key} className="w-[12px] h-[12px]" />;
-                  }
-                  const lvl = levelOf(d.secs);
-                  return (
-                    <div
-                      key={d.key}
-                      title={`${d.key} — ${d.secs ? fmtShort(d.secs, t) : t('heatmap.noStudy')}`}
-                      className={`w-[12px] h-[12px] rounded-[2px] ${lvl === 0 ? `${theme.input} border` : LEVEL_BG[lvl]}`}
-                    />
-                  );
-                })}
-              </div>
+          {/* Izgara — tek grid, sütun sütun akar */}
+          <div style={gridStyle}>
+            {cells.map(c => (
+              <div
+                key={c.key}
+                className={
+                  c.lvl < 0 ? ''                                  // gelecek gün: boş
+                  : c.lvl === 0 ? `rounded-[2px] ${theme.heatEmpty}`
+                  : `rounded-[2px] ${LEVEL_BG[c.lvl]}`
+                }
+              />
             ))}
           </div>
         </div>
@@ -132,7 +156,7 @@ const StudyHeatmap = ({ theme, studyHistory, weekStart }) => {
           {[0, 1, 2, 3, 4].map(l => (
             <div
               key={l}
-              className={`w-[10px] h-[10px] rounded-[2px] ${l === 0 ? `${theme.input} border` : LEVEL_BG[l]}`}
+              className={`w-[10px] h-[10px] rounded-[2px] ${l === 0 ? theme.heatEmpty : LEVEL_BG[l]}`}
             />
           ))}
           <span className={`text-[9px] ${theme.textMuted}`}>{t('heatmap.more')}</span>
