@@ -106,7 +106,6 @@ export default function SwimApp() {
     remoteDevice, remoteStart, remotePausedAt, pausedByOffline,
     selectPreset, handleStartStop, handleSkipToBreak,
     handleFinish, confirmAction: pomodoroConfirmAction, handleSliderChange,
-    cheatNotification, setCheatNotification,
   } = pomodoroHook;
 
   // Presence hook (online/offline)
@@ -286,7 +285,6 @@ export default function SwimApp() {
             isOnline={isOnline} user={user} getPresetLabel={getPresetLabel}
             studyHistory={studyHistory}
             remoteDevice={remoteDevice} remoteStart={remoteStart} remotePausedAt={remotePausedAt} pausedByOffline={pausedByOffline}
-            cheatNotification={cheatNotification} setCheatNotification={setCheatNotification}
           />
         )}
         {page === 'performance' && (

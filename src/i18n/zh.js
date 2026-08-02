@@ -108,7 +108,6 @@ export default {
   'pomodoro.cancel': '取消',
   'pomodoro.yes': '是',
   'pomodoro.workInProgress': '工作进行中！',
-  'pomodoro.cheatDetected': '⚠️ 检测到时钟更改，会话已停止。',
   'pomodoro.remoteActiveSession': '其他设备上有活跃会话',
   'pomodoro.remoteDevice': '是您的活跃设备',
   'pomodoro.remoteStop': '请先停止该设备上的会话以在此继续',

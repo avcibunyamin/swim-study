@@ -108,7 +108,6 @@ export default {
   'pomodoro.cancel': '취소',
   'pomodoro.yes': '예',
   'pomodoro.workInProgress': '작업 진행 중!',
-  'pomodoro.cheatDetected': '⚠️ 시계 변경이 감지되어 세션이 중단되었습니다.',
   'pomodoro.remoteActiveSession': '다른 기기에서 활성 세션 중',
   'pomodoro.remoteDevice': '이(가) 활성 기기입니다',
   'pomodoro.remoteStop': '여기서 계속하려면 해당 기기의 세션을 먼저 중단하세요',

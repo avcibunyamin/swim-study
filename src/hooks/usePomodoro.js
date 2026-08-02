@@ -33,7 +33,6 @@ export default function usePomodoro({
   const [sessionWorked, setSessionWorked] = useState(0);
   const [sound, setSound]             = useState(null);
   const audioRef                      = useRef(null);
-  const [cheatNotification, setCheatNotification] = useState(null);
 
   const timerStartedAtRef             = useRef(null);
   const pausedSessionWorkedRef        = useRef(0);
@@ -524,6 +523,5 @@ export default function usePomodoro({
     remoteDevice: null, remoteStart: null, remotePausedAt: null, pausedByOffline: false,
     selectPreset, handleStartStop, handleSkipToBreak,
     handleFinish, confirmAction, handleSliderChange,
-    cheatNotification, setCheatNotification,
   };
 }

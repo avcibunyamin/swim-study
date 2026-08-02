@@ -108,7 +108,6 @@ export default {
   'pomodoro.cancel': 'Cancelar',
   'pomodoro.yes': 'Sí',
   'pomodoro.workInProgress': '¡El trabajo está en curso!',
-  'pomodoro.cheatDetected': '⚠️ Cambio de reloj detectado, sesión detenida.',
   'pomodoro.remoteActiveSession': 'Sesión activa en otro dispositivo',
   'pomodoro.remoteDevice': 'es tu dispositivo activo',
   'pomodoro.remoteStop': 'Detén la sesión en ese dispositivo para continuar aquí',

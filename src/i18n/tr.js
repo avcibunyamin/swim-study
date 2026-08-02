@@ -108,7 +108,6 @@ export default {
   'pomodoro.cancel': 'Vazgeç',
   'pomodoro.yes': 'Evet',
   'pomodoro.workInProgress': 'Çalışma devam ediyor!',
-  'pomodoro.cheatDetected': '⚠️ Saat değişikliği tespit edildi, oturum durduruldu.',
   'pomodoro.remoteActiveSession': 'Başka cihazda aktif oturum',
   'pomodoro.remoteDevice': 'cihazında çalışıyorsun',
   'pomodoro.remoteStop': 'Devam etmek için diğer cihazda önce durdur',

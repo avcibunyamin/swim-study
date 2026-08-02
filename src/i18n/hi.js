@@ -108,7 +108,6 @@ export default {
   'pomodoro.cancel': 'रद्द करें',
   'pomodoro.yes': 'हाँ',
   'pomodoro.workInProgress': 'कार्य जारी है!',
-  'pomodoro.cheatDetected': '⚠️ घड़ी बदलाव का पता चला, सत्र रोक दिया गया।',
   'pomodoro.remoteActiveSession': 'दूसरे डिवाइस पर सक्रिय सत्र',
   'pomodoro.remoteDevice': 'आपका सक्रिय डिवाइस है',
   'pomodoro.remoteStop': 'यहाँ जारी रखने के लिए पहले उस डिवाइस पर सत्र रोकें',
