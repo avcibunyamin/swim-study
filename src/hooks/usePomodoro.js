@@ -64,9 +64,14 @@ export default function usePomodoro({
   useEffect(() => { tRef.current = t; }, [t]);
 
   // ─── Çalışma süresini localStorage'a kaydet (gece yarısı bölme destekli) ──
-  const saveStudyTime = useCallback(async (secs) => {
+  //
+  // endAtMs: seansın gerçekte bittiği an. Varsayılan "şimdi", ama arka planda
+  // tamamlanmış bir seans daha sonra kaydedildiğinde bu şart: aksi halde
+  // başlangıç kayıt anından geriye hesaplanır ve 23:55'te başlayan bir çalışma,
+  // uygulama ertesi sabah açıldığında tamamen o güne yazılır.
+  const saveStudyTime = useCallback(async (secs, endAtMs) => {
     if (!user || secs < 1) return;
-    const now     = new Date();
+    const now     = new Date(endAtMs ?? Date.now());
     const dateStr = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
     // Oturum başlangıcını hesapla
@@ -266,7 +271,22 @@ export default function usePomodoro({
     updateLiveActivity({ timeLeft: 0, totalSecs: 0, isOnBreak: false, isFreeMode: true, freeTime, isRunning: true });
   }, [freeTime]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // TimerPlugin kaldırıldı — LiveActivityService aynı işi yapıyor
+  // ─── Oturum bitince Live Activity'yi kapat ────────────────────────────────
+  // endLiveActivity import ediliyordu ama hiçbir yerden çağrılmıyordu: servis
+  // bir kez başladıktan sonra hiç durmuyordu. Sonuç, setOngoing(true) yüzünden
+  // kaydırılarak kapatılamayan kalıcı bir bildirim ve sürekli açık kalan bir
+  // foreground servis — timer çalışmadığı hâlde.
+  //
+  // Duraklatılmış oturumda bildirim bilerek korunur (kullanıcı devam etsin
+  // diye); yalnızca tamamen boşta kalındığında kapatılır. Uygulama açılışında
+  // da çalıştığı için önceki oturumdan kalan bildirimi temizler.
+  useEffect(() => {
+    if (!isNative) return;
+    if (isRunning || isOnBreak) return;
+    if (sessionWorked > 0) return;
+    if (isFreeMode && freeTime > 0) return;
+    endLiveActivity();
+  }, [isRunning, isOnBreak, sessionWorked, isFreeMode, freeTime]);
 
   // ─── Eski timer bildirimlerini uygulama açılışında temizle ─────────────────
   useEffect(() => {
@@ -418,6 +438,22 @@ export default function usePomodoro({
             setTimeLeft(newTimeLeft);
             setSessionWorked(newWorked);
             if (snap.isRunning) setIsRunning(true);
+          } else if (snap.isRunning) {
+            // Çalışma fazı uygulama kapalıyken doldu. Önceden bu dal boştu ve
+            // o seansın tamamı sessizce kayboluyordu.
+            //
+            // Bitiş anı kayıt anı değil, snapshot + kalan süre: 23:55'te
+            // başlayıp 00:20'de biten bir seans ertesi sabah açılsa bile
+            // 5 dk önceki güne, 20 dk ertesi güne yazılmalı.
+            const worked = snap.sessionWorked + snap.timeLeft;
+            const endAt  = snap.savedAt + snap.timeLeft * 1000;
+            if (worked > 0) {
+              saveStudyTime(worked, endAt).then(() => {
+                setTotalStudySecs(prev => prev + worked);
+              });
+            }
+            setTimeLeft(snap.workMins * 60);
+            setSessionWorked(0);
           }
         }
       }
