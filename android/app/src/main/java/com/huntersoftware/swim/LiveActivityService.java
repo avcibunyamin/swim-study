@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.content.res.ColorStateList;
 import android.view.View;
 import android.widget.RemoteViews;
 import androidx.core.app.NotificationCompat;
@@ -196,22 +195,15 @@ public class LiveActivityService extends Service {
             }
         }
 
-        // ── İlerleme çubuğu (sadece expanded) ───────────────────────────────
-        if (isFreeMode || finishedType != 0) {
-            bigViews.setViewVisibility(R.id.progress_bar, View.GONE);
-            bigViews.setViewVisibility(R.id.pct_label, View.GONE);
-        } else {
-            bigViews.setViewVisibility(R.id.progress_bar, View.VISIBLE);
-            bigViews.setViewVisibility(R.id.pct_label, View.VISIBLE);
-            int progress = (int)(1000.0 * (totalSecs - timeLeft) / totalSecs);
-            progress = Math.max(0, Math.min(1000, progress));
-            bigViews.setProgressBar(R.id.progress_bar, 1000, progress, false);
-            bigViews.setTextViewText(R.id.pct_label, (progress / 10) + "%");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                bigViews.setColorStateList(R.id.progress_bar, "setProgressTintList",
-                    ColorStateList.valueOf(accent));
-            }
-        }
+        // ── İlerleme çubuğu ──────────────────────────────────────────────────
+        // Kalıcı olarak gizli. Chronometer'ı sistem her saniye kendisi çiziyor,
+        // ama çubuk ve yüzde yalnızca bildirim yeniden oluşturulduğunda
+        // güncelleniyordu. Sayaç akarken çubuğun donuk kalması senkron
+        // bozukluğu gibi görünüyordu. Her saniye notify() çağırmak bunu
+        // çözerdi ama pil maliyeti çıkarır ve sistem bildirim güncellemelerini
+        // zaten kısıtlar — o yüzden çubuk kaldırıldı, sayaç tek başına kaldı.
+        bigViews.setViewVisibility(R.id.progress_bar, View.GONE);
+        bigViews.setViewVisibility(R.id.pct_label, View.GONE);
 
         for (RemoteViews rv : new RemoteViews[]{views, bigViews}) {
             rv.setViewVisibility(R.id.finished_text, View.GONE);
