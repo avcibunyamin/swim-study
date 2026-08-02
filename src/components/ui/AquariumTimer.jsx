@@ -217,12 +217,14 @@ function Frond({ h, w, left, right, color, dur, delay, variant = 0, anim = 'sway
 }
 
 // Arkadakiler daha koyu ve saydam: derinlik hissi için.
+// Süreler bilinçli olarak uzun: su ağır bir ortam, hızlı salınım havada
+// sallanan yaprak gibi duruyordu. Uzun süreler ayrıca daha az kare üretir.
 const SEAWEED = [
-  { h: 34, w: 13, left:  '13%', color: 'rgba(6,95,70,0.85)',    dur: '5.2s', delay: '0s',   variant: 1, anim: 'swayWeedSoft' },
-  { h: 48, w: 18, left:  '19%', color: 'rgba(16,185,129,0.95)', dur: '3.9s', delay: '0.3s', variant: 0 },
-  { h: 27, w: 12, left:  '27%', color: 'rgba(52,211,153,0.85)', dur: '4.6s', delay: '1.1s', variant: 1 },
-  { h: 39, w: 15, right: '15%', color: 'rgba(6,95,70,0.85)',    dur: '4.9s', delay: '0.6s', variant: 0, anim: 'swayWeedSoft' },
-  { h: 25, w: 11, right: '23%', color: 'rgba(16,185,129,0.90)', dur: '3.5s', delay: '1.6s', variant: 1 },
+  { h: 34, w: 13, left:  '13%', color: 'rgba(6,95,70,0.85)',    dur: '11s',  delay: '0s',   variant: 1, anim: 'swayWeedSoft' },
+  { h: 48, w: 18, left:  '19%', color: 'rgba(16,185,129,0.95)', dur: '8.5s', delay: '0.7s', variant: 0 },
+  { h: 27, w: 12, left:  '27%', color: 'rgba(52,211,153,0.85)', dur: '9.8s', delay: '2.4s', variant: 1 },
+  { h: 39, w: 15, right: '15%', color: 'rgba(6,95,70,0.85)',    dur: '10.4s',delay: '1.3s', variant: 0, anim: 'swayWeedSoft' },
+  { h: 25, w: 11, right: '23%', color: 'rgba(16,185,129,0.90)', dur: '7.6s', delay: '3.2s', variant: 1 },
 ];
 
 // ─── Ana bileşen ─────────────────────────────────────────────────────────────

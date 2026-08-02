@@ -63,20 +63,24 @@ export const themes = {
   // edilemiyordu. Artık gerçekten mavi: derin lacivertten teal'e inen bir zemin.
   ocean: {
     key: 'ocean',
-    bodyBg: '#04121f',
-    statusBarColor: '#04121f',
-    bg: 'bg-gradient-to-br from-[#04121f] via-[#062a3d] to-[#02141c]',
-    card: 'bg-cyan-950/40 backdrop-blur-xl border-cyan-400/15 shadow-lg shadow-black/40',
-    cardSolid: 'bg-[#07202e] border-cyan-400/15 shadow-lg shadow-black/40',
-    heatEmpty: 'bg-cyan-400/10',
+    bodyBg: '#03101c',
+    statusBarColor: '#03101c',
+    // Yüzeyden dibe inen ışık: üstte açık teal, altta karanlık. Köşeden köşeye
+    // gradyan yerine dikey olması derinlik hissini veren şey — eskiden tüm
+    // yüzeyler birbirine çok yakın tonlardaydı ve tek renk gibi okunuyordu.
+    bg: 'bg-gradient-to-b from-[#0b3a52] via-[#062434] to-[#03101c]',
+    card: 'bg-teal-900/25 backdrop-blur-xl border-teal-300/15 shadow-lg shadow-black/40',
+    cardSolid: 'bg-[#0a2838] border-teal-300/15 shadow-lg shadow-black/40',
+    heatEmpty: 'bg-teal-300/10',
     text: 'text-cyan-50',
     // /45 zemin üstünde 3.59:1 veriyordu, AA eşiğinin (4.5) altında.
     // /70 ile ~5.4:1'e çıkıyor ve hâlâ ana metinden belirgin şekilde soluk.
     textMuted: 'text-cyan-200/70',
-    input: 'bg-cyan-950/50 backdrop-blur-md border-cyan-400/15',
-    nav: 'bg-[#04121f]/75 backdrop-blur-2xl border-cyan-400/15',
-    modal: 'bg-[#062331]/90 backdrop-blur-2xl',
-    slider: '#0b3a4d',
+    // Girdiler karttan DAHA KOYU: içeri gömülü görünsün, kart öne çıksın.
+    input: 'bg-[#041824]/70 backdrop-blur-md border-teal-300/10',
+    nav: 'bg-[#03101c]/85 backdrop-blur-2xl border-teal-300/12',
+    modal: 'bg-[#0a2838]/92 backdrop-blur-2xl',
+    slider: '#0d3446',
     accent: 'text-teal-300',
     accentSecondary: 'text-cyan-300',
     accentBreak: 'text-emerald-300',
