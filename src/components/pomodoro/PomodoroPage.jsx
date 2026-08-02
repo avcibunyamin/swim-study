@@ -2,7 +2,7 @@ import React, { useState, useEffect, memo } from 'react';
 import { Play, Pause, FastForward, Square, Volume2, CloudRain, Waves, TreePine, WifiOff, Smartphone, Bell, BellOff } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useLanguage } from '../../i18n';
-import { fmt, fmtSecs } from '../../utils/formatters';
+import { fmt, fmtSecs, localDateStr } from '../../utils/formatters';
 import { serverNow } from '../../utils/serverTime';
 import { applyNotificationSetting } from '../../utils/notifications';
 import Logo from '../ui/Logo';
@@ -25,7 +25,6 @@ const PomodoroPage = memo(({
   sound, setSound, audioRef,
   isOnline, user, studyHistory,
   remoteDevice, remoteStart, remotePausedAt, pausedByOffline,
-  cheatNotification, setCheatNotification,
 }) => {
   const { t } = useLanguage();
 
@@ -40,7 +39,7 @@ const PomodoroPage = memo(({
   const progress   = isFreeMode ? 0 : isOnBreak
     ? (timeLeft / totalSecs) * 100
     : ((totalSecs - timeLeft) / totalSecs) * 100;
-  const today       = new Date().toISOString().split('T')[0];
+  const today       = localDateStr();
   const todaySecs   = (studyHistory || []).find(h => h.date === today)?.secs || 0;
   const displayTime = isFreeMode ? freeTime : timeLeft;
   // Oturum başlatılmışsa (çalışıyor VEYA duraklatılmış) süre ayarlarını kilitle
@@ -104,13 +103,6 @@ const PomodoroPage = memo(({
         </button>
       </div>
 
-
-      {cheatNotification && (
-        <div className="bg-red-600/90 rounded-xl p-3 mb-4 text-white text-sm text-center animate-fade-in cursor-pointer backdrop-blur-sm"
-          onClick={() => setCheatNotification(null)}>
-          {cheatNotification}
-        </div>
-      )}
 
       {notification && (() => {
         const isError   = notification.includes('kesildi') || notification.includes('çıkarıl');
