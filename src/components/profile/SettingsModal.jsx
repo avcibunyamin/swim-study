@@ -37,7 +37,7 @@ export default function SettingsModal({ theme, themeKey, changeTheme, onClose, o
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className={`${theme.modal} rounded-2xl p-5 w-full max-w-md border border-slate-600 max-h-[80vh] overflow-y-auto`} onClick={e => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-teal-400"><Settings size={20} className="inline mr-1" />{t('settings.title')}</h3><button onClick={onClose}><X size={20} /></button></div>
+        <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-teal-400"><Settings size={20} className="inline mr-1" />{t('settings.title')}</h3><button aria-label={t('plan.close')} onClick={onClose}><X size={20} /></button></div>
         <div className="space-y-3">
           <div className={`${theme.input} rounded-xl border overflow-hidden`}>
             <button onClick={() => setShowAccountMenu(!showAccountMenu)} className={`w-full flex justify-between items-center p-3 ${theme.text}`}>

@@ -14,7 +14,7 @@ export default function ProfilePage({ theme, pagePadding, navPosition, changeNav
 
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.text} ${pagePadding} relative`}>
-      <button onClick={() => setShowSettings(true)} className={`absolute ${navPosition === 'top' ? 'top-16' : 'top-2'} ${navPosition === 'right' ? 'right-20' : 'right-4'} p-2 ${theme.input} rounded-xl border z-10`}><Settings size={20} className="text-teal-400" /></button>
+      <button aria-label={t('settings.title')} onClick={() => setShowSettings(true)} className={`absolute ${navPosition === 'top' ? 'top-16' : 'top-2'} ${navPosition === 'right' ? 'right-20' : 'right-4'} p-2 ${theme.input} rounded-xl border z-10`}><Settings size={20} className="text-teal-400" /></button>
       <div className="text-center py-2"><Logo size="sm" centered /></div>
       <div className="flex flex-col items-center mb-6">
         <span className="text-6xl mb-2">{userData?.avatar || '🐟'}</span>

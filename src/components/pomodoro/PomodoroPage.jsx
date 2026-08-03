@@ -13,7 +13,6 @@ const isNativeApp = Capacitor.isNativePlatform();
 
 const PomodoroPage = memo(({
   theme, pagePadding,
-  notification, setNotification,
   notifications, setNotifications,
   workMins, breakMins, timeLeft,
   isRunning, isOnBreak, isFreeMode,
@@ -64,21 +63,6 @@ const PomodoroPage = memo(({
           {notifications ? <Bell size={18} /> : <BellOff size={18} />}
         </button>
       </div>
-
-
-      {notification && (() => {
-        const isError   = notification.includes('kesildi') || notification.includes('çıkarıl');
-        const isSuccess = notification.includes('senkronize') || notification.includes('kaydedildi') || notification.includes('✅');
-        const bgColor   = isError ? 'bg-red-600/90' : isSuccess ? 'bg-emerald-600/90' : 'bg-slate-700/90';
-        return (
-          <div
-            className={`${bgColor} rounded-xl p-3 mb-4 text-white text-sm text-center animate-fade-in cursor-pointer backdrop-blur-sm`}
-            onClick={() => setNotification(null)}
-          >
-            {notification}
-          </div>
-        );
-      })()}
 
       {/* Preset Seçimi */}
       <div className="flex justify-center gap-2 mb-4">

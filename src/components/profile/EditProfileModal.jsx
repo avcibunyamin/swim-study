@@ -39,7 +39,7 @@ export default function EditProfileModal({ theme, userData, setUserData, onClose
       <div className={`${theme.modal} rounded-2xl p-5 w-full max-w-md border border-slate-600`} onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-bold text-teal-400">{t('settings.editProfile')}</h3>
-          <button onClick={onClose}><X size={20} /></button>
+          <button aria-label={t('plan.close')} onClick={onClose}><X size={20} /></button>
         </div>
 
         {success && (
