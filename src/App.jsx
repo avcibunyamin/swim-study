@@ -129,14 +129,21 @@ export default function SwimApp() {
   const firstDay    = new Date(year, month, 1).getDay(); // ham JS değeri, PlanPage içinde weekStart'a göre offset uygulanıyor
 
   // Nav konfigürasyonu
+  //
+  // COL: içerik sütununu sınırla ve ortala. Telefonda (375px) etkisi yok,
+  // ekran zaten dar. iPad ve Mac'te ise bu olmadan kartlar 1000px+ genişliğe
+  // yayılıyor ve uygulama gerilmiş bir telefon arayüzü gibi duruyor —
+  // Apple'ın iPad uygulamalarında geri çevirme sebeplerinden biri.
+  // Zemin dıştaki kapsayıcıda olduğu için burada sınırlamak arka planı bozmaz.
+  const COL = 'max-w-2xl mx-auto w-full';
   const isVerticalNav = !isNative && (navPosition === 'left' || navPosition === 'right');
   const navConfig = useMemo(() => {
-    if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-32 px-4 pt-2', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
+    if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: `pb-32 px-4 pt-2 ${COL}`, timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
     const c = {
-      bottom: { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pb-24 p-4', timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false },
-      top:    { navCls: 'fixed top-0 inset-x-0 border-b',   innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: 'pt-20 px-4 pb-4', timerCls: 'absolute -bottom-8 left-1/2 -translate-x-1/2', vertical: false },
-      left:   { navCls: 'fixed left-0 inset-y-0 border-r w-16', innerCls: 'flex flex-col items-center justify-center gap-1 h-full', pagePad: 'pl-20 px-4 pb-4', timerCls: 'absolute -right-16 top-2 whitespace-nowrap', vertical: true },
-      right:  { navCls: 'fixed right-0 inset-y-0 border-l w-16', innerCls: 'flex flex-col items-center justify-center gap-1 h-full', pagePad: 'pr-20 px-4 pb-4', timerCls: 'absolute -left-16 top-2 whitespace-nowrap', vertical: true },
+      bottom: { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: `pb-24 p-4 ${COL}`, timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false },
+      top:    { navCls: 'fixed top-0 inset-x-0 border-b',   innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: `pt-20 px-4 pb-4 ${COL}`, timerCls: 'absolute -bottom-8 left-1/2 -translate-x-1/2', vertical: false },
+      left:   { navCls: 'fixed left-0 inset-y-0 border-r w-16', innerCls: 'flex flex-col items-center justify-center gap-1 h-full', pagePad: `pl-20 px-4 pb-4 ${COL}`, timerCls: 'absolute -right-16 top-2 whitespace-nowrap', vertical: true },
+      right:  { navCls: 'fixed right-0 inset-y-0 border-l w-16', innerCls: 'flex flex-col items-center justify-center gap-1 h-full', pagePad: `pr-20 px-4 pb-4 ${COL}`, timerCls: 'absolute -left-16 top-2 whitespace-nowrap', vertical: true },
     };
     return c[navPosition] || c.bottom;
   }, [navPosition]);
