@@ -103,7 +103,6 @@ export default function SwimApp() {
     sound, setSound, audioRef,
     pausedSessionWorkedRef,
     saveStudyTime,
-    remoteDevice, remoteStart, remotePausedAt, pausedByOffline,
     selectPreset, handleStartStop, handleSkipToBreak,
     handleFinish, confirmAction: pomodoroConfirmAction, handleSliderChange,
   } = pomodoroHook;
@@ -136,7 +135,6 @@ export default function SwimApp() {
   // Apple'ın iPad uygulamalarında geri çevirme sebeplerinden biri.
   // Zemin dıştaki kapsayıcıda olduğu için burada sınırlamak arka planı bozmaz.
   const COL = 'max-w-2xl mx-auto w-full';
-  const isVerticalNav = !isNative && (navPosition === 'left' || navPosition === 'right');
   const navConfig = useMemo(() => {
     if (isNative) return { navCls: 'fixed bottom-0 inset-x-0 border-t', innerCls: 'grid grid-cols-5 max-w-md mx-auto', pagePad: `pb-32 px-4 pt-2 ${COL}`, timerCls: 'absolute -top-8 left-1/2 -translate-x-1/2', vertical: false };
     const c = {
@@ -291,7 +289,6 @@ export default function SwimApp() {
             sound={sound} setSound={setSound} audioRef={audioRef}
             isOnline={isOnline} user={user} getPresetLabel={getPresetLabel}
             studyHistory={studyHistory}
-            remoteDevice={remoteDevice} remoteStart={remoteStart} remotePausedAt={remotePausedAt} pausedByOffline={pausedByOffline}
           />
         )}
         {page === 'performance' && (

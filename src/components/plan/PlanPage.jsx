@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { ChevronLeft, ChevronRight, WifiOff } from 'lucide-react';
 import { useLanguage } from '../../i18n';
+import { localDateStr } from '../../utils/formatters';
 import Logo from '../ui/Logo';
 import PlanModal from './PlanModal';
 
@@ -14,7 +15,9 @@ const PlanPage = memo(({ theme, pagePadding, calDate, setCalDate, plans, savePla
   const firstDay = (rawFirstDay - weekStart + 7) % 7;
   const days = [...Array(firstDay).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
   const ds = d => `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-  const todayStr = new Date().toISOString().split('T')[0];
+  // localDateStr: takvim günleri yerel tarihten üretiliyor, "bugün" de yerel
+  // olmalı — toISOString() UTC verip gece saatlerinde yanlış günü vurgular.
+  const todayStr = localDateStr();
   // Gün başlıklarını weekStart'a göre döndür
   const allCalDays = ta('cal.days') || ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'];
   // cal.days Pt'den başlar (Mon=0), weekStart=0(Pazar) ise Pz'yi başa al

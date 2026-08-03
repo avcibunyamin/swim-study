@@ -108,11 +108,6 @@ export default {
   'pomodoro.cancel': '취소',
   'pomodoro.yes': '예',
   'pomodoro.workInProgress': '작업 진행 중!',
-  'pomodoro.remoteActiveSession': '다른 기기에서 활성 세션 중',
-  'pomodoro.remoteDevice': '이(가) 활성 기기입니다',
-  'pomodoro.remoteStop': '여기서 계속하려면 해당 기기의 세션을 먼저 중단하세요',
-  'pomodoro.waitingConnection': '인터넷 연결 대기 중…',
-  'pomodoro.waitingConnectionDesc': '연결되면 중단된 지점부터 타이머가 재개됩니다',
 
   // --- Confirm (legacy keys) ---
   'confirm.goToBreak': '휴식으로 전환하시겠어요?',

@@ -108,11 +108,6 @@ export default {
   'pomodoro.cancel': 'रद्द करें',
   'pomodoro.yes': 'हाँ',
   'pomodoro.workInProgress': 'कार्य जारी है!',
-  'pomodoro.remoteActiveSession': 'दूसरे डिवाइस पर सक्रिय सत्र',
-  'pomodoro.remoteDevice': 'आपका सक्रिय डिवाइस है',
-  'pomodoro.remoteStop': 'यहाँ जारी रखने के लिए पहले उस डिवाइस पर सत्र रोकें',
-  'pomodoro.waitingConnection': 'इंटरनेट की प्रतीक्षा…',
-  'pomodoro.waitingConnectionDesc': 'कनेक्ट होने पर टाइमर वहीं से शुरू होगा',
 
   // --- Confirm (legacy keys) ---
   'confirm.goToBreak': 'ब्रेक पर जाएँ?',

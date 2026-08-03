@@ -108,11 +108,6 @@ export default {
   'pomodoro.cancel': 'Vazgeç',
   'pomodoro.yes': 'Evet',
   'pomodoro.workInProgress': 'Çalışma devam ediyor!',
-  'pomodoro.remoteActiveSession': 'Başka cihazda aktif oturum',
-  'pomodoro.remoteDevice': 'cihazında çalışıyorsun',
-  'pomodoro.remoteStop': 'Devam etmek için diğer cihazda önce durdur',
-  'pomodoro.waitingConnection': 'İnternet bekleniyor…',
-  'pomodoro.waitingConnectionDesc': 'Bağlantı gelince timer kaldığı yerden devam eder',
 
   // --- Confirm (legacy keys) ---
   'confirm.goToBreak': 'Molaya geç?',

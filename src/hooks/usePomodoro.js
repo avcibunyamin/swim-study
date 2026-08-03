@@ -556,7 +556,6 @@ export default function usePomodoro({
     sound, setSound, audioRef,
     pausedSessionWorkedRef,
     saveStudyTime,
-    remoteDevice: null, remoteStart: null, remotePausedAt: null, pausedByOffline: false,
     selectPreset, handleStartStop, handleSkipToBreak,
     handleFinish, confirmAction, handleSliderChange,
   };

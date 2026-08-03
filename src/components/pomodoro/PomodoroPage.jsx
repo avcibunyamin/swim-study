@@ -1,9 +1,8 @@
 import React, { useState, useEffect, memo } from 'react';
-import { Play, Pause, FastForward, Square, Volume2, CloudRain, Waves, TreePine, WifiOff, Smartphone, Bell, BellOff } from 'lucide-react';
+import { Play, Pause, FastForward, Square, Volume2, CloudRain, Waves, TreePine, WifiOff, Bell, BellOff } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useLanguage } from '../../i18n';
 import { fmt, fmtSecs, localDateStr } from '../../utils/formatters';
-import { serverNow } from '../../utils/serverTime';
 import { applyNotificationSetting } from '../../utils/notifications';
 import Logo from '../ui/Logo';
 import DragSlider from '../ui/DragSlider';
@@ -24,7 +23,6 @@ const PomodoroPage = memo(({
   showConfirm, setShowConfirm, confirmAction,
   sound, setSound, audioRef,
   isOnline, user, studyHistory,
-  remoteDevice, remoteStart, remotePausedAt, pausedByOffline,
 }) => {
   const { t } = useLanguage();
 
@@ -43,49 +41,13 @@ const PomodoroPage = memo(({
   const todaySecs   = (studyHistory || []).find(h => h.date === today)?.secs || 0;
   const displayTime = isFreeMode ? freeTime : timeLeft;
   // Oturum başlatılmışsa (çalışıyor VEYA duraklatılmış) süre ayarlarını kilitle
-  const sessionLocked = isRunning || sessionWorked > 0 || isOnBreak || !!remoteDevice;
+  const sessionLocked = isRunning || sessionWorked > 0 || isOnBreak;
 
   const [displaySessionWorked, setDisplaySessionWorked] = useState(0);
   useEffect(() => {
     if (sessionWorked === 0) setDisplaySessionWorked(0);
     else if (sessionWorked > displaySessionWorked) setDisplaySessionWorked(sessionWorked);
   }, [sessionWorked]);
-
-  // Remote cihazın geçen süresi — pause'da dondurulur, banner'da gösterilmez
-  const [remoteElapsed, setRemoteElapsed] = useState(0);
-  useEffect(() => {
-    if (!remoteStart) { setRemoteElapsed(0); return; }
-    // Pause anı varsa o noktada dondur, yoksa canlı say
-    const endMs = remotePausedAt ? new Date(remotePausedAt).getTime() : null;
-    const calc  = () => Math.floor(((endMs ?? serverNow()) - new Date(remoteStart).getTime()) / 1000);
-    setRemoteElapsed(calc());
-    if (endMs) return; // pause'da interval başlatma — değer sabit
-    const i = setInterval(() => setRemoteElapsed(calc()), 1000);
-    return () => clearInterval(i);
-  }, [remoteStart, remotePausedAt]);
-
-  // Remote session bitince elapsed'ı geçici tut — study_history Realtime'dan todaySecs
-  // güncellenene kadar ekranda sıfır görünmesini önler
-  const [savedRemoteElapsed, setSavedRemoteElapsed] = useState(0);
-  const prevRemoteDeviceRef = React.useRef(null);
-  const prevTodaySecsRef    = React.useRef(todaySecs);
-  useEffect(() => {
-    const wasRemote = prevRemoteDeviceRef.current;
-    prevRemoteDeviceRef.current = remoteDevice;
-    if (wasRemote && !remoteDevice && remoteElapsed > 0) {
-      setSavedRemoteElapsed(remoteElapsed); // session bitti → koru
-    }
-    if (remoteDevice) setSavedRemoteElapsed(0); // yeni session başladı → sıfırla
-  }, [remoteDevice]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (savedRemoteElapsed > 0 && todaySecs > prevTodaySecsRef.current) {
-      setSavedRemoteElapsed(0); // todaySecs güncellendi → artık gerekmez
-    }
-    prevTodaySecsRef.current = todaySecs;
-  }, [todaySecs]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Stopwatch ve bugün için kullanılacak nihai elapsed
-  const effectiveRemoteElapsed = remoteDevice ? remoteElapsed : savedRemoteElapsed;
 
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.text} ${pagePadding}`}>
@@ -160,37 +122,16 @@ const PomodoroPage = memo(({
             <span className={`text-sm ${isOnBreak ? 'text-emerald-400' : 'text-teal-400'}`}>
               {isOnBreak ? t('pomodoro.break') : isFreeMode ? t('pomodoro.free') : t('pomodoro.work')}
             </span>
-            {effectiveRemoteElapsed > 0 ? (
-              <span className={`text-xs ${theme.textMuted} mt-1`}>+{fmtSecs(effectiveRemoteElapsed, t)}</span>
-            ) : sessionWorked > 0 && !isOnBreak ? (
+            {sessionWorked > 0 && !isOnBreak && (
               <span className={`text-xs ${theme.textMuted} mt-1`}>+{fmtSecs(sessionWorked, t)}</span>
-            ) : null}
+            )}
           </div>
         </AquariumTimer>
       </div>
 
-      {/* Kontrol Butonları veya Remote Mode Banner */}
-      {remoteDevice ? (
-        <div className="bg-indigo-900/60 border border-indigo-500/40 rounded-2xl p-5 mb-4 text-center">
-          <div className="flex items-center justify-center gap-2 text-indigo-300 text-sm mb-2">
-            <Smartphone size={16} />
-            <span>{t('pomodoro.remoteActiveSession')}</span>
-          </div>
-          <p className="text-white font-semibold mb-3">
-            <span className="text-indigo-400 font-bold">{remoteDevice}</span> {t('pomodoro.remoteDevice')}
-          </p>
-          <p className="text-indigo-300/70 text-xs">
-            {t('pomodoro.remoteStop')}
-          </p>
-        </div>
-      ) : pausedByOffline ? (
-        <div className="bg-yellow-900/40 border border-yellow-600/40 rounded-2xl p-4 mb-4 text-center">
-          <p className="text-yellow-300 text-sm font-semibold">⏸ {t('pomodoro.waitingConnection')}</p>
-          <p className="text-yellow-300/70 text-xs mt-1">{t('pomodoro.waitingConnectionDesc')}</p>
-        </div>
-      ) : (
-        <div className="flex justify-center gap-2 mb-4 flex-wrap">
-          {!isRunning ? (
+      {/* Kontrol Butonları */}
+      <div className="flex justify-center gap-2 mb-4 flex-wrap">
+        {!isRunning ? (
             <button
               onClick={handleStartStop}
               className="px-6 py-3 rounded-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 text-white"
@@ -212,8 +153,7 @@ const PomodoroPage = memo(({
               </button>
             </>
           )}
-        </div>
-      )}
+      </div>
 
       {/* Süre Ayar Slider'ları */}
       {!isFreeMode && (
@@ -239,7 +179,7 @@ const PomodoroPage = memo(({
       <div className="bg-teal-900/50 rounded-xl p-3 mb-4 border border-teal-500/30 text-center">
         <p className={`text-xs ${theme.textMuted}`}>{t('pomodoro.today')}</p>
         <p className="text-xl font-bold text-teal-400">
-          {fmtSecs(todaySecs + (effectiveRemoteElapsed > 0 ? effectiveRemoteElapsed : (!isOnBreak ? displaySessionWorked : 0)), t)}
+          {fmtSecs(todaySecs + (!isOnBreak ? displaySessionWorked : 0), t)}
         </p>
       </div>
 

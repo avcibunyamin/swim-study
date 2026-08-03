@@ -108,11 +108,6 @@ export default {
   'pomodoro.cancel': 'Annuler',
   'pomodoro.yes': 'Oui',
   'pomodoro.workInProgress': 'Le travail est en cours !',
-  'pomodoro.remoteActiveSession': 'Session active sur un autre appareil',
-  'pomodoro.remoteDevice': 'est ton appareil actif',
-  'pomodoro.remoteStop': 'Arrête la session sur cet appareil pour continuer ici',
-  'pomodoro.waitingConnection': 'En attente d\'internet…',
-  'pomodoro.waitingConnectionDesc': 'Le minuteur reprendra là où il s\'est arrêté une fois connecté',
 
   // --- Confirm (legacy keys) ---
   'confirm.goToBreak': 'Passer en pause ?',

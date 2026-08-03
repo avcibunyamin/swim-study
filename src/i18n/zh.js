@@ -108,11 +108,6 @@ export default {
   'pomodoro.cancel': '取消',
   'pomodoro.yes': '是',
   'pomodoro.workInProgress': '工作进行中！',
-  'pomodoro.remoteActiveSession': '其他设备上有活跃会话',
-  'pomodoro.remoteDevice': '是您的活跃设备',
-  'pomodoro.remoteStop': '请先停止该设备上的会话以在此继续',
-  'pomodoro.waitingConnection': '等待网络连接…',
-  'pomodoro.waitingConnectionDesc': '连接后计时器将从中断处继续',
 
   // --- Confirm (legacy keys) ---
   'confirm.goToBreak': '切换到休息？',
