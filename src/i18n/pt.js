@@ -215,6 +215,7 @@ export default {
   'settings.showStudyTime': 'Deixar amigos verem meu estudo ativo',
   'settings.allowMessagesWhileBusy': 'Receber mensagens enquanto ocupado',
   'settings.notifications': 'Notificações',
+  'settings.liveActivity': 'Notificação do cronômetro',
   'settings.logout': 'Sair',
   'settings.language': 'Idioma',
   'settings.weekStart': 'Início da semana',

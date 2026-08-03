@@ -216,6 +216,8 @@ export default {
   'settings.allowMessagesWhileBusy': 'Meşgulken Mesaj Al',
 
   'settings.notifications': 'Bildirimler',
+
+  'settings.liveActivity': 'Canlı Sayaç Bildirimi',
   'settings.logout': 'Çıkış Yap',
   'settings.language': 'Dil',
   'settings.weekStart':    'Hafta Başlangıcı',

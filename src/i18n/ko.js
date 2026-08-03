@@ -215,6 +215,7 @@ export default {
   'settings.showStudyTime': '친구에게 내 학습 상태 표시',
   'settings.allowMessagesWhileBusy': '바쁠 때 메시지 받기',
   'settings.notifications': '알림',
+  'settings.liveActivity': '실시간 타이머 알림',
   'settings.logout': '로그아웃',
   'settings.language': '언어',
   'settings.weekStart': '주 시작일',

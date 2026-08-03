@@ -78,6 +78,7 @@ export default function SwimApp() {
     currentStreak, longestStreak,
     theme: themeKey, setTheme: setThemeKey, notifications, setNotifications,
     healthTips, setHealthTips,
+    liveActivity, setLiveActivity,
     dailyGoalMins, setDailyGoalMins,
     handleLogout: authLogout, handleDeleteAccount, changeTheme,
     createLocalUser,
@@ -92,7 +93,7 @@ export default function SwimApp() {
   const pomodoroHook = usePomodoro({
     user, isOnline,
     setTotalStudySecs, setStudyHistory, refreshStudyHistory,
-    notifications, healthTips, t,
+    notifications, healthTips, liveActivity, t,
     showToast: (...args) => showToastRef.current?.(...args),
   });
   const {
@@ -314,6 +315,7 @@ export default function SwimApp() {
             themeKey={themeKey} changeTheme={(th) => changeTheme(th)}
             notifications={notifications} setNotifications={setNotifications}
             healthTips={healthTips} setHealthTips={setHealthTips}
+            liveActivity={liveActivity} setLiveActivity={setLiveActivity}
             dailyGoalMins={dailyGoalMins} setDailyGoalMins={setDailyGoalMins}
             showSettings={showSettings} setShowSettings={setShowSettings}
             showEditProfile={showEditProfile} setShowEditProfile={setShowEditProfile}

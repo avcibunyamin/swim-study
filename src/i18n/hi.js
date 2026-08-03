@@ -215,6 +215,7 @@ export default {
   'settings.showStudyTime': 'दोस्तों को मेरी पढ़ाई दिखाएँ',
   'settings.allowMessagesWhileBusy': 'व्यस्त होने पर संदेश प्राप्त करें',
   'settings.notifications': 'सूचनाएँ',
+  'settings.liveActivity': 'लाइव टाइमर सूचना',
   'settings.logout': 'लॉग आउट',
   'settings.language': 'भाषा',
   'settings.weekStart': 'सप्ताह की शुरुआत',

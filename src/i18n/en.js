@@ -217,6 +217,8 @@ export default {
   'settings.allowMessagesWhileBusy': 'Receive Messages While Busy',
 
   'settings.notifications': 'Notifications',
+
+  'settings.liveActivity': 'Live Timer Notification',
   'settings.logout': 'Log Out',
   'settings.language': 'Language',
   'settings.weekStart':    'Week Start',

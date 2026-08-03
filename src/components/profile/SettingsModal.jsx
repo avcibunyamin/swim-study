@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, X, ChevronRight, Palette, Edit3, KeyRound, Trash, ShieldCheck, Heart, Globe, Check, Bell, BellOff, Target } from 'lucide-react';
+import { Settings, X, ChevronRight, Palette, Edit3, KeyRound, Trash, ShieldCheck, Heart, Globe, Check, Bell, BellOff, Target, Timer } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useLanguage } from '../../i18n';
 import { themes } from '../../constants/themes';
@@ -7,7 +7,7 @@ import { applyNotificationSetting } from '../../utils/notifications';
 
 const isNative = Capacitor.isNativePlatform();
 
-export default function SettingsModal({ theme, themeKey, changeTheme, onClose, openEditProfile, openDeleteConfirm, handleLogout, isPasswordUser, weekStart, setWeekStart, notifications, setNotifications, healthTips, setHealthTips, dailyGoalMins, setDailyGoalMins }) {
+export default function SettingsModal({ theme, themeKey, changeTheme, onClose, openEditProfile, openDeleteConfirm, handleLogout, isPasswordUser, weekStart, setWeekStart, notifications, setNotifications, healthTips, setHealthTips, liveActivity, setLiveActivity, dailyGoalMins, setDailyGoalMins }) {
   const { t, lang, setLang } = useLanguage();
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [showLangPicker, setShowLangPicker] = useState(false);
@@ -130,6 +130,26 @@ export default function SettingsModal({ theme, themeKey, changeTheme, onClose, o
               </span>
               <span className={`text-xs px-3 py-1 rounded-full ${notifications ? 'bg-teal-600 text-white' : `${theme.card} ${theme.textMuted}`}`}>
                 {notifications ? t('settings.on') : t('settings.off')}
+              </span>
+            </button>
+          )}
+
+          {/* Canlı sayaç bildirimi toggle (üstteki kalıcı süre bildirimi) */}
+          {isNative && typeof setLiveActivity === 'function' && (
+            <button
+              onClick={() => {
+                const next = !liveActivity;
+                setLiveActivity(next);
+                try { localStorage.setItem('swim_live_activity', String(next)); } catch (_) {}
+              }}
+              className={`w-full p-3 ${theme.input} rounded-xl border flex justify-between items-center`}
+            >
+              <span className="text-sm flex items-center gap-2">
+                <Timer size={16} className={liveActivity ? 'text-teal-400' : theme.textMuted} />
+                {t('settings.liveActivity')}
+              </span>
+              <span className={`text-xs px-3 py-1 rounded-full ${liveActivity ? 'bg-teal-600 text-white' : `${theme.card} ${theme.textMuted}`}`}>
+                {liveActivity ? t('settings.on') : t('settings.off')}
               </span>
             </button>
           )}

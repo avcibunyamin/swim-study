@@ -17,7 +17,7 @@ const TIMER_SNAP_KEY   = 'swim_timer_snap';
 export default function usePomodoro({
   user, isOnline,
   setTotalStudySecs, setStudyHistory,
-  notifications, healthTips = true, t,
+  notifications, healthTips = true, liveActivity = true, t,
   showToast,
 }) {
   const [workMins, setWorkMins]       = useState(() => Number(localStorage.getItem('swim_work_mins'))  || 25);
@@ -225,9 +225,12 @@ export default function usePomodoro({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning, isOnBreak, isFreeMode, workMins, breakMins, notifications, healthTips, user?.id]);
 
-  // ─── iOS Live Activity ────────────────────────────────────────────────────
+  // ─── iOS/Android Live Activity — üstteki canlı sayaç bildirimi ────────────
+  // liveActivity ayarı kapalıysa hiç başlatılmaz. Zaten açıksa kapatılır, böylece
+  // çalışırken ayarı kapatan kullanıcının bildirimi anında kalkar.
   useEffect(() => {
     if (!isNative) return;
+    if (!liveActivity) { endLiveActivity(); return; }
     if (isRunning) {
       // Başlat veya devam et
       startLiveActivity({
@@ -249,11 +252,11 @@ export default function usePomodoro({
         isRunning: false,
       });
     }
-  }, [isRunning]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isRunning, liveActivity]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Work → Break veya mod geçişinde base'i sıfırla (start çağır)
   useEffect(() => {
-    if (!isNative || !isRunning) return;
+    if (!isNative || !isRunning || !liveActivity) return;
     startLiveActivity({
       timeLeft:  isFreeMode ? 0 : timeLeft,
       totalSecs: isFreeMode ? 0 : (isOnBreak ? breakMins * 60 : workMins * 60),
@@ -266,7 +269,7 @@ export default function usePomodoro({
 
   // Serbest modda freeTime'ı her 60sn'de sync et (endDate drift'ini önler)
   useEffect(() => {
-    if (!isNative || !isRunning || !isFreeMode) return;
+    if (!isNative || !isRunning || !isFreeMode || !liveActivity) return;
     if (freeTime % 60 !== 0 || freeTime === 0) return;
     updateLiveActivity({ timeLeft: 0, totalSecs: 0, isOnBreak: false, isFreeMode: true, freeTime, isRunning: true });
   }, [freeTime]); // eslint-disable-line react-hooks/exhaustive-deps

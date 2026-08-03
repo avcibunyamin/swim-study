@@ -215,6 +215,7 @@ export default {
   'settings.showStudyTime': 'Показывать друзьям мою активную учёбу',
   'settings.allowMessagesWhileBusy': 'Получать сообщения во время занятости',
   'settings.notifications': 'Уведомления',
+  'settings.liveActivity': 'Уведомление таймера',
   'settings.logout': 'Выйти',
   'settings.language': 'Язык',
   'settings.weekStart': 'Начало недели',

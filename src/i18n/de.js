@@ -215,6 +215,7 @@ export default {
   'settings.showStudyTime': 'Freunden meine aktive Lernzeit zeigen',
   'settings.allowMessagesWhileBusy': 'Nachrichten empfangen wenn beschäftigt',
   'settings.notifications': 'Benachrichtigungen',
+  'settings.liveActivity': 'Live-Timer-Benachrichtigung',
   'settings.logout': 'Abmelden',
   'settings.language': 'Sprache',
   'settings.weekStart': 'Wochenbeginn',

@@ -7,7 +7,7 @@ import Logo from '../ui/Logo';
 import SettingsModal from './SettingsModal';
 import EditProfileModal from './EditProfileModal';
 
-export default function ProfilePage({ theme, pagePadding, navPosition, changeNavPosition, user, userData, setUserData, totalStudySecs, currentAchievement, currentStreak, longestStreak, showStudyTime, setShowStudyTime, themeKey, changeTheme, notifications, setNotifications, healthTips, setHealthTips, dailyGoalMins, setDailyGoalMins, showSettings, setShowSettings, showEditProfile, setShowEditProfile, showDeleteConfirm, setShowDeleteConfirm, handleLogout, handleDeleteAccount, isOnline, deletePassword, setDeletePassword, weekStart, setWeekStart }) {
+export default function ProfilePage({ theme, pagePadding, navPosition, changeNavPosition, user, userData, setUserData, totalStudySecs, currentAchievement, currentStreak, longestStreak, showStudyTime, setShowStudyTime, themeKey, changeTheme, notifications, setNotifications, healthTips, setHealthTips, liveActivity, setLiveActivity, dailyGoalMins, setDailyGoalMins, showSettings, setShowSettings, showEditProfile, setShowEditProfile, showDeleteConfirm, setShowDeleteConfirm, handleLogout, handleDeleteAccount, isOnline, deletePassword, setDeletePassword, weekStart, setWeekStart }) {
   const { t, ta, lang } = useLanguage();
   const isPasswordUser = false;
   const achievementTitles = ta('achievementTitles') || [];
@@ -63,7 +63,7 @@ export default function ProfilePage({ theme, pagePadding, navPosition, changeNav
         </div>
       </div>
 
-      {showSettings && <SettingsModal theme={theme} themeKey={themeKey} changeTheme={changeTheme} onClose={() => setShowSettings(false)} openEditProfile={() => { setShowSettings(false); setShowEditProfile(true); }} openDeleteConfirm={() => { setShowSettings(false); setShowDeleteConfirm(true); }} handleLogout={handleLogout} isPasswordUser={isPasswordUser} weekStart={weekStart} setWeekStart={setWeekStart} notifications={notifications} setNotifications={setNotifications} healthTips={healthTips} setHealthTips={setHealthTips} dailyGoalMins={dailyGoalMins} setDailyGoalMins={setDailyGoalMins} />}
+      {showSettings && <SettingsModal theme={theme} themeKey={themeKey} changeTheme={changeTheme} onClose={() => setShowSettings(false)} openEditProfile={() => { setShowSettings(false); setShowEditProfile(true); }} openDeleteConfirm={() => { setShowSettings(false); setShowDeleteConfirm(true); }} handleLogout={handleLogout} isPasswordUser={isPasswordUser} weekStart={weekStart} setWeekStart={setWeekStart} notifications={notifications} setNotifications={setNotifications} healthTips={healthTips} setHealthTips={setHealthTips} liveActivity={liveActivity} setLiveActivity={setLiveActivity} dailyGoalMins={dailyGoalMins} setDailyGoalMins={setDailyGoalMins} />}
       {showEditProfile && <EditProfileModal theme={theme} userData={userData} setUserData={setUserData} onClose={() => setShowEditProfile(false)} />}
 
       {showDeleteConfirm && (

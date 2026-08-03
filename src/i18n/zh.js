@@ -215,6 +215,7 @@ export default {
   'settings.showStudyTime': '让好友看到我的学习状态',
   'settings.allowMessagesWhileBusy': '忙碌时接收消息',
   'settings.notifications': '通知',
+  'settings.liveActivity': '实时计时器通知',
   'settings.logout': '退出登录',
   'settings.language': '语言',
   'settings.weekStart': '周起始日',

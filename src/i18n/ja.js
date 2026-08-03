@@ -215,6 +215,7 @@ export default {
   'settings.showStudyTime': 'フレンドに学習状況を表示する',
   'settings.allowMessagesWhileBusy': '取り込み中にメッセージを受け取る',
   'settings.notifications': '通知',
+  'settings.liveActivity': 'ライブタイマー通知',
   'settings.logout': 'ログアウト',
   'settings.language': '言語',
   'settings.weekStart': '週の始まり',
