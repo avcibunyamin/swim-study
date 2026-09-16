@@ -161,9 +161,6 @@ export default {
   'summary.more': 'Du hast {pct}% mehr gelernt als im letzten Zeitraum 🎉',
   'summary.less': 'Du hast {pct}% weniger gelernt als im letzten Zeitraum',
   'summary.same': 'Genauso viel wie im letzten Zeitraum',
-  'goal.title': 'Tagesziel',
-  'goal.off': 'Aus',
-  'goal.reached': 'Tagesziel erreicht! 🎯',
 
   // --- Profile ---
   'profile.titles': 'Titel',

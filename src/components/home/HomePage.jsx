@@ -3,14 +3,12 @@ import { Calendar, Trophy, Heart, Quote, Check, WifiOff, Clock } from 'lucide-re
 import { useLanguage } from '../../i18n';
 import { fmtSecs, localDateStr } from '../../utils/formatters';
 import Logo from '../ui/Logo';
-import DailyGoalBar from '../ui/DailyGoalBar';
 
 const HomePage = memo(({
   theme, pagePadding,
   userData, totalStudySecs,
   currentAchievement, nextAchievement,
   plans, savePlans, isOnline,
-  studyHistory, dailyGoalMins,
 }) => {
   const { t, ta, lang } = useLanguage();
 
@@ -23,7 +21,6 @@ const HomePage = memo(({
   };
   const today = localDateStr();
   const allPlans = plans || [];
-  const todaySecs = (studyHistory || []).find(h => h.date === today)?.secs || 0;
 
   const futurePlans = allPlans
     .filter(p => p.date >= today)
@@ -74,9 +71,6 @@ const HomePage = memo(({
           </div>
         </div>
       </div>
-
-      {/* Günlük hedef */}
-      <DailyGoalBar theme={theme} todaySecs={todaySecs} goalMins={dailyGoalMins} />
 
       {/* Sonraki rozet */}
       {nextAchievement && (

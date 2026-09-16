@@ -79,7 +79,6 @@ export default function SwimApp() {
     theme: themeKey, setTheme: setThemeKey, notifications, setNotifications,
     healthTips, setHealthTips,
     liveActivity, setLiveActivity,
-    dailyGoalMins, setDailyGoalMins,
     handleLogout: authLogout, handleDeleteAccount, changeTheme,
     createLocalUser,
   } = authHook;
@@ -259,7 +258,6 @@ export default function SwimApp() {
             userData={userData} totalStudySecs={totalStudySecs}
             currentAchievement={currentAchievement} nextAchievement={nextAchievement}
             plans={plans} savePlans={savePlans} isOnline={isOnline}
-            studyHistory={studyHistory} dailyGoalMins={dailyGoalMins}
           />
         )}
         {page === 'plan' && (
@@ -316,7 +314,6 @@ export default function SwimApp() {
             notifications={notifications} setNotifications={setNotifications}
             healthTips={healthTips} setHealthTips={setHealthTips}
             liveActivity={liveActivity} setLiveActivity={setLiveActivity}
-            dailyGoalMins={dailyGoalMins} setDailyGoalMins={setDailyGoalMins}
             showSettings={showSettings} setShowSettings={setShowSettings}
             showEditProfile={showEditProfile} setShowEditProfile={setShowEditProfile}
             showDeleteConfirm={showDeleteConfirm} setShowDeleteConfirm={setShowDeleteConfirm}

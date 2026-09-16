@@ -161,9 +161,6 @@ export default {
   'summary.more': 'Tu as étudié {pct}% de plus que la période précédente 🎉',
   'summary.less': 'Tu as étudié {pct}% de moins que la période précédente',
   'summary.same': 'Identique à la période précédente',
-  'goal.title': 'Objectif Quotidien',
-  'goal.off': 'Désactivé',
-  'goal.reached': 'Objectif quotidien atteint ! 🎯',
 
   // --- Profile ---
   'profile.titles': 'Titres',

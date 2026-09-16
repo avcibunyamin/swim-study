@@ -161,9 +161,6 @@ export default {
   'summary.more': 'आपने पिछली अवधि से {pct}% अधिक अध्ययन किया 🎉',
   'summary.less': 'आपने पिछली अवधि से {pct}% कम अध्ययन किया',
   'summary.same': 'पिछली अवधि के समान',
-  'goal.title': 'दैनिक लक्ष्य',
-  'goal.off': 'बंद',
-  'goal.reached': 'दैनिक लक्ष्य पूरा हुआ! 🎯',
 
   // --- Profile ---
   'profile.titles': 'उपाधियाँ',

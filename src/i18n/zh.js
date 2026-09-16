@@ -161,9 +161,6 @@ export default {
   'summary.more': '比上一周期多学习了 {pct}% 🎉',
   'summary.less': '比上一周期少学习了 {pct}%',
   'summary.same': '与上一周期持平',
-  'goal.title': '每日目标',
-  'goal.off': '关闭',
-  'goal.reached': '今日目标已完成！ 🎯',
 
   // --- Profile ---
   'profile.titles': '头衔',

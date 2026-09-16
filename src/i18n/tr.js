@@ -161,9 +161,6 @@ export default {
   'summary.more': 'Önceki döneme göre %{pct} daha fazla çalıştın 🎉',
   'summary.less': 'Önceki döneme göre %{pct} daha az çalıştın',
   'summary.same': 'Önceki dönemle aynı seviyedesin',
-  'goal.title': 'Günlük Hedef',
-  'goal.off': 'Kapalı',
-  'goal.reached': 'Günlük hedefine ulaştın! 🎯',
 
   // --- Profile ---
   'profile.titles': 'Unvanlar',

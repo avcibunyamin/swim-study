@@ -11,7 +11,7 @@
     "cap:sync": "vite build && npx cap sync",
     "cap:android": "vite build && npx cap sync android && npx cap open android",
     "cap:ios": "vite build && npx cap sync ios && npx cap open ios",
-    "deploy:web": "vite build && firebase deploy --only hosting"
+    "android:release": "vite build && npx cap sync android && cd android && ./gradlew bundleRelease"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.2",
