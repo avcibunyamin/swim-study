@@ -11,7 +11,8 @@
     "cap:sync": "vite build && npx cap sync",
     "cap:android": "vite build && npx cap sync android && npx cap open android",
     "cap:ios": "vite build && npx cap sync ios && npx cap open ios",
-    "android:release": "vite build && npx cap sync android && cd android && ./gradlew bundleRelease"
+    "android:release": "vite build && npx cap sync android && cd android && ./gradlew bundleRelease",
+    "ios:release": "vite build && npx cap sync ios && xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' -archivePath build/SWIM.xcarchive -allowProvisioningUpdates archive"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.2",

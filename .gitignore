@@ -8,6 +8,7 @@ android/keystore.properties
 
 # Build
 dist/
+build/
 
 # Capacitor build artifacts (API key'ler gömülü olabilir)
 android/app/build/

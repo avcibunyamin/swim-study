@@ -163,7 +163,7 @@ export default {
   'summary.same': 'Önceki dönemle aynı seviyedesin',
 
   // --- Profile ---
-  'profile.titles': 'Unvanlar',
+  'profile.titles': 'Ünvanlar',
   'profile.about': 'Hakkında',
   'profile.aboutPlaceholder': 'Kendinden bahset...',
   'profile.avatar': 'Avatar',

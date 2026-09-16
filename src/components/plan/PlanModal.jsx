@@ -53,7 +53,6 @@ export default function PlanModal({ theme, selDate, plans, savePlans, onClose, w
   const inputRef    = useRef(null);
   const timeInputRef = useRef(null);
   const modalRef     = useRef(null);
-  const [availH, setAvailH] = useState(window.innerHeight);
 
   // Mobilde otomatik focus klavyeyi açıp modalı aşağı iter — sadece desktop'ta focus ver
   useEffect(() => {
@@ -61,13 +60,28 @@ export default function PlanModal({ theme, selDate, plans, savePlans, onClose, w
     if (!isTouch) inputRef.current?.focus();
   }, []);
 
-  // visualViewport ile gerçek kullanılabilir yüksekliği takip et (klavye dahil)
+  // Klavye açılırken visualViewport her karede resize fırlatır. Yüksekliği state
+  // yerine CSS değişkenine yazıyoruz: React hiç re-render olmaz, sadece tarayıcı
+  // layout'u güncellenir. rAF ile de kare başına tek güncelleme garanti edilir.
   useEffect(() => {
     const vv = window.visualViewport;
-    if (!vv) return;
-    const update = () => setAvailH(vv.height);
-    vv.addEventListener('resize', update);
-    return () => vv.removeEventListener('resize', update);
+    const root = document.documentElement;
+    const write = (px) => root.style.setProperty('--avail-h', `${px}px`);
+    if (!vv) { write(window.innerHeight); return; }
+
+    let raf = 0;
+    const update = () => { raf = 0; write(vv.height); };
+    const onChange = () => { if (!raf) raf = requestAnimationFrame(update); };
+
+    update();
+    vv.addEventListener('resize', onChange);
+    vv.addEventListener('scroll', onChange);
+    return () => {
+      vv.removeEventListener('resize', onChange);
+      vv.removeEventListener('scroll', onChange);
+      if (raf) cancelAnimationFrame(raf);
+      root.style.removeProperty('--avail-h');
+    };
   }, []);
 
   const openTimePicker = () => {
@@ -139,11 +153,11 @@ export default function PlanModal({ theme, selDate, plans, savePlans, onClose, w
 
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div ref={modalRef} className={`${theme.modal} rounded-2xl p-5 w-full max-w-md border border-slate-600 flex flex-col overflow-y-auto`} style={{ maxHeight: Math.floor(availH * 0.85) + 'px' }} onClick={e => e.stopPropagation()}>
+      <div ref={modalRef} className={`${theme.modal} rounded-2xl p-5 w-full max-w-md border border-slate-600 flex flex-col overflow-y-auto`} style={{ maxHeight: 'calc(var(--avail-h, 100vh) * 0.85)' }} onClick={e => e.stopPropagation()}>
         <h3 className="font-bold text-teal-400 mb-3 flex-shrink-0">{formatSelDate(selDate, lang, t)} ({dayPlans.length})</h3>
 
         {/* Plan listesi */}
-        <div className="overflow-y-auto mb-3 min-h-0" style={{ maxHeight: Math.floor(availH * 0.3) + 'px' }}>
+        <div className="overflow-y-auto mb-3 min-h-0" style={{ maxHeight: 'calc(var(--avail-h, 100vh) * 0.3)' }}>
           {dayPlans.map(p => {
             const siblings = p.repeatId ? plans.filter(pl => pl.repeatId === p.repeatId) : [];
             const isRecurring = siblings.length > 1;
@@ -181,7 +195,6 @@ export default function PlanModal({ theme, selDate, plans, savePlans, onClose, w
             value={title}
             onChange={e => { if (e.target.value.length <= 100) setTitle(e.target.value); }}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); add(); } }}
-            onFocus={() => setTimeout(() => inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300)}
             className={`w-full ${theme.input} rounded-lg p-3 text-sm outline-none border ${theme.text} resize-none`}
             rows={2} maxLength={100}
           />

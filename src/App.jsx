@@ -164,7 +164,7 @@ export default function SwimApp() {
     let sub;
     (async () => {
       sub = await Keyboard.addListener('keyboardDidShow', () => {
-        document.activeElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.activeElement?.scrollIntoView({ behavior: 'auto', block: 'center' });
       });
     })();
     return () => { sub?.remove(); };
