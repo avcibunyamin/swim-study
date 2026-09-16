@@ -7,7 +7,7 @@ import Logo from '../ui/Logo';
 import SettingsModal from './SettingsModal';
 import EditProfileModal from './EditProfileModal';
 
-export default function ProfilePage({ theme, pagePadding, navPosition, changeNavPosition, user, userData, setUserData, totalStudySecs, currentAchievement, currentStreak, longestStreak, showStudyTime, setShowStudyTime, themeKey, changeTheme, notifications, setNotifications, healthTips, setHealthTips, liveActivity, setLiveActivity, showSettings, setShowSettings, showEditProfile, setShowEditProfile, showDeleteConfirm, setShowDeleteConfirm, handleLogout, handleDeleteAccount, isOnline, deletePassword, setDeletePassword, weekStart, setWeekStart }) {
+export default function ProfilePage({ theme, pagePadding, navPosition, changeNavPosition, user, userData, setUserData, totalStudySecs, currentAchievement, currentStreak, longestStreak, showStudyTime, setShowStudyTime, themeKey, changeTheme, healthTips, setHealthTips, liveActivity, setLiveActivity, nudges, setNudges, showSettings, setShowSettings, showEditProfile, setShowEditProfile, showDeleteConfirm, setShowDeleteConfirm, handleLogout, handleDeleteAccount, isOnline, deletePassword, setDeletePassword, weekStart, setWeekStart }) {
   const { t, ta, lang } = useLanguage();
   const isPasswordUser = false;
   const achievementTitles = ta('achievementTitles') || [];
@@ -63,7 +63,7 @@ export default function ProfilePage({ theme, pagePadding, navPosition, changeNav
         </div>
       </div>
 
-      {showSettings && <SettingsModal theme={theme} themeKey={themeKey} changeTheme={changeTheme} onClose={() => setShowSettings(false)} openEditProfile={() => { setShowSettings(false); setShowEditProfile(true); }} openDeleteConfirm={() => { setShowSettings(false); setShowDeleteConfirm(true); }} handleLogout={handleLogout} isPasswordUser={isPasswordUser} weekStart={weekStart} setWeekStart={setWeekStart} notifications={notifications} setNotifications={setNotifications} healthTips={healthTips} setHealthTips={setHealthTips} liveActivity={liveActivity} setLiveActivity={setLiveActivity} />}
+      {showSettings && <SettingsModal theme={theme} themeKey={themeKey} changeTheme={changeTheme} onClose={() => setShowSettings(false)} openEditProfile={() => { setShowSettings(false); setShowEditProfile(true); }} openDeleteConfirm={() => { setShowSettings(false); setShowDeleteConfirm(true); }} handleLogout={handleLogout} isPasswordUser={isPasswordUser} weekStart={weekStart} setWeekStart={setWeekStart} healthTips={healthTips} setHealthTips={setHealthTips} liveActivity={liveActivity} setLiveActivity={setLiveActivity} nudges={nudges} setNudges={setNudges} />}
       {showEditProfile && <EditProfileModal theme={theme} userData={userData} setUserData={setUserData} onClose={() => setShowEditProfile(false)} />}
 
       {showDeleteConfirm && (

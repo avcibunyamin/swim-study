@@ -212,7 +212,7 @@ export default {
   'settings.showStudyTime': 'Aktif çalışmamı arkadaşlar görsün',
   'settings.allowMessagesWhileBusy': 'Meşgulken Mesaj Al',
 
-  'settings.notifications': 'Bildirimler',
+  'settings.nudges': 'Dürtme Bildirimleri',
 
   'settings.liveActivity': 'Canlı Sayaç Bildirimi',
   'settings.logout': 'Çıkış Yap',

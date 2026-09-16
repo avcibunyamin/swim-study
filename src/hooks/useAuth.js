@@ -133,6 +133,7 @@ export default function useAuth() {
   const [longestStreak, setLongestStreak] = useState(0);
   const [theme, setTheme]             = useState('dark');
   const [notifications, setNotifications] = useState(true);
+  const [nudges, setNudges] = useState(false); // seri hatırlatmaları — varsayılan kapalı
   const [healthTips, setHealthTips] = useState(true);
   const [liveActivity, setLiveActivity] = useState(true); // üstteki canlı sayaç bildirimi
 
@@ -167,6 +168,9 @@ export default function useAuth() {
     const notif = localStorage.getItem('swim_notifications');
     if (notif !== null) setNotifications(notif === 'true');
 
+    const nudge = localStorage.getItem('swim_nudges');
+    if (nudge !== null) setNudges(nudge === 'true');
+
     const tips = localStorage.getItem('swim_health_tips');
     if (tips !== null) setHealthTips(tips === 'true');
 
@@ -187,12 +191,14 @@ export default function useAuth() {
     // Bugün yeterince çalışıldıysa hatırlatmaları iptal et, yoksa zamanla
     const today = localDateStr();
     const todaySecs = studyHistory.find(h => h.date === today)?.secs || 0;
-    if (todaySecs >= STREAK_MIN_SECS) {
+    // Dürtme bildirimleri kapalıysa hiç zamanlanmaz; kapatıldığı anda da
+    // zaten kuyruğa girmiş olanlar iptal edilir.
+    if (!nudges || todaySecs >= STREAK_MIN_SECS) {
       cancelStreakReminders();
     } else if (current >= 1) {
       scheduleStreakReminders(studyHistory, current);
     }
-  }, [studyHistory, user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [studyHistory, user?.id, nudges]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Persist totalStudySecs ──────────────────────────────────────────────────
   useEffect(() => {
@@ -287,6 +293,7 @@ export default function useAuth() {
     showStudyTime, setShowStudyTime,
     currentStreak, longestStreak,
     theme, setTheme, notifications, setNotifications,
+    nudges, setNudges,
     healthTips, setHealthTips,
     liveActivity, setLiveActivity,
     handleLogout, handleDeleteAccount, changeTheme, retryLoad,

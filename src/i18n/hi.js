@@ -211,7 +211,7 @@ export default {
   'settings.theme_dark': 'डार्क',
   'settings.showStudyTime': 'दोस्तों को मेरी पढ़ाई दिखाएँ',
   'settings.allowMessagesWhileBusy': 'व्यस्त होने पर संदेश प्राप्त करें',
-  'settings.notifications': 'सूचनाएँ',
+  'settings.nudges': 'अनुस्मारक सूचनाएं',
   'settings.liveActivity': 'लाइव टाइमर सूचना',
   'settings.logout': 'लॉग आउट',
   'settings.language': 'भाषा',

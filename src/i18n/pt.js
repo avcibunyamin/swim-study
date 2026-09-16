@@ -211,7 +211,7 @@ export default {
   'settings.theme_dark': 'Escuro',
   'settings.showStudyTime': 'Deixar amigos verem meu estudo ativo',
   'settings.allowMessagesWhileBusy': 'Receber mensagens enquanto ocupado',
-  'settings.notifications': 'Notificações',
+  'settings.nudges': 'Lembretes',
   'settings.liveActivity': 'Notificação do cronômetro',
   'settings.logout': 'Sair',
   'settings.language': 'Idioma',

@@ -213,7 +213,7 @@ export default {
   'settings.showStudyTime': 'Let friends see my active study',
   'settings.allowMessagesWhileBusy': 'Receive Messages While Busy',
 
-  'settings.notifications': 'Notifications',
+  'settings.nudges': 'Nudge Reminders',
 
   'settings.liveActivity': 'Live Timer Notification',
   'settings.logout': 'Log Out',

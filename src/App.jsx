@@ -77,6 +77,7 @@ export default function SwimApp() {
     showStudyTime, setShowStudyTime,
     currentStreak, longestStreak,
     theme: themeKey, setTheme: setThemeKey, notifications, setNotifications,
+    nudges, setNudges,
     healthTips, setHealthTips,
     liveActivity, setLiveActivity,
     handleLogout: authLogout, handleDeleteAccount, changeTheme,
@@ -311,9 +312,9 @@ export default function SwimApp() {
             currentStreak={currentStreak} longestStreak={longestStreak}
             showStudyTime={showStudyTime} setShowStudyTime={setShowStudyTime}
             themeKey={themeKey} changeTheme={(th) => changeTheme(th)}
-            notifications={notifications} setNotifications={setNotifications}
             healthTips={healthTips} setHealthTips={setHealthTips}
             liveActivity={liveActivity} setLiveActivity={setLiveActivity}
+            nudges={nudges} setNudges={setNudges}
             showSettings={showSettings} setShowSettings={setShowSettings}
             showEditProfile={showEditProfile} setShowEditProfile={setShowEditProfile}
             showDeleteConfirm={showDeleteConfirm} setShowDeleteConfirm={setShowDeleteConfirm}

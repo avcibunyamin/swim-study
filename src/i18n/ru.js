@@ -211,7 +211,7 @@ export default {
   'settings.theme_dark': 'Тёмная',
   'settings.showStudyTime': 'Показывать друзьям мою активную учёбу',
   'settings.allowMessagesWhileBusy': 'Получать сообщения во время занятости',
-  'settings.notifications': 'Уведомления',
+  'settings.nudges': 'Напоминания',
   'settings.liveActivity': 'Уведомление таймера',
   'settings.logout': 'Выйти',
   'settings.language': 'Язык',

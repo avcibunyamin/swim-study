@@ -211,7 +211,7 @@ export default {
   'settings.theme_dark': 'Sombre',
   'settings.showStudyTime': 'Laisser les amis voir mon étude active',
   'settings.allowMessagesWhileBusy': 'Recevoir des messages quand je suis occupé',
-  'settings.notifications': 'Notifications',
+  'settings.nudges': 'Rappels',
   'settings.liveActivity': 'Notification du minuteur',
   'settings.logout': 'Se déconnecter',
   'settings.language': 'Langue',
