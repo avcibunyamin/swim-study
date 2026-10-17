@@ -33,7 +33,7 @@ Kişisel gelişim ve çalışma takip uygulaması.
 - Takvim görünümü
 
 ### 🌍 Çoklu Dil
-10 dil desteği, tarayıcı diline göre otomatik seçim:
+11 dil desteği, tarayıcı diline göre otomatik seçim:
 Türkçe, İngilizce, Almanca, İspanyolca, Fransızca, Portekizce, Rusça, Japonca,
 Korece, Çince, Hintçe
 
